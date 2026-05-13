@@ -2879,13 +2879,12 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         }
 
         if (!finalFirmaBase64) {
-            throw new Error(
-                currentSignatureType === 'manual'
-                    ? 'La firma manual es obligatoria.'
-                    : currentSignatureType === 'archivo'
-                        ? 'Debe seleccionar una imagen.'
-                        : 'Debe capturar una foto.'
-            );
+            const msg = currentSignatureType === 'manual'
+                ? 'La firma manual es obligatoria.'
+                : (currentSignatureType === 'archivo'
+                    ? 'Debe seleccionar una imagen.'
+                    : 'Debe capturar una foto.');
+            throw new Error(msg);
         }
 
         if (!p.visitas) p.visitas = [];
@@ -2959,6 +2958,7 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         submitBtn.style.opacity = '1';
     }
 });
+
 function renderVisitas() {
     const list = document.getElementById('sessionsList');
     if (!list) return;
