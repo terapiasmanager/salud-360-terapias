@@ -2824,15 +2824,18 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     const visitaGuardada = await saveVisitaToSupabase(currentPatientId, visitaLocal);
     if (!visitaGuardada) return;
 
-    p.visitas.push(visitaGuardada);
-    p.ultimaVisita = visitaGuardada.fecha.split('-').reverse().join('/');
+   p.visitas.push(visitaGuardada);
+p.ultimaVisita = visitaGuardada.fecha.split('-').reverse().join('/');
 
-    savePatients();
-    renderVisitas();
-    renderTable();
-    closeModal('sessionModal');
-    stopCamera();
-    alert('✅ Visita domiciliaria registrada correctamente.');
+const okPaciente = await savePatientToSupabase(p);
+if (!okPaciente) return;
+
+savePatients();
+renderVisitas();
+renderTable();
+closeModal('sessionModal');
+stopCamera();
+alert('✅ Visita domiciliaria registrada correctamente.');
 });
 
 function renderVisitas() {
@@ -3067,16 +3070,19 @@ async function deleteVisita(num) {
         s.num = idx + 1;
     });
 
-    if (p.visitas.length > 0) {
-        const last = p.visitas[p.visitas.length - 1];
-        p.ultimaVisita = last.fecha.split('-').reverse().join('/');
-    } else {
-        p.ultimaVisita = 'Sin visitas';
-    }
+   if (p.visitas.length > 0) {
+    const last = p.visitas[p.visitas.length - 1];
+    p.ultimaVisita = last.fecha.split('-').reverse().join('/');
+} else {
+    p.ultimaVisita = '';
+}
 
-    savePatients();
-    renderVisitas();
-    renderTable();
+const okPaciente = await savePatientToSupabase(p);
+if (!okPaciente) return;
+
+savePatients();
+renderVisitas();
+renderTable();
 }
 
 // --- RECEPCIÓN DE ARTÍCULOS KINESIOLÓGICOS ---
