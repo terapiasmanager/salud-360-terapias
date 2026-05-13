@@ -2853,86 +2853,106 @@ function captureSignatureToBase64(canvas) {
 
 document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const p = patients.find(x => x.id === currentPatientId);
-    if (!p) return;
 
-    let finalFirmaBase64 = null;
-
-    if (currentSignatureType === 'manual') {
-        finalFirmaBase64 = captureSignatureToBase64(signatureCanvas);
-    } else if (currentSignatureType === 'archivo') {
-        finalFirmaBase64 = fileSignatureBase64;
-    } else if (currentSignatureType === 'camara') {
-        finalFirmaBase64 = cameraSignatureBase64;
+    const submitBtn = e.submitter || document.querySelector('#sessionForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Guardando...';
     }
 
-    if (!finalFirmaBase64) {
-        const msg = currentSignatureType === 'manual'
-            ? 'La firma manual es obligatoria.'
-            : (currentSignatureType === 'archivo'
-                ? 'Debe seleccionar una imagen.'
-                : 'Debe capturar una foto.');
-        alert('⚠️ ' + msg);
-        return;
+    try {
+        const p = patients.find(x => x.id === currentPatientId);
+        if (!p) return;
+
+        let finalFirmaBase64 = null;
+
+        if (currentSignatureType === 'manual') {
+            finalFirmaBase64 = captureSignatureToBase64(signatureCanvas);
+        } else if (currentSignatureType === 'archivo') {
+            finalFirmaBase64 = fileSignatureBase64;
+        } else if (currentSignatureType === 'camara') {
+            finalFirmaBase64 = cameraSignatureBase64;
+        }
+
+        if (!finalFirmaBase64) {
+            const msg = currentSignatureType === 'manual'
+                ? 'La firma manual es obligatoria.'
+                : (currentSignatureType === 'archivo'
+                    ? 'Debe seleccionar una imagen.'
+                    : 'Debe capturar una foto.');
+            alert('⚠️ ' + msg);
+            return;
+        }
+
+        if (!p.visitas) p.visitas = [];
+
+        const nextNum = (p.visitas && p.visitas.length > 0)
+            ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
+            : 1;
+
+        const newVisita = {
+            id: null,
+            num: nextNum,
+            fecha: document.getElementById('sFecha').value,
+            tipo: document.getElementById('sTipo').value,
+            horaI: document.getElementById('sHoraI').value,
+            horaT: document.getElementById('sHoraT').value,
+            objetivo: document.getElementById('sObjetivo').value,
+            actividades: document.getElementById('sActividades').value,
+            obs: document.getElementById('sObs').value,
+            firma: finalFirmaBase64,
+            firmaTipo: currentSignatureType,
+            firmaNombre: document.getElementById('sFirmaNombre').value,
+            firmaRut: document.getElementById('sFirmaRut').value,
+            relacion: document.getElementById('sRelacion').value,
+            profesionalNombre: document.getElementById('sProfesionalNombre').value,
+            profesional: currentProfesional
+        };
+
+        const visitaGuardada = await syncVisitaToSupabase(newVisita, p.id);
+        if (!visitaGuardada) return;
+
+        const visitaFinal = {
+            id: visitaGuardada.id,
+            num: visitaGuardada.num,
+            fecha: visitaGuardada.fecha,
+            tipo: visitaGuardada.tipo,
+            horaI: visitaGuardada.hora_inicio,
+            horaT: visitaGuardada.hora_termino,
+            objetivo: visitaGuardada.objetivo,
+            actividades: visitaGuardada.actividades,
+            obs: visitaGuardada.observaciones,
+            firma: visitaGuardada.firma,
+            firmaTipo: currentSignatureType,
+            firmaNombre: visitaGuardada.firma_nombre,
+            firmaRut: visitaGuardada.firma_rut,
+            relacion: visitaGuardada.relacion,
+            profesionalNombre: visitaGuardada.profesional_nombre,
+            profesional: visitaGuardada.profesional_area
+        };
+
+        p.visitas.push(visitaFinal);
+
+        const okUltima = await actualizarUltimaVisitaPaciente(p);
+        if (!okUltima) return;
+
+        savePatients();
+
+        alert('✅ Visita domiciliaria registrada correctamente.');
+
+        renderVisitas();
+        renderTable();
+        closeModal('sessionModal');
+        stopCamera();
+    } catch (error) {
+        console.error('Error final en submit de visita:', error);
+        alert('❌ La visita se guardó parcialmente o hubo un error al actualizar la interfaz.');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✅ Registrar Visita';
+        }
     }
-
-    if (!p.visitas) p.visitas = [];
-
-    const nextNum = (p.visitas && p.visitas.length > 0)
-        ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
-        : 1;
-
-    const newVisita = {
-        id: null,
-        num: nextNum,
-        fecha: document.getElementById('sFecha').value,
-        tipo: document.getElementById('sTipo').value,
-        horaI: document.getElementById('sHoraI').value,
-        horaT: document.getElementById('sHoraT').value,
-        objetivo: document.getElementById('sObjetivo').value,
-        actividades: document.getElementById('sActividades').value,
-        obs: document.getElementById('sObs').value,
-        firma: finalFirmaBase64,
-        firmaTipo: currentSignatureType,
-        firmaNombre: document.getElementById('sFirmaNombre').value,
-        firmaRut: document.getElementById('sFirmaRut').value,
-        relacion: document.getElementById('sRelacion').value,
-        profesionalNombre: document.getElementById('sProfesionalNombre').value,
-        profesional: currentProfesional
-    };
-
-    const visitaGuardada = await syncVisitaToSupabase(newVisita, p.id);
-    if (!visitaGuardada) return;
-
-    const visitaFinal = {
-    id: visitaGuardada.id,
-    num: visitaGuardada.num,
-    fecha: visitaGuardada.fecha,
-    tipo: visitaGuardada.tipo,
-    horaI: visitaGuardada.hora_inicio,
-    horaT: visitaGuardada.hora_termino,
-    objetivo: visitaGuardada.objetivo,
-    actividades: visitaGuardada.actividades,
-    obs: visitaGuardada.observaciones,
-    firma: visitaGuardada.firma,
-    firmaTipo: currentSignatureType,
-    firmaNombre: visitaGuardada.firma_nombre,
-    firmaRut: visitaGuardada.firma_rut,
-    relacion: visitaGuardada.relacion,
-    profesionalNombre: visitaGuardada.profesional_nombre,
-    profesional: visitaGuardada.profesional_area
-};
-    p.visitas.push(visitaFinal);
-
-    const okUltima = await actualizarUltimaVisitaPaciente(p);
-    if (!okUltima) return;
-
-    savePatients();
-    renderVisitas();
-    renderTable();
-    closeModal('sessionModal');
-    stopCamera();
-    alert('✅ Visita domiciliaria registrada correctamente.');
 });
 
 function renderVisitas() {
