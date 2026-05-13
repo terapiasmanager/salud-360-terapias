@@ -813,6 +813,8 @@ async function syncVisitaToSupabase(v, patientId) {
         profesional_nombre: v.profesionalNombre
     };
 
+    console.log("Payload visita:", payload);
+
     const { data, error } = await db
         .from('visitas')
         .insert(payload)
