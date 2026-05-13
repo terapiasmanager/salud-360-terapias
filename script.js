@@ -8,7 +8,7 @@ window.addEventListener('scroll', () => {
 
 // Partículas
 const particlesContainer = document.getElementById('particles');
-if(particlesContainer) {
+if (particlesContainer) {
     for (let i = 0; i < 30; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
@@ -257,15 +257,15 @@ const testYesavage = {
         {
             title: '🧠 Tamizaje de Síntomas Depresivos',
             fields: [
-                { id: 'ys_1',  label: '¿Está básicamente satisfecho con su vida?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
-                { id: 'ys_2',  label: '¿Ha abandonado muchos de sus intereses y actividades?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_3',  label: '¿Siente que su vida está vacía?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_4',  label: '¿Se aburre a menudo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_5',  label: '¿Está de buen humor la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
-                { id: 'ys_6',  label: '¿Tiene miedo a que le vaya a pasar algo malo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_7',  label: '¿Se siente feliz la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
-                { id: 'ys_8',  label: '¿Se siente a menudo impotente?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_9',  label: '¿Prefiere quedarse en casa en lugar de salir y hacer cosas nuevas?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_1', label: '¿Está básicamente satisfecho con su vida?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
+                { id: 'ys_2', label: '¿Ha abandonado muchos de sus intereses y actividades?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_3', label: '¿Siente que su vida está vacía?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_4', label: '¿Se aburre a menudo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_5', label: '¿Está de buen humor la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
+                { id: 'ys_6', label: '¿Tiene miedo a que le vaya a pasar algo malo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_7', label: '¿Se siente feliz la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
+                { id: 'ys_8', label: '¿Se siente a menudo impotente?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_9', label: '¿Prefiere quedarse en casa en lugar de salir y hacer cosas nuevas?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
                 { id: 'ys_10', label: '¿Siente que tiene más problemas de memoria que la mayoría?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
                 { id: 'ys_11', label: '¿Cree que es maravilloso estar vivo ahora?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
                 { id: 'ys_12', label: '¿Se siente bastante inútil tal y como está ahora?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
@@ -291,14 +291,16 @@ const testEvalPsicologica = {
         {
             title: '🔹 I. PRESENTACIÓN Y ENCUADRE DEL PROCESO TERAPÉUTICO',
             fields: [
-                { id: 'ep_encuadre', label: 'Checklist de Presentación', type: 'checkbox', options: [
-                    '1.1 Presentación personal: nombre, profesión y pertenencia al Programa del Adulto Mayor de la Municipalidad de Lo Barnechea.',
-                    '1.2 Explicación del proceso: se realizarán 6 sesiones domiciliarias individuales de apoyo psicológico, con frecuencia semanal y duración mínima de 40 minutos cada una.',
-                    '1.3 Confidencialidad: toda la información compartida es confidencial y sólo se utilizará para el cumplimiento del programa, conforme a la Ley N°19.628. Se exceptúa si existe riesgo para su vida o la de terceros.',
-                    '1.4 Objetivo del proceso: acompañar el bienestar emocional, trabajar las preocupaciones actuales, fortalecer recursos personales y apoyar la participación en las sesiones de Terapia Ocupacional.',
-                    '1.5 Derechos del beneficiario: puede hacer preguntas en cualquier momento, puede pedir pausas y puede finalizar la sesión si lo necesita.',
-                    '1.6 Consentimiento verbal: solicitar al beneficiario que confirme verbalmente su disposición a participar en el proceso.'
-                ] },
+                {
+                    id: 'ep_encuadre', label: 'Checklist de Presentación', type: 'checkbox', options: [
+                        '1.1 Presentación personal: nombre, profesión y pertenencia al Programa del Adulto Mayor de la Municipalidad de Lo Barnechea.',
+                        '1.2 Explicación del proceso: se realizarán 6 sesiones domiciliarias individuales de apoyo psicológico, con frecuencia semanal y duración mínima de 40 minutos cada una.',
+                        '1.3 Confidencialidad: toda la información compartida es confidencial y sólo se utilizará para el cumplimiento del programa, conforme a la Ley N°19.628. Se exceptúa si existe riesgo para su vida o la de terceros.',
+                        '1.4 Objetivo del proceso: acompañar el bienestar emocional, trabajar las preocupaciones actuales, fortalecer recursos personales y apoyar la participación en las sesiones de Terapia Ocupacional.',
+                        '1.5 Derechos del beneficiario: puede hacer preguntas en cualquier momento, puede pedir pausas y puede finalizar la sesión si lo necesita.',
+                        '1.6 Consentimiento verbal: solicitar al beneficiario que confirme verbalmente su disposición a participar en el proceso.'
+                    ]
+                },
                 { id: 'ep_pregunta_proceso', label: '1.7 ¿Tiene alguna pregunta sobre cómo funcionará este proceso?', type: 'textarea' }
             ]
         },
@@ -352,15 +354,15 @@ const testEvalPsicologica = {
         {
             title: '🔹 V. ESCALA YESAVAGE (GDS-15)',
             fields: [
-                { id: 'ys_1',  label: '¿Está básicamente satisfecho con su vida?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
-                { id: 'ys_2',  label: '¿Ha abandonado muchos de sus intereses y actividades?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_3',  label: '¿Siente que su vida está vacía?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_4',  label: '¿Se aburre a menudo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_5',  label: '¿Está de buen humor la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
-                { id: 'ys_6',  label: '¿Tiene miedo a que le vaya a pasar algo malo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_7',  label: '¿Se siente feliz la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
-                { id: 'ys_8',  label: '¿Se siente a menudo impotente?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
-                { id: 'ys_9',  label: '¿Prefiere quedarse en casa en lugar de salir y hacer cosas nuevas?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_1', label: '¿Está básicamente satisfecho con su vida?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
+                { id: 'ys_2', label: '¿Ha abandonado muchos de sus intereses y actividades?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_3', label: '¿Siente que su vida está vacía?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_4', label: '¿Se aburre a menudo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_5', label: '¿Está de buen humor la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
+                { id: 'ys_6', label: '¿Tiene miedo a que le vaya a pasar algo malo?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_7', label: '¿Se siente feliz la mayor parte del tiempo?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
+                { id: 'ys_8', label: '¿Se siente a menudo impotente?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
+                { id: 'ys_9', label: '¿Prefiere quedarse en casa en lugar de salir y hacer cosas nuevas?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
                 { id: 'ys_10', label: '¿Siente que tiene más problemas de memoria que la mayoría?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
                 { id: 'ys_11', label: '¿Cree que es maravilloso estar vivo ahora?', type: 'scored-yesno', yesScore: 0, noScore: 1, required: true },
                 { id: 'ys_12', label: '¿Se siente bastante inútil tal y como está ahora?', type: 'scored-yesno', yesScore: 1, noScore: 0, required: true },
@@ -467,56 +469,76 @@ const testBarthel = {
         {
             title: '🔹 Evaluación Funcional',
             fields: [
-                { id: 'bt_comer', label: '1. Comer', type: 'scored-option-list', options: [
-                    { text: 'Totalmente independiente', score: 10 },
-                    { text: 'Necesita ayuda para cortar carne, el pan, etc.', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true },
-                { id: 'bt_lavarse', label: '2. Lavarse', type: 'scored-option-list', options: [
-                    { text: 'Independiente: entra y sale solo del baño', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true },
-                { id: 'bt_vestirse', label: '3. Vestirse', type: 'scored-option-list', options: [
-                    { text: 'Independiente: capaz de ponerse y quitarse la ropa, abotonarse, atarse los zapatos', score: 10 },
-                    { text: 'Necesita ayuda', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true },
-                { id: 'bt_arreglarse', label: '4. Arreglarse', type: 'scored-option-list', options: [
-                    { text: 'Independiente para lavarse la cara, manos, peinarse, afeitarse, maquillarse, etc.', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true },
-                { id: 'bt_deposiciones', label: '5. Deposiciones (valórese la semana previa)', type: 'scored-option-list', options: [
-                    { text: 'Continencia normal', score: 10 },
-                    { text: 'Ocasionalmente incontinencia o necesita ayuda', score: 5 },
-                    { text: 'Incontinencia', score: 0 }
-                ], required: true },
-                { id: 'bt_miccion', label: '6. Micción (valórese la semana previa)', type: 'scored-option-list', options: [
-                    { text: 'Continencia normal o maneja sonda', score: 10 },
-                    { text: 'Episodio diario o necesita ayuda', score: 5 },
-                    { text: 'Incontinencia', score: 0 }
-                ], required: true },
-                { id: 'bt_retrete', label: '7. Usar el retrete', type: 'scored-option-list', options: [
-                    { text: 'Independiente', score: 10 },
-                    { text: 'Necesita ayuda, pero se limpia solo', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true },
-                { id: 'bt_trasladarse', label: '8. Trasladarse', type: 'scored-option-list', options: [
-                    { text: 'Independiente', score: 15 },
-                    { text: 'Mínima ayuda o supervisión', score: 10 },
-                    { text: 'Gran ayuda, pero se mantiene sentado', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true },
-                { id: 'bt_deambular', label: '9. Deambular', type: 'scored-option-list', options: [
-                    { text: 'Independiente, camina solo 50 metros', score: 15 },
-                    { text: 'Necesita ayuda o supervisión', score: 10 },
-                    { text: 'Independiente en silla de ruedas', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true },
-                { id: 'bt_escalones', label: '10. Escalones', type: 'scored-option-list', options: [
-                    { text: 'Independiente', score: 10 },
-                    { text: 'Necesita ayuda o supervisión', score: 5 },
-                    { text: 'Dependiente', score: 0 }
-                ], required: true }
+                {
+                    id: 'bt_comer', label: '1. Comer', type: 'scored-option-list', options: [
+                        { text: 'Totalmente independiente', score: 10 },
+                        { text: 'Necesita ayuda para cortar carne, el pan, etc.', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_lavarse', label: '2. Lavarse', type: 'scored-option-list', options: [
+                        { text: 'Independiente: entra y sale solo del baño', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_vestirse', label: '3. Vestirse', type: 'scored-option-list', options: [
+                        { text: 'Independiente: capaz de ponerse y quitarse la ropa, abotonarse, atarse los zapatos', score: 10 },
+                        { text: 'Necesita ayuda', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_arreglarse', label: '4. Arreglarse', type: 'scored-option-list', options: [
+                        { text: 'Independiente para lavarse la cara, manos, peinarse, afeitarse, maquillarse, etc.', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_deposiciones', label: '5. Deposiciones (valórese la semana previa)', type: 'scored-option-list', options: [
+                        { text: 'Continencia normal', score: 10 },
+                        { text: 'Ocasionalmente incontinencia o necesita ayuda', score: 5 },
+                        { text: 'Incontinencia', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_miccion', label: '6. Micción (valórese la semana previa)', type: 'scored-option-list', options: [
+                        { text: 'Continencia normal o maneja sonda', score: 10 },
+                        { text: 'Episodio diario o necesita ayuda', score: 5 },
+                        { text: 'Incontinencia', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_retrete', label: '7. Usar el retrete', type: 'scored-option-list', options: [
+                        { text: 'Independiente', score: 10 },
+                        { text: 'Necesita ayuda, pero se limpia solo', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_trasladarse', label: '8. Trasladarse', type: 'scored-option-list', options: [
+                        { text: 'Independiente', score: 15 },
+                        { text: 'Mínima ayuda o supervisión', score: 10 },
+                        { text: 'Gran ayuda, pero se mantiene sentado', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_deambular', label: '9. Deambular', type: 'scored-option-list', options: [
+                        { text: 'Independiente, camina solo 50 metros', score: 15 },
+                        { text: 'Necesita ayuda o supervisión', score: 10 },
+                        { text: 'Independiente en silla de ruedas', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                },
+                {
+                    id: 'bt_escalones', label: '10. Escalones', type: 'scored-option-list', options: [
+                        { text: 'Independiente', score: 10 },
+                        { text: 'Necesita ayuda o supervisión', score: 5 },
+                        { text: 'Dependiente', score: 0 }
+                    ], required: true
+                }
             ]
         },
         {
@@ -602,20 +624,20 @@ const testMMSE = {
                 { id: 'mm_i6a', type: 'info-block', text: '🔸 1. DENOMINACIÓN: Mostrar objetos y preguntar ¿Qué es esto?' },
                 { id: 'mm_l1', label: 'Lápiz', type: 'mmse-row' },
                 { id: 'mm_l2', label: 'Reloj', type: 'mmse-row' },
-                
+
                 { id: 'mm_i6b', type: 'info-block', text: '🔸 2. REPETICIÓN: Repetir frase "Ni sí, ni no, ni pero" o "En un trigal habían 5 perros".' },
                 { id: 'mm_l3', label: 'Repetición correcta', type: 'mmse-row' },
-                
+
                 { id: 'mm_i6c', type: 'info-block', text: '🔸 3. ÓRDENES: "Tome un papel con la mano derecha, dóblelo por la mitad y póngalo en el suelo"' },
                 { id: 'mm_ord', label: 'Ejecución:', type: 'checkbox', options: ['Toma papel (1)', 'Dobla papel (1)', 'Coloca en suelo (1)'] },
                 { id: 'mm_l4', type: 'hidden-score', sourceCheckbox: 'mm_ord', count: true }, // Logic to sum these
 
                 { id: 'mm_i6d', type: 'info-block', text: '🔸 4. LECTURA: Escriba legiblemente en un papel "Cierre los ojos". Pídale que lo lea y haga lo que dice la frase.' },
                 { id: 'mm_l7', label: 'Ejecuta correctamente', type: 'mmse-row' },
-                
+
                 { id: 'mm_i6e', type: 'info-block', text: '🔸 5. ESCRITURA: "Escriba una frase con sentido (con sujeto y predicado)"' },
                 { id: 'mm_l8', label: 'Escritura correcta', type: 'mmse-row' },
-                
+
                 { id: 'mm_i6f', type: 'info-block', text: '🔸 6. PRAXIA: "Dibuje 2 pentágonos intersectados y pida al sujeto que los copie tal cual. Para otorgar un punto deben estar presentes los 10 ángulos y la intersección"' },
                 { id: 'mm_l9', label: 'Copia correcta', type: 'mmse-row' }
             ]
@@ -645,7 +667,7 @@ const testsConfig = {
 async function loadDataFromSupabase() {
     try {
         console.log("Cargando datos desde Supabase...");
-        
+
         // 1. Cargar Pacientes
         const { data: pData, error: pError } = await supabase.from('pacientes').select('*');
         if (pError) throw pError;
@@ -693,19 +715,33 @@ async function savePatients() {
 
 // Función específica para guardar un paciente en Supabase
 async function syncPatientToSupabase(p) {
+    const pData = {
+        nombre: p.nombre,
+        rut: p.rut,
+        edad: p.edad,
+        fecha_nacimiento: p.fechaNacimiento,
+        domicilio: p.domicilio,
+        telefono: p.telefono,
+        ultima_visita: p.ultimaVisita
+    };
+
+    // Si el ID parece un UUID (tiene guiones), lo incluimos para UPDATE
+    // Si no tiene ID o es temporal, dejamos que Supabase genere uno nuevo
+    if (p.id && p.id.includes('-')) {
+        pData.id = p.id;
+    }
+
     const { data, error } = await supabase
         .from('pacientes')
-        .upsert({
-            id: p.id,
-            nombre: p.nombre,
-            rut: p.rut,
-            edad: p.edad,
-            fecha_nacimiento: p.fechaNacimiento,
-            domicilio: p.domicilio,
-            telefono: p.telefono,
-            ultima_visita: p.ultimaVisita
-        });
-    if (error) console.error("Error sincronizando paciente:", error);
+        .upsert(pData)
+        .select();
+
+    if (error) {
+        console.error("Error sincronizando paciente:", error);
+        alert("Error al guardar en Supabase: " + error.message);
+        return null;
+    }
+    return data[0]; // Retorna el paciente con su ID real
 }
 
 async function syncVisitaToSupabase(v, patientId) {
@@ -754,13 +790,13 @@ async function syncEntregaToSupabase(e, patientId) {
 function renderTable(filter = '') {
     const tbody = document.getElementById('patientsList');
     tbody.innerHTML = '';
-    
-    const filtered = patients.filter(p => 
-        p.nombre.toLowerCase().includes(filter.toLowerCase()) || 
+
+    const filtered = patients.filter(p =>
+        p.nombre.toLowerCase().includes(filter.toLowerCase()) ||
         p.rut.toLowerCase().includes(filter.toLowerCase())
     );
-    
-    if(filtered.length === 0) {
+
+    if (filtered.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: var(--text-tertiary);">No se encontraron pacientes registrados.</td></tr>';
         return;
     }
@@ -822,9 +858,9 @@ document.getElementById('pFecha').addEventListener('change', (e) => {
 });
 
 // Guardar Paciente
-document.getElementById('patientForm').addEventListener('submit', (e) => {
+document.getElementById('patientForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('patientId').value || Date.now().toString();
+    const id = document.getElementById('patientId').value;
     const nombre = document.getElementById('pNombre').value;
     const edad = document.getElementById('pEdad').value;
     const rut = document.getElementById('pRut').value;
@@ -832,32 +868,40 @@ document.getElementById('patientForm').addEventListener('submit', (e) => {
     const domicilio = document.getElementById('pDomicilio').value;
     const telefono = document.getElementById('pTelefono').value;
 
-    const pObj = existingIndex >= 0 ? patients[existingIndex] : { id };
-    
-    pObj.nombre = nombre;
-    pObj.edad = edad;
-    pObj.rut = rut;
-    pObj.fechaNacimiento = fechaNav;
-    pObj.domicilio = domicilio;
-    pObj.telefono = telefono;
+    const pObj = {
+        id: id || null,
+        nombre, edad, rut, fechaNacimiento: fechaNav, domicilio, telefono, ultimaVisita: ''
+    };
 
-    if (existingIndex === -1) {
-        pObj.ultimaVisita = '';
-        pObj.visitas = [];
-        pObj.entregas = [];
-        pObj.docs = [];
-        patients.push(pObj);
+    // Guardar en Supabase y obtener el paciente procesado
+    const savedPatient = await syncPatientToSupabase(pObj);
+
+    if (savedPatient) {
+        const existingIndex = patients.findIndex(p => p.id === id);
+        const finalPatient = {
+            ...pObj,
+            id: savedPatient.id, // ID real de DB
+            visitas: existingIndex >= 0 ? patients[existingIndex].visitas : [],
+            entregas: existingIndex >= 0 ? patients[existingIndex].entregas : [],
+            docs: existingIndex >= 0 ? patients[existingIndex].docs : []
+        };
+
+        if (existingIndex >= 0) {
+            patients[existingIndex] = finalPatient;
+        } else {
+            patients.push(finalPatient);
+        }
+
+        savePatients(); // Backup local
+        renderTable();
+        closeModal('patientModal');
+        alert("✅ Paciente guardado correctamente.");
     }
-
-    syncPatientToSupabase(pObj);
-    savePatients();
-    renderTable();
-    closeModal('patientModal');
 });
 
 // Eliminar Paciente
 async function deletePatient(id) {
-    if(confirm('¿Seguro que deseas eliminar a este paciente y todos sus registros? Esta acción no se puede deshacer.')) {
+    if (confirm('¿Seguro que deseas eliminar a este paciente y todos sus registros? Esta acción no se puede deshacer.')) {
         const { error } = await supabase.from('pacientes').delete().eq('id', id);
         if (error) {
             alert("Error al eliminar en Supabase: " + error.message);
@@ -909,10 +953,10 @@ function confirmProfesional() {
     }
     currentProfesional = tempArea;
     currentProfesionalNombre = name;
-    
+
     // Poblar todos los selects del sistema
     updateSystemProfesionalSelects();
-    
+
     closeModal('profesionalModal');
     if (currentPatientId) {
         openFicha(currentPatientId);
@@ -924,7 +968,7 @@ function updateSystemProfesionalSelects() {
     if (sTipo) {
         sTipo.value = currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional';
     }
-    
+
     populateProfesionalDropdown('sProfesionalNombre', currentProfesional);
     populateProfesionalDropdown('artProf', 'terapeuta'); // Los artículos los maneja TO
 }
@@ -932,7 +976,7 @@ function updateSystemProfesionalSelects() {
 function populateProfesionalDropdown(selectId, area) {
     const select = document.getElementById(selectId);
     if (!select) return;
-    
+
     const names = PROFESIONALES_LISTA[area] || [];
     select.innerHTML = '';
     names.forEach(name => {
@@ -941,7 +985,7 @@ function populateProfesionalDropdown(selectId, area) {
         opt.textContent = name;
         select.appendChild(opt);
     });
-    
+
     if (area === currentProfesional && names.includes(currentProfesionalNombre)) {
         select.value = currentProfesionalNombre;
     }
@@ -968,21 +1012,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = document.getElementById('loginUser').value;
             const pass = document.getElementById('loginPass').value;
             const errorEl = document.getElementById('loginError');
-            
+
             const found = users.find(u => u.username === user && u.password === pass);
             if (found) {
                 isAuthenticated = true;
                 currentUser = found;
                 errorEl.style.display = 'none';
                 closeModal('loginModal');
-                
+
                 // Mostrar sección de sistema
                 const systemSection = document.getElementById('sistema');
                 systemSection.style.display = 'block';
-                
+
                 // Ir al sistema
                 setTimeout(() => {
-                    systemSection.scrollIntoView({behavior: 'smooth'});
+                    systemSection.scrollIntoView({ behavior: 'smooth' });
                 }, 300);
             } else {
                 errorEl.style.display = 'block';
@@ -995,13 +1039,13 @@ function logout() {
     isAuthenticated = false;
     currentUser = null;
     document.getElementById('sistema').style.display = 'none';
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     alert('Sesión cerrada correctamente.');
 }
 
 function normalizeName(name) {
     if (!name || typeof name !== 'string') return name;
-    
+
     const exactMatches = {
         "RODE JAVIERA RIFFO MENDOZA": "Rode Javiera Riffo Mendoza",
         "ALEJANDRA ANDREA CONTRERAS VALDÉS": "Alejandra Andrea Contreras Valdés",
@@ -1010,10 +1054,10 @@ function normalizeName(name) {
         "JOSEFA VILCHES": "Josefa Vilches",
         "JACINTA NOGUERA BARTHOU": "Jacinta Noguera Barthou"
     };
-    
+
     const upper = name.toUpperCase().trim().replace(/\s+/g, ' ');
     if (exactMatches[upper]) return exactMatches[upper];
-    
+
     // Capitalización estándar si no está en la lista exacta
     return name.toLowerCase().trim().replace(/\s+/g, ' ')
         .split(' ')
@@ -1047,10 +1091,10 @@ function openFicha(id) {
     const p = patients.find(p => p.id === id);
     const area = currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional';
     const profLabel = `${area}${currentProfesionalNombre ? ' - ' + currentProfesionalNombre : ''}`;
-    
+
     document.getElementById('fNombre').textContent = `${p.nombre} (${profLabel})`;
     document.getElementById('fDetails').innerHTML = `<strong>RUT:</strong> ${p.rut} | <strong>Edad:</strong> ${p.edad || '-'} | <strong>Nacimiento:</strong> ${p.fechaNacimiento} <br> <strong>Domicilio:</strong> ${p.domicilio || '-'}`;
-    
+
     // --- MIGRACIÓN Y SEPARACIÓN DE DATOS (REQUERIMIENTO OBLIGATORIO) ---
     if (!p.visitas) p.visitas = p.sessions || [];
     if (!p.entregas) {
@@ -1069,7 +1113,7 @@ function openFicha(id) {
     // Limpiar y llenar lista de tests
     const testList = document.getElementById('availableTestsList');
     testList.innerHTML = '';
-    
+
     if (plantillasProfesionales[currentProfesional]) {
         plantillasProfesionales[currentProfesional].forEach(test => {
             const btn = document.createElement('button');
@@ -1083,14 +1127,14 @@ function openFicha(id) {
     }
 
     document.getElementById('fichaModal').classList.add('active');
-    currentPatientId = id; 
-    
+    currentPatientId = id;
+
     try {
         renderDocs();
         renderVisitas(); // Antes renderSessions
-        
+
         const infoActa = document.getElementById('patientInfoActa');
-        if(infoActa) {
+        if (infoActa) {
             infoActa.innerHTML = `<strong>Paciente:</strong> ${p.nombre} | <strong>RUT:</strong> ${p.rut} | <strong>Domicilio:</strong> ${p.domicilio}`;
         }
 
@@ -1104,10 +1148,10 @@ function openFicha(id) {
         document.getElementById('prRut').textContent = p.rut;
         document.getElementById('prDireccion').textContent = p.domicilio;
         document.getElementById('prTelefono').textContent = p.telefono || 'No registrado';
-        
+
         renderVisitas();
         renderArticulos();
-    } catch(e) {
+    } catch (e) {
         console.error("Error rendering ficha content:", e);
     }
 }
@@ -1121,34 +1165,34 @@ function openTestForm(testId, draftId = null) {
         alert('Este formulario está en desarrollo.');
         return;
     }
-    
+
     currentTestId = testId;
     const titleEl = document.getElementById('testTitle');
     const subEl = document.getElementById('testSubtitle');
-    if(titleEl) titleEl.textContent = config.title;
-    if(subEl) subEl.textContent = `Especialidad: ${currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional'}`;
-    
+    if (titleEl) titleEl.textContent = config.title;
+    if (subEl) subEl.textContent = `Especialidad: ${currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional'}`;
+
     const container = document.getElementById('testFieldsContainer');
-    if(!container) return;
+    if (!container) return;
     container.innerHTML = '';
-    
+
     // Función auxiliar para renderizar un campo
     function renderField(f, container) {
         const fieldGroup = document.createElement('div');
         fieldGroup.className = 'form-group';
         fieldGroup.id = 'group_' + f.id;
-        
+
         // Lógica condicional inicial (oculto si tiene condición)
         if (f.condition) {
             fieldGroup.style.display = 'none';
         }
-        
+
         const label = document.createElement('label');
         label.textContent = f.label;
         label.style.fontWeight = '600';
         label.style.color = 'var(--primary-700)';
         fieldGroup.appendChild(label);
-        
+
         if (f.type === 'text' || f.type === 'number' || f.type === 'date') {
             const input = document.createElement('input');
             input.type = f.type;
@@ -1190,7 +1234,7 @@ function openTestForm(testId, draftId = null) {
             optDiv.style.flexDirection = 'column'; // Force vertical for clinical checklists
             optDiv.style.gap = '10px';
             optDiv.style.marginTop = '8px';
-            
+
             f.options.forEach(opt => {
                 const wrapper = document.createElement('label');
                 wrapper.className = 'opt-wrapper';
@@ -1204,13 +1248,13 @@ function openTestForm(testId, draftId = null) {
                 wrapper.style.borderRadius = '8px';
                 wrapper.style.background = 'rgba(0,0,0,0.02)';
                 wrapper.style.transition = 'background 0.2s';
-                
+
                 const input = document.createElement('input');
                 input.type = f.type;
                 input.name = f.id;
                 input.value = opt;
                 input.style.marginTop = '3px';
-                
+
                 // Evaluar condicionales en el cambio
                 input.addEventListener('change', () => {
                     evaluateConditions(config);
@@ -1220,11 +1264,11 @@ function openTestForm(testId, draftId = null) {
                     }
                     wrapper.style.background = input.checked ? 'rgba(6, 182, 212, 0.1)' : 'rgba(0,0,0,0.02)';
                 });
-                
+
                 const span = document.createElement('span');
                 span.textContent = opt;
                 span.style.flex = '1';
-                
+
                 wrapper.appendChild(input);
                 wrapper.appendChild(span);
                 optDiv.appendChild(wrapper);
@@ -1238,7 +1282,7 @@ function openTestForm(testId, draftId = null) {
             table.style.width = '100%';
             table.style.borderCollapse = 'collapse';
             table.style.marginTop = '10px';
-            
+
             // Header
             const thead = document.createElement('thead');
             const trHead = document.createElement('tr');
@@ -1248,7 +1292,7 @@ function openTestForm(testId, draftId = null) {
             });
             thead.appendChild(trHead);
             table.appendChild(thead);
-            
+
             // Body
             const tbody = document.createElement('tbody');
             f.rows.forEach(row => {
@@ -1274,7 +1318,7 @@ function openTestForm(testId, draftId = null) {
         } else if (f.type === 'scored-number') {
             // No mostrar label general para scored-number
             label.style.display = 'none';
-            
+
             const inputDiv = document.createElement('div');
             inputDiv.style.display = 'flex';
             inputDiv.style.justifyContent = 'space-between';
@@ -1282,13 +1326,13 @@ function openTestForm(testId, draftId = null) {
             inputDiv.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
             inputDiv.style.paddingBottom = '10px';
             inputDiv.style.marginBottom = '5px';
-            
+
             const textLabel = document.createElement('span');
             textLabel.textContent = f.label;
             textLabel.style.fontSize = '0.9rem';
             textLabel.style.color = 'var(--text-primary)';
             textLabel.style.flex = '1';
-            
+
             const scoreInput = document.createElement('input');
             scoreInput.type = 'number';
             scoreInput.id = f.id;
@@ -1301,9 +1345,9 @@ function openTestForm(testId, draftId = null) {
             scoreInput.style.marginLeft = '15px';
             scoreInput.style.textAlign = 'center';
             scoreInput.placeholder = '0-8';
-            
+
             scoreInput.addEventListener('input', () => calculateTotalScores(config));
-            
+
             inputDiv.appendChild(textLabel);
             inputDiv.appendChild(scoreInput);
             fieldGroup.appendChild(inputDiv);
@@ -1314,7 +1358,7 @@ function openTestForm(testId, draftId = null) {
             optDiv.style.flexDirection = 'column';
             optDiv.style.gap = '8px';
             optDiv.style.marginBottom = '15px';
-            
+
             f.options.forEach(opt => {
                 const wrapper = document.createElement('label');
                 wrapper.style.display = 'flex';
@@ -1322,26 +1366,26 @@ function openTestForm(testId, draftId = null) {
                 wrapper.style.gap = '8px';
                 wrapper.style.fontWeight = '400';
                 wrapper.style.fontSize = '0.9rem';
-                
+
                 const input = document.createElement('input');
                 input.type = 'radio';
                 input.name = f.id + '_radio';
                 input.value = opt;
                 input.required = f.required;
-                
+
                 input.addEventListener('change', () => {
                     const scoreInput = document.getElementById(f.id + '_score');
                     scoreInput.disabled = false;
                     scoreInput.focus();
                     calculateTotalScores(config);
                 });
-                
+
                 wrapper.appendChild(input);
                 wrapper.append(opt);
                 optDiv.appendChild(wrapper);
             });
             fieldGroup.appendChild(optDiv);
-            
+
             const scoreDiv = document.createElement('div');
             scoreDiv.style.display = 'flex';
             scoreDiv.style.alignItems = 'center';
@@ -1349,12 +1393,12 @@ function openTestForm(testId, draftId = null) {
             scoreDiv.style.background = 'rgba(6, 182, 212, 0.05)';
             scoreDiv.style.padding = '10px 15px';
             scoreDiv.style.borderRadius = '8px';
-            
+
             const scoreLabel = document.createElement('label');
             scoreLabel.textContent = 'Ingrese puntaje manual (0-8):';
             scoreLabel.style.fontSize = '0.85rem';
             scoreLabel.style.margin = '0';
-            
+
             const scoreInput = document.createElement('input');
             scoreInput.type = 'number';
             scoreInput.id = f.id + '_score';
@@ -1365,14 +1409,14 @@ function openTestForm(testId, draftId = null) {
             scoreInput.disabled = true;
             scoreInput.style.width = '80px';
             scoreInput.style.padding = '8px';
-            
+
             scoreInput.addEventListener('input', () => calculateTotalScores(config));
-            
+
             scoreDiv.appendChild(scoreLabel);
             scoreDiv.appendChild(scoreInput);
             fieldGroup.appendChild(scoreDiv);
             fieldGroup.style.gridColumn = '1 / -1';
-            
+
         } else if (f.type === 'total-score') {
             const input = document.createElement('input');
             input.type = 'text';
@@ -1507,10 +1551,10 @@ function openTestForm(testId, draftId = null) {
             fieldGroup.style.gridColumn = '1 / -1';
         } else if (f.type === 'scored-option-list') {
             label.style.marginBottom = '12px';
-            
+
             const optGroup = document.createElement('div');
             optGroup.className = 'bt-option-group';
-            
+
             const hiddenScore = document.createElement('input');
             hiddenScore.type = 'hidden';
             hiddenScore.id = f.id;
@@ -1520,7 +1564,7 @@ function openTestForm(testId, draftId = null) {
             f.options.forEach((opt, idx) => {
                 const wrapper = document.createElement('label');
                 wrapper.className = 'bt-option-card';
-                
+
                 const radio = document.createElement('input');
                 radio.type = 'radio';
                 radio.name = f.id + '_opt';
@@ -1589,7 +1633,7 @@ function openTestForm(testId, draftId = null) {
                 const opt = document.createElement('label');
                 opt.className = 'ha-opt';
                 const labels = ['Ausente', 'Leve', 'Moderado', 'Grave', 'Muy grave'];
-                
+
                 const radio = document.createElement('input');
                 radio.type = 'radio';
                 radio.name = f.id + '_val';
@@ -1713,13 +1757,13 @@ function openTestForm(testId, draftId = null) {
             fieldGroup.appendChild(box);
             fieldGroup.style.gridColumn = '1 / -1';
         }
-        
+
         container.appendChild(fieldGroup);
-        
+
         // Listeners adicionales para condicionales en selectores nativos
-        if(f.type === 'select' || f.type === 'text' || f.type === 'number' || f.type === 'date' || f.type === 'textarea') {
+        if (f.type === 'select' || f.type === 'text' || f.type === 'number' || f.type === 'date' || f.type === 'textarea') {
             const el = document.getElementById(f.id);
-            if(el) el.addEventListener('input', () => evaluateConditions(config));
+            if (el) el.addEventListener('input', () => evaluateConditions(config));
         }
     }
 
@@ -1735,13 +1779,13 @@ function openTestForm(testId, draftId = null) {
             secDiv.style.marginTop = '20px';
             secDiv.innerHTML = `<h4 style="color: var(--primary-600); margin: 0;">${sec.title}</h4>`;
             container.appendChild(secDiv);
-            
+
             sec.fields.forEach(f => renderField(f, container));
         });
     } else if (config.fields) {
         config.fields.forEach(f => renderField(f, container));
     }
-    
+
     // Evaluar estado condicional inicial
     evaluateConditions(config);
     calculateTotalScores(config);
@@ -1774,14 +1818,14 @@ function openTestForm(testId, draftId = null) {
             // Solo rellenar si están vacíos (para no sobreescribir si ya se cargó un borrador con datos distintos)
             if (nameField && !nameField.value) nameField.value = p.nombre || '';
             if (dobField && !dobField.value) dobField.value = p.fechaNacimiento || '';
-            
+
             if (ageField && !ageField.value) {
                 const calculatedAge = calculateAge(p.fechaNacimiento);
                 ageField.value = calculatedAge || p.edad || '';
             }
         }
     }
-    
+
     document.getElementById('testModal').classList.add('active');
 }
 
@@ -1820,7 +1864,7 @@ function saveDraft() {
         }
     } else {
         p.docs.unshift(draftObj);
-        currentDraftId = draftObj.id; 
+        currentDraftId = draftObj.id;
     }
 
     savePatients();
@@ -1829,8 +1873,8 @@ function saveDraft() {
 }
 
 function loadDraftData(data, config) {
-    const allFields = config.sections ? 
-        config.sections.reduce((acc, s) => acc.concat(s.fields), []) : 
+    const allFields = config.sections ?
+        config.sections.reduce((acc, s) => acc.concat(s.fields), []) :
         config.fields;
 
     allFields.forEach(f => {
@@ -1847,10 +1891,10 @@ function loadDraftData(data, config) {
             if (rb) { rb.checked = true; rb.dispatchEvent(new Event('change')); }
         } else if (f.type === 'scored-yesno') {
             const rb = document.querySelector(`input[name="${f.id}_yn"][value="${val}"]`);
-            if (rb) { 
-                rb.checked = true; 
+            if (rb) {
+                rb.checked = true;
                 const lbl = document.querySelector(`label[for="${rb.id}"]`);
-                if (lbl) lbl.click(); 
+                if (lbl) lbl.click();
             }
         } else if (f.type === 'scored-option-list') {
             const rb = document.querySelector(`input[name="${f.id}_opt"][value="${val}"]`);
@@ -1864,7 +1908,7 @@ function loadDraftData(data, config) {
             if (txt) txt.value = val.text;
             if (score && val.score !== '') {
                 const btns = score.parentElement.querySelectorAll('.mmse-btn');
-                btns.forEach(b => { if(b.textContent == val.score) b.click(); });
+                btns.forEach(b => { if (b.textContent == val.score) b.click(); });
             }
         } else if (f.type === 'hamilton-row') {
             const score = document.getElementById(f.id);
@@ -1901,7 +1945,7 @@ function loadDraftData(data, config) {
 function calculateTotalScores(config) {
     const allFields = config.sections ? config.sections.flatMap(s => s.fields) : config.fields;
     const totalFields = allFields.filter(f => f.type === 'total-score' || f.type === 'dashboard-score');
-    
+
     totalFields.forEach(tf => {
         let sum = 0;
         if (tf.sourceFields) {
@@ -1910,7 +1954,7 @@ function calculateTotalScores(config) {
                 const group = document.getElementById('group_' + id);
                 if (el && !el.disabled && (!group || group.style.display !== 'none')) {
                     const val = parseInt(el.value || 0, 10);
-                    if(!isNaN(val)) sum += val;
+                    if (!isNaN(val)) sum += val;
                 }
             });
         } else {
@@ -1919,20 +1963,20 @@ function calculateTotalScores(config) {
                 const group = document.getElementById('group_' + input.id);
                 if (input.id.startsWith(tf.sourcePrefix) && !input.disabled && (!group || group.style.display !== 'none')) {
                     const val = parseInt(input.value || 0, 10);
-                    if(!isNaN(val)) sum += val;
+                    if (!isNaN(val)) sum += val;
                 }
             });
         }
         const totalEl = document.getElementById(tf.id);
-        if(totalEl) totalEl.value = sum;
+        if (totalEl) totalEl.value = sum;
     });
 
     // Run specific updates safely
-    try { if (typeof updateLawtonClassification === 'function') updateLawtonClassification(); } catch(e) {}
-    try { if (typeof updateYesavageResult === 'function') updateYesavageResult(); } catch(e) {}
-    try { if (typeof updateGAIResult === 'function') updateGAIResult(); } catch(e) {}
-    try { if (typeof updateBarthelResult === 'function') updateBarthelResult(); } catch(e) {}
-    try { if (typeof updateMMSEResult === 'function') updateMMSEResult(); } catch(e) {}
+    try { if (typeof updateLawtonClassification === 'function') updateLawtonClassification(); } catch (e) { }
+    try { if (typeof updateYesavageResult === 'function') updateYesavageResult(); } catch (e) { }
+    try { if (typeof updateGAIResult === 'function') updateGAIResult(); } catch (e) { }
+    try { if (typeof updateBarthelResult === 'function') updateBarthelResult(); } catch (e) { }
+    try { if (typeof updateMMSEResult === 'function') updateMMSEResult(); } catch (e) { }
 }
 
 // --- LAWTON-BRODY: Guía de Interpretación Dinámica ---
@@ -1998,17 +2042,17 @@ function updateLawtonClassification() {
     let clasif = '';
 
     if (sexo === 'mujer') {
-        if (score <= 1)      clasif = 'Dependencia total';
+        if (score <= 1) clasif = 'Dependencia total';
         else if (score <= 3) clasif = 'Dependencia grave';
         else if (score <= 5) clasif = 'Dependencia moderada';
         else if (score <= 7) clasif = 'Dependencia ligera';
-        else                 clasif = 'Autónomo';
+        else clasif = 'Autónomo';
     } else {
-        if (score === 0)     clasif = 'Dependencia total';
+        if (score === 0) clasif = 'Dependencia total';
         else if (score === 1) clasif = 'Dependencia grave';
         else if (score <= 3) clasif = 'Dependencia moderada';
         else if (score === 4) clasif = 'Dependencia ligera';
-        else                 clasif = 'Autónomo';
+        else clasif = 'Autónomo';
     }
 
     clasifEl.textContent = `${clasif}  (Puntaje: ${score})`;
@@ -2058,7 +2102,7 @@ function updateYesavageResult() {
 function updateGAIResult() {
     const resultEl = document.getElementById('gai_resultado_value');
     const resultElRef = document.getElementById('rf_gai_value'); // Ref in summary
-    
+
     const updateEl = (el) => {
         if (!el) return;
         const totalEl = document.getElementById('gai_total');
@@ -2182,10 +2226,10 @@ function updateMMSEResult() {
 
 // Evaluador de condiciones para mostrar/ocultar campos
 function evaluateConditions(config) {
-    const allFields = config.sections ? 
-        config.sections.reduce((acc, s) => acc.concat(s.fields), []) : 
+    const allFields = config.sections ?
+        config.sections.reduce((acc, s) => acc.concat(s.fields), []) :
         config.fields;
-    
+
     // 1. Update Hidden Scores first (like MMSE checklist count)
     const hiddenFields = allFields.filter(hf => hf.type === 'hidden-score');
     hiddenFields.forEach(hf => {
@@ -2201,7 +2245,7 @@ function evaluateConditions(config) {
         if (f.condition) {
             const condField = allFields.find(x => x.id === f.condition.field);
             if (!condField) return;
-            
+
             let isMet = false;
             if (condField.type === 'checkbox' || condField.type === 'radio') {
                 const checked = Array.from(document.querySelectorAll(`input[name="${condField.id}"]:checked`)).map(e => e.value);
@@ -2210,7 +2254,7 @@ function evaluateConditions(config) {
                 const el = document.getElementById(condField.id);
                 if (el) isMet = (el.value === f.condition.value);
             }
-            
+
             const group = document.getElementById('group_' + f.id);
             if (group) group.style.display = isMet ? 'block' : 'none';
         }
@@ -2221,13 +2265,13 @@ document.getElementById('dynamicTestForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const config = testsConfig[currentTestId];
     const p = patients.find(x => x.id === currentPatientId);
-    
+
     let summary = "";
-    
-    const allFields = config.sections ? 
-        config.sections.reduce((acc, s) => acc.concat(s.fields), []) : 
+
+    const allFields = config.sections ?
+        config.sections.reduce((acc, s) => acc.concat(s.fields), []) :
         config.fields;
-    
+
     allFields.forEach(f => {
         // Ignorar campos ocultos por condición
         const group = document.getElementById('group_' + f.id);
@@ -2300,22 +2344,22 @@ document.getElementById('dynamicTestForm').addEventListener('submit', (e) => {
         }
         summary += `**${f.label}**\n${value}\n\n`;
     });
-    
+
     const today = new Date();
     const fecha = today.toLocaleDateString('es-CL');
 
-    if(!p.docs) p.docs = [];
+    if (!p.docs) p.docs = [];
     // Capturar datos en bruto para impresión (SOLUCIÓN OBLIGATORIA)
     const draftData = captureCurrentTestData(config);
 
     const docId = currentDraftId || ('doc-' + Date.now());
-    const newDoc = { 
+    const newDoc = {
         id: docId,
         testId: currentTestId,
-        titulo: config.title, 
-        contenido: summary, 
-        rawData: draftData, 
-        fecha, 
+        titulo: config.title,
+        contenido: summary,
+        rawData: draftData,
+        fecha,
         profesional: currentProfesionalNombre || currentProfesional,
         isTest: true,
         estado: "finalizado",
@@ -2324,7 +2368,7 @@ document.getElementById('dynamicTestForm').addEventListener('submit', (e) => {
         firmaRut: '',
         firmaRelacion: ''
     };
-    
+
     if (currentDraftId) {
         const index = p.docs.findIndex(d => d.id === currentDraftId);
         if (index !== -1) p.docs[index] = newDoc;
@@ -2332,9 +2376,9 @@ document.getElementById('dynamicTestForm').addEventListener('submit', (e) => {
     } else {
         p.docs.unshift(newDoc);
     }
-    
+
     p.ultimaVisita = fecha;
-    
+
     // Limpiar borrador legacy si existiera
     if (p.drafts) delete p.drafts[currentTestId];
 
@@ -2349,8 +2393,8 @@ document.getElementById('dynamicTestForm').addEventListener('submit', (e) => {
 function switchTab(e, tabId) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-    
-    if(e && e.currentTarget) {
+
+    if (e && e.currentTarget) {
         e.currentTarget.classList.add('active');
     }
     document.getElementById('tab-' + tabId).style.display = 'block';
@@ -2362,19 +2406,19 @@ if (docFormEl) {
     docFormEl.addEventListener('submit', (e) => {
         e.preventDefault();
         const p = patients.find(x => x.id === currentPatientId);
-        if(!p) return;
+        if (!p) return;
 
-        if(!p.docs) p.docs = [];
-        
+        if (!p.docs) p.docs = [];
+
         const dTitulo = document.getElementById('dTipoEncuesta').value;
         const dContenido = document.getElementById('dContenido').value;
-        
+
         const today = new Date();
         const fecha = today.toLocaleDateString('es-CL'); // Formato local
 
         p.docs.unshift({ titulo: dTitulo, contenido: dContenido, fecha, profesional: currentProfesional });
         p.ultimaVisita = fecha; // Actualizamos la última visita
-        
+
         savePatients();
         renderDocs();
         renderTable(); // Para reflejar la fecha actualizada
@@ -2388,8 +2432,8 @@ function renderDocs() {
     if (!list) return;
     list.innerHTML = '';
     const p = patients.find(x => x.id === currentPatientId);
-    
-    if(!p || !p.docs || p.docs.length === 0) {
+
+    if (!p || !p.docs || p.docs.length === 0) {
         list.innerHTML = '<p style="color: var(--text-tertiary); text-align:center; padding: 20px;">No hay encuestas ni formularios registrados para este paciente.</p>';
         return;
     }
@@ -2398,7 +2442,7 @@ function renderDocs() {
         const div = document.createElement('div');
         div.className = 'doc-item';
         const profBadge = d.profesional === 'psicologo' ? '🧠 Psicología' : (d.profesional === 'terapeuta' ? '👐 Terapia Ocupacional' : '📄 General');
-        
+
         const isDraft = d.estado === 'borrador';
         const statusBadge = isDraft ? '<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; border: 1px solid #fde68a; margin-left: 10px;">💾 BORRADOR</span>' : '';
 
@@ -2443,7 +2487,7 @@ function openDashboard() {
     } else {
         const systemSection = document.getElementById('sistema');
         systemSection.style.display = 'block';
-        systemSection.scrollIntoView({behavior: 'smooth'});
+        systemSection.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
@@ -2463,18 +2507,18 @@ function openSessionForm() {
         if (!form) return;
         form.reset();
         clearSignature();
-        
+
         // Set current date and professional type
         const today = new Date().toISOString().split('T')[0];
         const fechaEl = document.getElementById('sFecha');
         const tipoEl = document.getElementById('sTipo');
         const profNombreEl = document.getElementById('sProfesionalNombre');
         const firmaRutEl = document.getElementById('sFirmaRut');
-        
-        if(fechaEl) fechaEl.value = today;
-        if(tipoEl) tipoEl.value = currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional';
-        if(profNombreEl) profNombreEl.value = '';
-        if(firmaRutEl) firmaRutEl.value = '';
+
+        if (fechaEl) fechaEl.value = today;
+        if (tipoEl) tipoEl.value = currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional';
+        if (profNombreEl) profNombreEl.value = '';
+        if (firmaRutEl) firmaRutEl.value = '';
 
         // Reset Signature source
         const defaultRadio = document.querySelector('input[name="sFirmaTipo"][value="manual"]');
@@ -2486,16 +2530,16 @@ function openSessionForm() {
         cameraSignatureBase64 = null;
         document.getElementById('firmaArchivoPreview').style.display = 'none';
         document.getElementById('sFirmaArchivo').value = '';
-        
+
         // Default times (current time)
         const now = new Date();
         const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         const horaIEl = document.getElementById('sHoraI');
-        if(horaIEl) horaIEl.value = timeStr;
-        
+        if (horaIEl) horaIEl.value = timeStr;
+
         const modal = document.getElementById('sessionModal');
-        if(modal) modal.classList.add('active');
-        
+        if (modal) modal.classList.add('active');
+
         // Initialize signature pad after modal is shown to get correct dimensions
         setTimeout(initSignaturePad, 300);
     } catch (e) {
@@ -2508,7 +2552,7 @@ function initSignaturePad() {
     signatureCanvas = document.getElementById('signatureCanvas');
     if (!signatureCanvas) return;
     sigCtx = signatureCanvas.getContext('2d');
-    
+
     // Ajustar el tamaño real del canvas al tamaño visual
     const rect = signatureCanvas.getBoundingClientRect();
     signatureCanvas.width = rect.width;
@@ -2547,9 +2591,9 @@ function initSignaturePad() {
     signatureCanvas.addEventListener('mousedown', startDrawing);
     signatureCanvas.addEventListener('mousemove', draw);
     window.addEventListener('mouseup', stopDrawing);
-    
-    signatureCanvas.addEventListener('touchstart', startDrawing, {passive: false});
-    signatureCanvas.addEventListener('touchmove', draw, {passive: false});
+
+    signatureCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+    signatureCanvas.addEventListener('touchmove', draw, { passive: false });
     signatureCanvas.addEventListener('touchend', stopDrawing);
 
     // Style
@@ -2568,7 +2612,7 @@ let cameraSignatureBase64 = null;
 function toggleSignatureSource(type) {
     currentSignatureType = type;
     document.querySelectorAll('.sig-source-container').forEach(el => el.style.display = 'none');
-    
+
     if (type === 'manual') {
         document.getElementById('sigSourceManual').style.display = 'block';
         stopCamera();
@@ -2584,7 +2628,7 @@ function toggleSignatureSource(type) {
 function handleSignatureFile(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             fileSignatureBase64 = e.target.result;
             document.getElementById('firmaArchivoPreview').style.display = 'block';
             document.getElementById('imgFirmaPrev').src = fileSignatureBase64;
@@ -2596,14 +2640,14 @@ function handleSignatureFile(input) {
 async function startCamera() {
     const video = document.getElementById('signatureVideo');
     if (!video) return;
-    
+
     document.getElementById('cameraControls').style.display = 'block';
     document.getElementById('cameraPreview').style.display = 'none';
-    
+
     try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: 'environment' }, 
-            audio: false 
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: false
         });
         video.srcObject = cameraStream;
     } catch (err) {
@@ -2628,9 +2672,9 @@ function captureFromCamera() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     cameraSignatureBase64 = canvas.toDataURL('image/png');
-    
+
     document.getElementById('cameraControls').style.display = 'none';
     document.getElementById('cameraPreview').style.display = 'block';
     stopCamera();
@@ -2657,11 +2701,11 @@ function isSignatureBlank() {
 
 function captureSignatureToBase64(canvas) {
     if (!canvas) return null;
-    
+
     const ctx = canvas.getContext('2d');
     const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     let hasContent = false;
-    
+
     // Validar que el canvas no esté vacío (revisando canal Alpha)
     for (let i = 0; i < pixelData.length; i += 4) {
         if (pixelData[i + 3] > 0) {
@@ -2669,9 +2713,9 @@ function captureSignatureToBase64(canvas) {
             break;
         }
     }
-    
+
     if (!hasContent) return null;
-    
+
     // Retornar base64 PNG
     return canvas.toDataURL('image/png');
 }
@@ -2692,14 +2736,14 @@ document.getElementById('sessionForm').addEventListener('submit', (e) => {
     }
 
     if (!finalFirmaBase64) {
-        const msg = currentSignatureType === 'manual' ? 'La firma manual es obligatoria.' : 
-                    (currentSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
+        const msg = currentSignatureType === 'manual' ? 'La firma manual es obligatoria.' :
+            (currentSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
         alert('⚠️ ' + msg);
         return;
     }
 
     if (!p.visitas) p.visitas = [];
-    
+
     const newVisita = {
         num: p.visitas.length + 1,
         fecha: document.getElementById('sFecha').value,
@@ -2720,7 +2764,7 @@ document.getElementById('sessionForm').addEventListener('submit', (e) => {
 
     p.visitas.push(newVisita);
     p.ultimaVisita = newVisita.fecha.split('-').reverse().join('/'); // Formato DD/MM/YYYY para la tabla
-    
+
     syncVisitaToSupabase(newVisita, p.id);
     savePatients();
     renderVisitas();
@@ -2734,7 +2778,7 @@ function renderVisitas() {
     const list = document.getElementById('sessionsList');
     if (!list) return;
     const p = patients.find(x => x.id === currentPatientId);
-    
+
     if (!p || !p.visitas || p.visitas.length === 0) {
         list.innerHTML = `
             <div style="text-align: center; padding: 40px; color: var(--text-tertiary); background: rgba(0,0,0,0.02); border-radius: 20px; border: 1px dashed #ddd;">
@@ -2803,10 +2847,10 @@ function renderVisitas() {
         } else {
             const chronological = [...p.visitas].sort((a, b) => a.num - b.num);
             printTbody.innerHTML = chronological.map(s => {
-                const firmaImg = (s.firma && s.firma.length > 100) 
+                const firmaImg = (s.firma && s.firma.length > 100)
                     ? `<img src="${s.firma}" style="max-width: 120px; max-height: 60px; filter: contrast(150%) grayscale(100%);">`
                     : '<span style="color: #999; font-style: italic;">Sin firma</span>';
-                
+
                 return `
                     <tr>
                         <td style="text-align: center;">${s.num}</td>
@@ -2832,7 +2876,7 @@ function renderVisitas() {
 function printSingleVisita(num) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.visitas) return;
-    
+
     const s = p.visitas.find(v => v.num === num);
     if (!s) {
         alert("No se encontró el registro de la visita.");
@@ -2856,7 +2900,7 @@ function printSingleVisita(num) {
     // 4. Llenar contenido clínico
     document.getElementById('privObjetivo').textContent = s.objetivo;
     document.getElementById('privActividades').textContent = s.actividades;
-    
+
     const obsContainer = document.getElementById('privObsContainer');
     if (s.obs) {
         obsContainer.style.display = 'block';
@@ -2873,7 +2917,7 @@ function printSingleVisita(num) {
     } else {
         firmaImg.style.display = 'none';
     }
-    
+
     document.getElementById('privFirmanteNombre').textContent = s.firmaNombre || '---';
     document.getElementById('privFirmanteRel').textContent = `${s.relacion || '---'} ${s.firmaRut ? '| RUT: ' + s.firmaRut : ''}`;
 
@@ -2895,7 +2939,7 @@ function prepareAndPrint() {
         alert("Error: No hay un paciente seleccionado.");
         return;
     }
-    
+
     // ACTIVAR SOLO ESTE CONTENEDOR PARA IMPRESIÓN
     setActivePrintContainer('printContainer');
 
@@ -2904,7 +2948,7 @@ function prepareAndPrint() {
     document.getElementById('prRut').textContent = p.rut || 'N/A';
     document.getElementById('prDireccion').textContent = p.domicilio || 'N/A';
     document.getElementById('prTelefono').textContent = p.telefono || 'N/A';
-    
+
     const visitas = p.visitas || [];
     const printTbody = document.getElementById('printTableBody');
     if (printTbody) {
@@ -2913,10 +2957,10 @@ function prepareAndPrint() {
         } else {
             const sorted = [...visitas].sort((a, b) => a.num - b.num);
             printTbody.innerHTML = sorted.map(s => {
-                const firmaImg = (s.firma && s.firma.length > 100) 
+                const firmaImg = (s.firma && s.firma.length > 100)
                     ? `<img src="${s.firma}" style="max-width: 140px; max-height: 70px; filter: contrast(150%) grayscale(100%); display: block; margin: 0 auto;">`
                     : '<span style="color: #666; font-style: italic;">Sin firma</span>';
-                
+
                 return `
                     <tr>
                         <td style="text-align: center; font-weight: bold;">${s.num}</td>
@@ -2953,7 +2997,7 @@ function deleteVisita(num) {
     if (!p) return;
 
     p.visitas = p.visitas.filter(s => s.num !== num);
-    
+
     // Re-numerar visitas para mantener consistencia
     p.visitas.forEach((s, idx) => {
         s.num = idx + 1;
@@ -2992,11 +3036,11 @@ function openArticuloModal() {
 
         const form = document.getElementById('articuloForm');
         if (form) form.reset();
-        
+
         document.getElementById('artFecha').value = new Date().toISOString().split('T')[0];
         document.getElementById('artRelacion').value = 'Paciente';
-        document.getElementById('artProf').value = ''; 
-        
+        document.getElementById('artProf').value = '';
+
         // Reset art signature source
         const defaultRadio = document.querySelector('input[name="artFirmaTipo"][value="manual"]');
         if (defaultRadio) {
@@ -3027,7 +3071,7 @@ function initArtSignature() {
         console.warn('artSignatureCanvas no encontrado');
         return;
     }
-    
+
     artCtx = artCanvas.getContext('2d');
 
     // Ajustar tamaño real del canvas al visual
@@ -3100,9 +3144,9 @@ let currentArtIdForSignature = null;
 function initModalProfSignature() {
     modalArtProfCanvas = document.getElementById('modalArtProfSignatureCanvas');
     if (!modalArtProfCanvas) return;
-    
+
     modalArtProfCtx = modalArtProfCanvas.getContext('2d');
-    
+
     const rect = modalArtProfCanvas.getBoundingClientRect();
     modalArtProfCanvas.width = rect.width;
     modalArtProfCanvas.height = rect.height;
@@ -3110,7 +3154,7 @@ function initModalProfSignature() {
     modalArtProfCtx.lineCap = 'round';
     modalArtProfCtx.lineJoin = 'round';
     modalArtProfCtx.strokeStyle = '#000';
-    
+
     let drawing = false;
     const getPos = (e) => {
         const r = modalArtProfCanvas.getBoundingClientRect();
@@ -3121,21 +3165,21 @@ function initModalProfSignature() {
     };
 
     modalArtProfCanvas.onmousedown = (e) => { drawing = true; modalArtProfCtx.beginPath(); const p = getPos(e); modalArtProfCtx.moveTo(p.x, p.y); };
-    modalArtProfCanvas.onmousemove = (e) => { if(!drawing) return; const p = getPos(e); modalArtProfCtx.lineTo(p.x, p.y); modalArtProfCtx.stroke(); };
+    modalArtProfCanvas.onmousemove = (e) => { if (!drawing) return; const p = getPos(e); modalArtProfCtx.lineTo(p.x, p.y); modalArtProfCtx.stroke(); };
     window.onmouseup = () => { drawing = false; };
-    
+
     modalArtProfCanvas.ontouchstart = (e) => { drawing = true; modalArtProfCtx.beginPath(); const p = getPos(e); modalArtProfCtx.moveTo(p.x, p.y); e.preventDefault(); };
-    modalArtProfCanvas.ontouchmove = (e) => { if(!drawing) return; const p = getPos(e); modalArtProfCtx.lineTo(p.x, p.y); modalArtProfCtx.stroke(); e.preventDefault(); };
+    modalArtProfCanvas.ontouchmove = (e) => { if (!drawing) return; const p = getPos(e); modalArtProfCtx.lineTo(p.x, p.y); modalArtProfCtx.stroke(); e.preventDefault(); };
     modalArtProfCanvas.ontouchend = () => { drawing = false; };
 }
 
-function clearModalArtProfSignature() { if(modalArtProfCtx) modalArtProfCtx.clearRect(0,0,modalArtProfCanvas.width,modalArtProfCanvas.height); }
+function clearModalArtProfSignature() { if (modalArtProfCtx) modalArtProfCtx.clearRect(0, 0, modalArtProfCanvas.width, modalArtProfCanvas.height); }
 
 function openProfSignatureModal(artId) {
     currentArtIdForSignature = artId;
     document.getElementById('artProfSignatureModal').classList.add('active');
     setTimeout(initModalProfSignature, 300);
-    
+
     // Listener para el botón guardar (limpiar previos para evitar duplicados)
     const saveBtn = document.getElementById('saveProfSigBtn');
     const newBtn = saveBtn.cloneNode(true);
@@ -3166,7 +3210,7 @@ function saveProfSignature() {
     }
 }
 
-function clearArtSignature() { if(artCtx) artCtx.clearRect(0,0,artCanvas.width,artCanvas.height); }
+function clearArtSignature() { if (artCtx) artCtx.clearRect(0, 0, artCanvas.width, artCanvas.height); }
 
 // --- LÓGICA MULTI-FUENTE DE FIRMA PARA ARTÍCULOS ---
 let currentArtSignatureType = 'manual';
@@ -3177,7 +3221,7 @@ let artCameraSignatureBase64 = null;
 function toggleArtSignatureSource(type) {
     currentArtSignatureType = type;
     document.querySelectorAll('.art-sig-source-container').forEach(el => el.style.display = 'none');
-    
+
     if (type === 'manual') {
         document.getElementById('artSigSourceManual').style.display = 'block';
         stopArtCamera();
@@ -3193,7 +3237,7 @@ function toggleArtSignatureSource(type) {
 function handleArtSignatureFile(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             artFileSignatureBase64 = e.target.result;
             document.getElementById('artFirmaArchivoPreview').style.display = 'block';
             document.getElementById('artImgFirmaPrev').src = artFileSignatureBase64;
@@ -3205,14 +3249,14 @@ function handleArtSignatureFile(input) {
 async function startArtCamera() {
     const video = document.getElementById('artSignatureVideo');
     if (!video) return;
-    
+
     document.getElementById('artCameraControls').style.display = 'block';
     document.getElementById('artCameraPreview').style.display = 'none';
-    
+
     try {
-        artCameraStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: 'environment' }, 
-            audio: false 
+        artCameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: false
         });
         video.srcObject = artCameraStream;
     } catch (err) {
@@ -3237,9 +3281,9 @@ function captureFromArtCamera() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     artCameraSignatureBase64 = canvas.toDataURL('image/png');
-    
+
     document.getElementById('artCameraControls').style.display = 'none';
     document.getElementById('artCameraPreview').style.display = 'block';
     stopArtCamera();
@@ -3267,8 +3311,8 @@ document.getElementById('articuloForm').addEventListener('submit', (e) => {
     }
 
     if (!finalFirmaBase64) {
-        const msg = currentArtSignatureType === 'manual' ? 'La firma manual es obligatoria.' : 
-                    (currentArtSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
+        const msg = currentArtSignatureType === 'manual' ? 'La firma manual es obligatoria.' :
+            (currentArtSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
         alert('⚠️ ' + msg);
         return;
     }
@@ -3295,7 +3339,7 @@ document.getElementById('articuloForm').addEventListener('submit', (e) => {
     syncEntregaToSupabase(data, p.id);
     savePatients();
     renderArticulos();
-    
+
     closeArticuloForm();
     alert("✅ Entrega guardada correctamente.");
 });
@@ -3308,12 +3352,12 @@ function prepareArticuloPrint(data, p) {
     document.getElementById('partRut').textContent = p.rut;
     document.getElementById('partDir').textContent = p.domicilio;
     document.getElementById('partTel').textContent = p.telefono || 'No registrado';
-    
+
     document.getElementById('partTipo').textContent = data.tipo;
     document.getElementById('partDesc').textContent = data.desc;
     document.getElementById('partFecha').textContent = data.fecha.split('-').reverse().join('/');
     document.getElementById('partProf').textContent = data.prof;
-    
+
     document.getElementById('partFirmaImg').src = data.firma;
     document.getElementById('partProfFirmaImg').src = data.firmaProf || '';
     document.getElementById('partFirmanteNombre').textContent = data.firmanteNombre;
@@ -3324,7 +3368,7 @@ function renderArticulos() {
     const container = document.getElementById('articulosList');
     if (!container) return;
     container.innerHTML = '';
-    
+
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.entregas) return;
 
@@ -3341,9 +3385,9 @@ function renderArticulos() {
         const card = document.createElement('div');
         card.className = 'session-card';
         card.style.borderLeftColor = '#6366f1';
-        
+
         const isSigned = art.firmaProf && art.firmaProf.length > 500;
-        
+
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div style="flex: 1;">
@@ -3352,21 +3396,21 @@ function renderArticulos() {
                     <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">${art.desc}</p>
                     <p style="margin: 5px 0 10px 0; font-size: 0.8rem; color: var(--text-tertiary);"><strong>Fecha:</strong> ${art.fecha.split('-').reverse().join('/')}</p>
                     
-                    ${isSigned ? 
-                        `<div style="display: flex; align-items: center; gap: 5px; color: #10b981; font-size: 0.8rem; font-weight: 600;">
+                    ${isSigned ?
+                `<div style="display: flex; align-items: center; gap: 5px; color: #10b981; font-size: 0.8rem; font-weight: 600;">
                             <span>✔</span> Firmado por profesional
-                        </div>` : 
-                        `<div style="color: #f59e0b; font-size: 0.8rem; font-weight: 600;">
+                        </div>` :
+                `<div style="color: #f59e0b; font-size: 0.8rem; font-weight: 600;">
                             ⚠️ Pendiente firma profesional
                         </div>`
-                    }
+            }
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; width: 100%;" onclick="reprintArticulo('${art.id}')">🖨️ Imprimir</button>
-                    ${!isSigned ? 
-                        `<button class="btn-primary" style="padding: 6px 12px; font-size: 0.75rem; background: #6366f1; border-color: #6366f1; width: 100%;" onclick="openProfSignatureModal('${art.id}')">🖋️ Firma del profesional</button>` : 
-                        ''
-                    }
+                    ${!isSigned ?
+                `<button class="btn-primary" style="padding: 6px 12px; font-size: 0.75rem; background: #6366f1; border-color: #6366f1; width: 100%;" onclick="openProfSignatureModal('${art.id}')">🖋️ Firma del profesional</button>` :
+                ''
+            }
                 </div>
             </div>
         `;
@@ -3376,8 +3420,8 @@ function renderArticulos() {
 
 function captureCurrentTestData(config) {
     const rawData = {};
-    const allFields = config.sections 
-        ? config.sections.flatMap(s => s.fields) 
+    const allFields = config.sections
+        ? config.sections.flatMap(s => s.fields)
         : (config.fields || []);
 
     allFields.forEach(f => {
@@ -3526,10 +3570,10 @@ function printCurrentTestWithConfig(p, config) {
     try {
         // Capturar datos directamente del DOM del formulario activo
         const draftData = captureCurrentTestData(config);
-        
+
         // Asegurar que sections esté definido para el renderizador (necesario para Lawton)
-        const sections = config.sections 
-            ? config.sections 
+        const sections = config.sections
+            ? config.sections
             : [{ title: config.title, fields: config.fields || [] }];
 
         const tempDoc = {
@@ -3543,7 +3587,7 @@ function printCurrentTestWithConfig(p, config) {
         // Pasar el config normalizado (con sections) al renderizador
         const normalizedConfig = { ...config, sections };
         renderDocToPrintContainer(tempDoc, p, normalizedConfig);
-    } catch(err) {
+    } catch (err) {
         console.error("Error en printCurrentTestWithConfig:", err);
         alert("Error al preparar el informe: " + err.message);
     }
@@ -3553,7 +3597,7 @@ function printTestDoc(docId) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
     const doc = p.docs.find(d => d.id === docId);
-    
+
     // Si no hay doc (pestaña abierta o error), intentar imprimir el actual
     if (!doc) {
         return printCurrentTest();
@@ -3568,7 +3612,7 @@ function renderEvalPsicologicaPrint(doc, p, config) {
     const container = document.getElementById('prTestContent');
     const signatureArea = document.getElementById('dynamicSignatureArea');
     const data = doc.rawData || {};
-    
+
     container.innerHTML = '';
     if (signatureArea) signatureArea.innerHTML = '';
 
@@ -3598,7 +3642,7 @@ function renderEvalPsicologicaPrint(doc, p, config) {
             <div style="padding-left: 15px;">
     `;
     const encuadreOpts = [
-        'Presentación personal', 'Explicación del proceso', 'Confidencialidad', 
+        'Presentación personal', 'Explicación del proceso', 'Confidencialidad',
         'Objetivo del proceso', 'Derechos del beneficiario', 'Consentimiento verbal'
     ];
     html += `<ul style="margin: 0 0 10px 0; padding-left: 0; list-style: none;">`;
@@ -3606,7 +3650,7 @@ function renderEvalPsicologicaPrint(doc, p, config) {
         const checked = data['ep_encuadre'] && data['ep_encuadre'].some(v => v.includes(opt)) ? '☑' : '☐';
         html += `<li style="font-size: 9pt; margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px;">
             <span style="font-size: 11pt; line-height: 1; flex-shrink: 0; color: ${data['ep_encuadre'] && data['ep_encuadre'].some(v => v.includes(opt)) ? '#059669' : '#94a3b8'};">${checked}</span>
-            <span><strong>1.${idx+1}</strong> ${opt}</span>
+            <span><strong>1.${idx + 1}</strong> ${opt}</span>
         </li>`;
     });
     html += `</ul>`;
@@ -3767,7 +3811,7 @@ function renderEvalPsicologicaPrint(doc, p, config) {
         "¿Siente que su situación es desesperanzadora?", "¿Cree que la mayoría de la gente está mejor que usted?"
     ];
     const ys_scores = [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1]; // Score if Yes
-    
+
     html += `
         <div style="margin-bottom: 25px; page-break-inside: avoid;">
             <h3 style="background: #f8fafc !important; color: #0f172a !important; border-left: 5px solid #0f172a; padding: 10px 15px; margin-bottom: 15px; font-size: 11pt; font-weight: bold;">V. ESCALA YESAVAGE (GDS-15)</h3>
@@ -3804,7 +3848,7 @@ function renderEvalPsicologicaPrint(doc, p, config) {
             </tr>
         `;
     });
-    
+
     let ys_interp = "Sin depresión (Normal)";
     let ys_color = '#059669';
     if (ys_total >= 5 && ys_total <= 8) { ys_interp = "Depresión leve"; ys_color = '#d97706'; }
@@ -3871,7 +3915,7 @@ function renderEvalPsicologicaPrint(doc, p, config) {
             </tr>
         `;
     });
-    
+
     let gai_interp = "Sin ansiedad clínicamente significativa";
     let gai_color = '#059669';
     if (gai_total >= 5 && gai_total <= 7) { gai_interp = "Ansiedad leve"; gai_color = '#d97706'; }
@@ -3979,7 +4023,7 @@ function renderDocToPrintContainer(doc, paciente, config) {
     const container = document.getElementById('prTestContent');
     const signatureArea = document.getElementById('dynamicSignatureArea');
     const data = doc.rawData || {};
-    
+
     container.innerHTML = '';
     if (signatureArea) signatureArea.innerHTML = '';
 
@@ -4015,10 +4059,10 @@ function renderDocToPrintContainer(doc, paciente, config) {
     let totalScore = 0;
     const resultTypes = ['total-score', 'dashboard-score', 'depression-result', 'suggested-classification', 'anxiety-result', 'barthel-result', 'mmse-result'];
     const sections = config.sections || [{ title: config.title, fields: config.fields || [] }];
-    
+
     sections.forEach((section, sIdx) => {
         const isScale = section.fields.some(f => ['scored-yesno', 'scored-number', 'mmse-row', 'hamilton-row', 'scored-option-list'].includes(f.type));
-        
+
         // Reducir margen inferior y permitir saltos internos si la sección es muy grande
         html += `
             <div class="print-section" style="margin-bottom: 10px; page-break-inside: auto;">
@@ -4044,7 +4088,7 @@ function renderDocToPrintContainer(doc, paciente, config) {
                 if (resultTypes.includes(field.type) || field.type === 'info-block' || field.type === 'info-text') return;
                 // Ignorar sex-selector e interpretation-guide en el cuerpo de la tabla (ya se muestran arriba)
                 if (field.type === 'sex-selector' || field.type === 'interpretation-guide') return;
-                
+
                 let val = data[field.id] !== undefined ? data[field.id] : '---';
                 let score = 0;
                 let displayVal = val;
@@ -4079,7 +4123,7 @@ function renderDocToPrintContainer(doc, paciente, config) {
                     const opt = field.options ? field.options.find(o => o.text === val) : null;
                     score = opt ? opt.score : 0;
                 } else {
-                    return; 
+                    return;
                 }
 
                 totalScore += score;
@@ -4093,7 +4137,7 @@ function renderDocToPrintContainer(doc, paciente, config) {
             });
 
             html += `</tbody></table>`;
-            
+
             section.fields.forEach(field => {
                 if (field.type === 'textarea') {
                     let val = data[field.id] !== undefined ? data[field.id] : '---';
@@ -4129,7 +4173,7 @@ function renderDocToPrintContainer(doc, paciente, config) {
                         ['4 pts', 'Dependencia leve'],
                         ['3 pts', 'Dependencia ligera'],
                         ['2 pts', 'Dependencia moderada'],
-                        ['1 pt',  'Dependencia grave'],
+                        ['1 pt', 'Dependencia grave'],
                         ['0 pts', 'Dependencia total']
                     ] : [
                         ['8 pts', 'Autónoma / Independiente'],
@@ -4159,15 +4203,15 @@ function renderDocToPrintContainer(doc, paciente, config) {
                                 </tbody>
                             </table>
                             <p style="margin: 8px 0 0 0; font-size: 8.5pt; color: #64748b; font-style: italic;">
-                                ${isHombre 
-                                    ? '* Hombre: 5 dominios (teléfono, compras, transporte, medicación, economía).' 
-                                    : '* Mujer: 8 dominios (incluye comida, hogar y lavado de ropa).'}
+                                ${isHombre
+                            ? '* Hombre: 5 dominios (teléfono, compras, transporte, medicación, economía).'
+                            : '* Mujer: 8 dominios (incluye comida, hogar y lavado de ropa).'}
                             </p>
                         </div>
                     `;
                     return;
                 }
-                
+
                 // Formatear si es objeto (radio-grid) o array (checkbox)
                 let displayVal = val;
                 if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
@@ -4192,7 +4236,7 @@ function renderDocToPrintContainer(doc, paciente, config) {
     // 3. Interpretación Automática
     let interpretation = "";
     const testTitle = doc.titulo.toLowerCase();
-    
+
     if (testTitle.includes('yesavage')) {
         if (totalScore <= 4) interpretation = "Normal (Depresión improbable)";
         else if (totalScore <= 9) interpretation = "Depresión leve (Sugerir evaluación)";
@@ -4277,9 +4321,9 @@ function renderBasicPrint(doc, p) {
             </div>
         </div>
     `;
-    
+
     setActivePrintContainer('formulario-imprimible');
-    
+
     setTimeout(() => { window.print(); }, 300);
 }
 
@@ -4289,7 +4333,7 @@ function reprintArticulo(artId) {
     if (!art) return;
 
     if (!art.firmaProf || art.firmaProf.length < 500) {
-        if(!confirm("⚠️ El comprobante se imprimirá sin firma del profesional. ¿Desea continuar?")) {
+        if (!confirm("⚠️ El comprobante se imprimirá sin firma del profesional. ¿Desea continuar?")) {
             return;
         }
     }
@@ -4308,9 +4352,9 @@ function printUltimaEntrega() {
         return;
     }
     const ultima = p.entregas[0];
-    
+
     if (!ultima.firmaProf || ultima.firmaProf.length < 500) {
-        if(!confirm("⚠️ El comprobante se imprimirá sin firma del profesional. ¿Desea continuar?")) {
+        if (!confirm("⚠️ El comprobante se imprimirá sin firma del profesional. ¿Desea continuar?")) {
             return;
         }
     }
