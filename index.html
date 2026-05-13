@@ -992,7 +992,13 @@
         </div>
     </div>
 
-    <script src="script.js?v=26"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://yfkvmymhbgzfnqxjmwlg.supabase.co/rest/v1/";
+  const SUPABASE_KEY = "sb_publishable_bckoA9BGNQAFxyk0vLL_cQ_VzkRfN0M";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+<script src="script.js"></script>
 </body>
 
 </html>
