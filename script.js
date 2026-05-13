@@ -2854,18 +2854,19 @@ function captureSignatureToBase64(canvas) {
 document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const submitBtn = e.submitter || document.querySelector('#sessionForm button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.dataset.originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Guardando...';
-        submitBtn.style.opacity = '0.7';
-        submitBtn.style.pointerEvents = 'none';
-    }
+    const form = document.getElementById('sessionForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    if (submitBtn.disabled) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
+    submitBtn.style.pointerEvents = 'none';
+    submitBtn.style.opacity = '0.7';
 
     try {
         const p = patients.find(x => x.id === currentPatientId);
-        if (!p) throw new Error('No se encontró el paciente actual.');
+        if (!p) throw new Error('No se encontró el paciente.');
 
         let finalFirmaBase64 = null;
 
@@ -2878,17 +2879,18 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         }
 
         if (!finalFirmaBase64) {
-            const msg = currentSignatureType === 'manual'
-                ? 'La firma manual es obligatoria.'
-                : (currentSignatureType === 'archivo'
-                    ? 'Debe seleccionar una imagen.'
-                    : 'Debe capturar una foto.');
-            throw new Error(msg);
+            throw new Error(
+                currentSignatureType === 'manual'
+                    ? 'La firma manual es obligatoria.'
+                    : currentSignatureType === 'archivo'
+                        ? 'Debe seleccionar una imagen.'
+                        : 'Debe capturar una foto.'
+            );
         }
 
         if (!p.visitas) p.visitas = [];
 
-        const nextNum = (p.visitas.length > 0)
+        const nextNum = p.visitas.length > 0
             ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
             : 1;
 
@@ -2939,23 +2941,22 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         if (!okUltima) throw new Error('La visita se guardó, pero no se pudo actualizar la última visita.');
 
         savePatients();
-
-        alert('✅ Visita domiciliaria registrada correctamente.');
-
         renderVisitas();
         renderTable();
-        closeModal('sessionModal');
+
+        form.reset();
+        clearSignature();
         stopCamera();
+        closeModal('sessionModal');
+
+        alert('✅ Visita domiciliaria registrada correctamente.');
     } catch (error) {
         console.error('Error final en submit de visita:', error);
         alert('❌ ' + (error.message || 'Ocurrió un error al registrar la visita.'));
-    } finally {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = submitBtn.dataset.originalText || '✅ Registrar Visita';
-            submitBtn.style.opacity = '1';
-            submitBtn.style.pointerEvents = 'auto';
-        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✅ Registrar Visita';
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.style.opacity = '1';
     }
 });
 function renderVisitas() {
