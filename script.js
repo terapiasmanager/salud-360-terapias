@@ -668,43 +668,48 @@ async function loadDataFromSupabase() {
     try {
         console.log("Cargando datos desde Supabase...");
 
-        // 1. Cargar Pacientes
         const { data: pData, error: pError } = await supabase.from('pacientes').select('*');
         if (pError) throw pError;
 
-        // 2. Cargar Visitas
         const { data: vData, error: vError } = await supabase.from('visitas').select('*');
         if (vError) throw vError;
 
-        // 3. Cargar Entregas
         const { data: eData, error: eError } = await supabase.from('entregas').select('*');
         if (eError) throw eError;
 
-        // Reconstruir estructura local
-        patients = pData.map(p => ({
-            id: p.id,
-            nombre: p.nombre,
-            rut: p.rut,
-            edad: p.edad,
-            fechaNacimiento: p.fecha_nacimiento,
-            domicilio: p.domicilio,
-            telefono: p.telefono,
-            ultimaVisita: p.ultima_visita,
-            visitas: vData.filter(v => v.paciente_id === p.id),
-            entregas: eData.filter(e => e.paciente_id === p.id),
-            docs: [] // Puedes mapear docs si los usas por separado
-        }));
+        patients = (pData || []).map(p => {
+            const visitasPaciente = (vData || [])
+                .filter(v => v.paciente_id === p.id)
+                .map(mapVisitaFromSupabase);
 
+            const entregasPaciente = (eData || [])
+                .filter(e => e.paciente_id === p.id)
+                .map(mapEntregaFromSupabase);
+
+            return {
+                id: p.id,
+                nombre: p.nombre || '',
+                rut: p.rut || '',
+                edad: p.edad || '',
+                fechaNacimiento: p.fecha_nacimiento || '',
+                domicilio: p.domicilio || '',
+                telefono: p.telefono || '',
+                ultimaVisita: calcularUltimaVisitaDesdeVisitas(visitasPaciente) || p.ultima_visita || '',
+                visitas: visitasPaciente,
+                entregas: entregasPaciente,
+                docs: []
+            };
+        });
+
+        savePatients();
         renderTable();
         console.log("Datos sincronizados correctamente.");
     } catch (err) {
         console.error("Error cargando desde Supabase:", err);
-        // Fallback a localStorage si falla la red
         patients = JSON.parse(localStorage.getItem('tera_patients')) || [];
         renderTable();
     }
 }
-
 // Llamar al cargar la página
 window.addEventListener('DOMContentLoaded', loadDataFromSupabase);
 
