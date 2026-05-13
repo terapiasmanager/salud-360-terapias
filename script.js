@@ -731,7 +731,7 @@ async function loadDataFromSupabase() {
                 fechaNacimiento: p.fecha_nacimiento || '',
                 domicilio: p.domicilio || '',
                 telefono: p.telefono || '',
-                ultimaVisita: p.ultima_visita || '',
+                ultimaVisita: p.ultima_visita || calcularUltimaVisitaDesdeVisitas(visitasPaciente) || '',
                 visitas: visitasPaciente,
                 entregas: entregasPaciente,
                 docs: JSON.parse(localStorage.getItem(`docs_${p.id}`) || '[]')
@@ -901,9 +901,11 @@ async function actualizarUltimaVisitaPaciente(p) {
 
     if (error) {
         console.error("Error actualizando última visita del paciente:", error);
+        return false;
     }
-}
 
+    return true;
+}
 // Renderizar tabla
 function renderTable(filter = '') {
     const tbody = document.getElementById('patientsList');
@@ -2922,7 +2924,8 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
 };
     p.visitas.push(visitaFinal);
 
-    await actualizarUltimaVisitaPaciente(p);
+    const okUltima = await actualizarUltimaVisitaPaciente(p);
+    if (!okUltima) return;
 
     savePatients();
     renderVisitas();
@@ -3177,8 +3180,7 @@ async function deleteVisita(num) {
             s.num = idx + 1;
         });
 
-    await actualizarUltimaVisitaPaciente(p);
-
+   await actualizarUltimaVisitaPaciente(p);
     savePatients();
     renderVisitas();
     renderTable();
