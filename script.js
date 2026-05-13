@@ -727,28 +727,36 @@ async function syncPatientToSupabase(p) {
         fecha_nacimiento: p.fechaNacimiento,
         domicilio: p.domicilio,
         telefono: p.telefono,
-        ultima_visita: p.ultimaVisita
+        ultima_visita: p.ultimaVisita || null
     };
 
-    // Si el ID parece un UUID (tiene guiones), lo incluimos para UPDATE
-    // Si no tiene ID o es temporal, dejamos que Supabase genere uno nuevo
-    if (p.id && p.id.includes('-')) {
-        pData.id = p.id;
+    let response;
+
+    if (p.id) {
+        response = await supabase
+            .from('pacientes')
+            .update(pData)
+            .eq('id', p.id)
+            .select()
+            .single();
+    } else {
+        response = await supabase
+            .from('pacientes')
+            .insert(pData)
+            .select()
+            .single();
     }
 
-    const { data, error } = await supabase
-        .from('pacientes')
-        .upsert(pData)
-        .select();
+    const { data, error } = response;
 
     if (error) {
         console.error("Error sincronizando paciente:", error);
         alert("Error al guardar en Supabase: " + error.message);
         return null;
     }
-    return data[0]; // Retorna el paciente con su ID real
-}
 
+    return data;
+}
 async function syncVisitaToSupabase(v, patientId) {
     const { error } = await supabase
         .from('visitas')
