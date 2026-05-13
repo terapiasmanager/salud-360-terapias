@@ -665,26 +665,63 @@ const testsConfig = {
 
 // --- LOGICA DE SUPABASE ---
 async function loadDataFromSupabase() {
+    console.log("Cargando datos desde Supabase...");
+
     try {
-        console.log("Cargando datos desde Supabase...");
+        const pacientesRes = await db.from('pacientes').select('*');
+        if (pacientesRes.error) throw pacientesRes.error;
 
-        const { data: pData, error: pError } = await db.from('pacientes').select('*');
-        if (pError) throw pError;
+        const visitasRes = await db.from('visitas').select('*');
+        const entregasRes = await db.from('entregas').select('*');
 
-        const { data: vData, error: vError } = await db.from('visitas').select('*');
-        if (vError) throw vError;
+        const pData = pacientesRes.data || [];
+        const vData = visitasRes.error ? [] : (visitasRes.data || []);
+        const eData = entregasRes.error ? [] : (entregasRes.data || []);
 
-        const { data: eData, error: eError } = await db.from('entregas').select('*');
-        if (eError) throw eError;
+        if (visitasRes.error) {
+            console.warn("No se pudieron cargar visitas:", visitasRes.error.message);
+        }
+        if (entregasRes.error) {
+            console.warn("No se pudieron cargar entregas:", entregasRes.error.message);
+        }
 
-        patients = (pData || []).map(p => {
-            const visitasPaciente = (vData || [])
+        patients = pData.map(p => {
+            const visitasPaciente = vData
                 .filter(v => v.paciente_id === p.id)
-                .map(mapVisitaFromSupabase);
+                .map(v => ({
+                    id: v.id,
+                    num: v.num,
+                    fecha: v.fecha,
+                    tipo: v.tipo,
+                    horaI: v.hora_inicio,
+                    horaT: v.hora_termino,
+                    objetivo: v.objetivo,
+                    actividades: v.actividades,
+                    obs: v.observaciones,
+                    firma: v.firma_base64,
+                    firmaTipo: v.firma_tipo || 'manual',
+                    firmaNombre: v.firma_nombre,
+                    firmaRut: v.firma_rut,
+                    relacion: v.relacion,
+                    profesionalNombre: v.profesional_nombre,
+                    profesional: v.tipo === 'Psicología' ? 'psicologo' : 'terapeuta'
+                }));
 
-            const entregasPaciente = (eData || [])
+            const entregasPaciente = eData
                 .filter(e => e.paciente_id === p.id)
-                .map(mapEntregaFromSupabase);
+                .map(e => ({
+                    id: e.id,
+                    tipo: e.articulo_tipo,
+                    desc: e.descripcion,
+                    estado: e.estado || 'Nuevo',
+                    fecha: e.fecha,
+                    prof: e.profesional,
+                    firma: e.firma_paciente_base64,
+                    firmaProf: e.firma_profesional_base64,
+                    firmanteNombre: e.firmante_nombre,
+                    firmaRut: e.firmante_rut,
+                    relacion: e.relacion
+                }));
 
             return {
                 id: p.id,
@@ -694,18 +731,18 @@ async function loadDataFromSupabase() {
                 fechaNacimiento: p.fecha_nacimiento || '',
                 domicilio: p.domicilio || '',
                 telefono: p.telefono || '',
-                ultimaVisita: calcularUltimaVisitaDesdeVisitas(visitasPaciente) || p.ultima_visita || '',
+                ultimaVisita: p.ultima_visita || '',
                 visitas: visitasPaciente,
                 entregas: entregasPaciente,
-                docs: []
+                docs: JSON.parse(localStorage.getItem(`docs_${p.id}`) || '[]')
             };
         });
 
         savePatients();
         renderTable();
-        console.log("Datos sincronizados correctamente.");
+        console.log("Pacientes cargados correctamente:", patients.length);
     } catch (err) {
-        console.error("Error cargando desde Supabase:", err);
+        console.error("Error cargando pacientes desde Supabase:", err);
         patients = JSON.parse(localStorage.getItem('tera_patients')) || [];
         renderTable();
     }
