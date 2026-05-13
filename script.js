@@ -2438,7 +2438,6 @@ document.getElementById('dynamicTestForm').addEventListener('submit', (e) => {
         p.docs.unshift(newDoc);
     }
 
-    p.ultimaVisita = fecha;
 
     // Limpiar borrador legacy si existiera
     if (p.drafts) delete p.drafts[currentTestId];
@@ -2781,7 +2780,7 @@ function captureSignatureToBase64(canvas) {
     return canvas.toDataURL('image/png');
 }
 
-document.getElementById('sessionForm').addEventListener('submit', (e) => {
+document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
@@ -2805,8 +2804,13 @@ document.getElementById('sessionForm').addEventListener('submit', (e) => {
 
     if (!p.visitas) p.visitas = [];
 
+   const nextNum = (p.visitas && p.visitas.length > 0)
+    ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
+    : 1;
+
     const newVisita = {
-        num: p.visitas.length + 1,
+        id: null,
+        num: nextNum,
         fecha: document.getElementById('sFecha').value,
         tipo: document.getElementById('sTipo').value,
         horaI: document.getElementById('sHoraI').value,
@@ -2824,14 +2828,15 @@ document.getElementById('sessionForm').addEventListener('submit', (e) => {
     };
 
     p.visitas.push(newVisita);
-    p.ultimaVisita = newVisita.fecha.split('-').reverse().join('/'); // Formato DD/MM/YYYY para la tabla
 
-    syncVisitaToSupabase(newVisita, p.id);
+    await syncVisitaToSupabase(newVisita, p.id);
+    await actualizarUltimaVisitaPaciente(p);
+
     savePatients();
     renderVisitas();
     renderTable();
     closeModal('sessionModal');
-    stopCamera(); // Asegurar apagar cámara
+    stopCamera();
     alert('✅ Visita domiciliaria registrada correctamente.');
 });
 
