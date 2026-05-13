@@ -642,9 +642,11 @@ const testsConfig = {
     'mmse': testMMSE
 };
 
+// Guardar paciente
 function savePatients() {
     localStorage.setItem('tera_patients', JSON.stringify(patients));
 }
+
 async function loadPatientsFromSupabase() {
     const { data, error } = await supabaseClient
         .from('pacientes')
@@ -727,6 +729,102 @@ async function deletePatientFromSupabase(id) {
     if (error) {
         console.error('Error eliminando paciente en Supabase:', error);
         alert('No se pudo eliminar el paciente.');
+        return false;
+    }
+
+    return true;
+}
+
+async function loadVisitasFromSupabase(patientId) {
+    const { data, error } = await supabaseClient
+        .from('visitas')
+        .select('*')
+        .eq('paciente_id', patientId)
+        .order('num', { ascending: true });
+
+    if (error) {
+        console.error('Error cargando visitas desde Supabase:', error);
+        return [];
+    }
+
+    return (data || []).map(v => ({
+        id: v.id,
+        num: v.num,
+        fecha: v.fecha,
+        tipo: v.tipo,
+        horaI: v.hora_inicio,
+        horaT: v.hora_termino,
+        objetivo: v.objetivo,
+        actividades: v.actividades,
+        obs: v.observaciones,
+        firma: v.firma,
+        firmaNombre: v.firma_nombre,
+        firmaRut: v.firma_rut,
+        relacion: v.relacion,
+        profesionalNombre: v.profesional_nombre,
+        profesional: v.profesional_area
+    }));
+}
+
+async function saveVisitaToSupabase(patientId, visita) {
+    const payload = {
+        paciente_id: patientId,
+        num: visita.num,
+        fecha: visita.fecha || null,
+        tipo: visita.tipo || null,
+        hora_inicio: visita.horaI || null,
+        hora_termino: visita.horaT || null,
+        objetivo: visita.objetivo || null,
+        actividades: visita.actividades || null,
+        observaciones: visita.obs || null,
+        firma: visita.firma || null,
+        firma_nombre: visita.firmaNombre || null,
+        firma_rut: visita.firmaRut || null,
+        relacion: visita.relacion || null,
+        profesional_nombre: visita.profesionalNombre || null,
+        profesional_area: visita.profesional || null
+    };
+
+    const { data, error } = await supabaseClient
+        .from('visitas')
+        .insert(payload)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error guardando visita en Supabase:', error);
+        alert('No se pudo guardar la visita: ' + (error?.message || 'Error desconocido'));
+        return null;
+    }
+
+    return {
+        id: data.id,
+        num: data.num,
+        fecha: data.fecha,
+        tipo: data.tipo,
+        horaI: data.hora_inicio,
+        horaT: data.hora_termino,
+        objetivo: data.objetivo,
+        actividades: data.actividades,
+        obs: data.observaciones,
+        firma: data.firma,
+        firmaNombre: data.firma_nombre,
+        firmaRut: data.firma_rut,
+        relacion: data.relacion,
+        profesionalNombre: data.profesional_nombre,
+        profesional: data.profesional_area
+    };
+}
+
+async function deleteVisitaFromSupabase(visitaId) {
+    const { error } = await supabaseClient
+        .from('visitas')
+        .delete()
+        .eq('id', visitaId);
+
+    if (error) {
+        console.error('Error eliminando visita en Supabase:', error);
+        alert('No se pudo eliminar la visita.');
         return false;
     }
 
@@ -2677,6 +2775,7 @@ function captureSignatureToBase64(canvas) {
     return canvas.toDataURL('image/png');
 }
 
+// Cambio para guardar visita
 document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const p = patients.find(x => x.id === currentPatientId);
@@ -2735,7 +2834,22 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     stopCamera();
     alert('✅ Visita domiciliaria registrada correctamente.');
 });
-    // Ordenar por número de sesión descendente (más reciente arriba)
+
+function renderVisitas() {
+    const list = document.getElementById('sessionsList');
+    if (!list) return;
+    const p = patients.find(x => x.id === currentPatientId);
+
+    if (!p || !p.visitas || p.visitas.length === 0) {
+        list.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--text-tertiary); background: rgba(0,0,0,0.02); border-radius: 20px; border: 1px dashed #ddd;">
+                <span style="font-size: 2rem; display: block; margin-bottom: 10px;">📋</span>
+                No hay visitas registradas para este paciente.
+            </div>
+        `;
+        return;
+    }
+
     const sorted = [...(p.visitas || [])].sort((a, b) => b.num - a.num);
 
     list.innerHTML = sorted.map(s => `
@@ -2785,7 +2899,6 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         </div>
     `).join('');
 
-    // --- RENDERIZAR TABLA DE IMPRESIÓN OFICIAL ---
     const printTbody = document.getElementById('printTableBody');
     if (printTbody) {
         if (!p.visitas || p.visitas.length === 0) {
