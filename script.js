@@ -3054,7 +3054,7 @@ function prepareAndPrint() {
     }, 250);
 }
 
-function deleteVisita(num) {
+async function deleteVisita(num) {
     if (!confirm(`¿Está seguro de que desea eliminar el registro de la Visita ${num}? Esta acción no se puede deshacer.`)) {
         return;
     }
@@ -3062,20 +3062,30 @@ function deleteVisita(num) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
 
+    const visitaAEliminar = p.visitas.find(s => s.num === num);
+
+    if (visitaAEliminar && visitaAEliminar.id) {
+        const { error } = await supabase
+            .from('visitas')
+            .delete()
+            .eq('id', visitaAEliminar.id);
+
+        if (error) {
+            console.error("Error eliminando visita en Supabase:", error);
+            alert("No se pudo eliminar la visita en Supabase.");
+            return;
+        }
+    }
+
     p.visitas = p.visitas.filter(s => s.num !== num);
 
-    // Re-numerar visitas para mantener consistencia
-    p.visitas.forEach((s, idx) => {
-        s.num = idx + 1;
-    });
+    p.visitas
+        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+        .forEach((s, idx) => {
+            s.num = idx + 1;
+        });
 
-    // Actualizar última visita
-    if (p.visitas.length > 0) {
-        const last = p.visitas[p.visitas.length - 1];
-        p.ultimaVisita = last.fecha.split('-').reverse().join('/');
-    } else {
-        p.ultimaVisita = 'Sin visitas';
-    }
+    await actualizarUltimaVisitaPaciente(p);
 
     savePatients();
     renderVisitas();
