@@ -668,13 +668,13 @@ async function loadDataFromSupabase() {
     try {
         console.log("Cargando datos desde Supabase...");
 
-        const { data: pData, error: pError } = await supabase.from('pacientes').select('*');
+        const { data: pData, error: pError } = await db.from('pacientes').select('*');
         if (pError) throw pError;
 
-        const { data: vData, error: vError } = await supabase.from('visitas').select('*');
+        const { data: vData, error: vError } = await db.from('visitas').select('*');
         if (vError) throw vError;
 
-        const { data: eData, error: eError } = await supabase.from('entregas').select('*');
+        const { data: eData, error: eError } = await db.from('entregas').select('*');
         if (eError) throw eError;
 
         patients = (pData || []).map(p => {
@@ -733,14 +733,14 @@ async function syncPatientToSupabase(p) {
     let response;
 
     if (p.id) {
-        response = await supabase
+        response = await db
             .from('pacientes')
             .update(pData)
             .eq('id', p.id)
             .select()
             .single();
     } else {
-        response = await supabase
+        response = await db
             .from('pacientes')
             .insert(pData)
             .select()
@@ -758,7 +758,7 @@ async function syncPatientToSupabase(p) {
     return data;
 }
 async function syncVisitaToSupabase(v, patientId) {
-    const { error } = await supabase
+    const { error } = await db
         .from('visitas')
         .upsert({
             paciente_id: patientId,
@@ -781,7 +781,7 @@ async function syncVisitaToSupabase(v, patientId) {
 }
 
 async function syncEntregaToSupabase(e, patientId) {
-    const { error } = await supabase
+    const { error } = await db
         .from('entregas')
         .upsert({
             paciente_id: patientId,
@@ -845,7 +845,7 @@ function calcularUltimaVisitaDesdeVisitas(visitas) {
 async function actualizarUltimaVisitaPaciente(p) {
     p.ultimaVisita = calcularUltimaVisitaDesdeVisitas(p.visitas);
 
-    const { error } = await supabase
+    const { error } = await db
         .from('pacientes')
         .update({ ultima_visita: p.ultimaVisita || null })
         .eq('id', p.id);
@@ -983,7 +983,7 @@ document.getElementById('patientForm').addEventListener('submit', async (e) => {
 // Eliminar Paciente
 async function deletePatient(id) {
     if (confirm('¿Seguro que deseas eliminar a este paciente y todos sus registros? Esta acción no se puede deshacer.')) {
-        const { error } = await supabase.from('pacientes').delete().eq('id', id);
+        const { error } = await db.from('pacientes').delete().eq('id', id);
         if (error) {
             alert("Error al eliminar en Supabase: " + error.message);
             return;
@@ -3085,7 +3085,7 @@ async function deleteVisita(num) {
     const visitaAEliminar = p.visitas.find(s => s.num === num);
 
     if (visitaAEliminar && visitaAEliminar.id) {
-        const { error } = await supabase
+        const { error } = await db
             .from('visitas')
             .delete()
             .eq('id', visitaAEliminar.id);
