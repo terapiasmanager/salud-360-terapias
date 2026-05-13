@@ -732,7 +732,6 @@ async function deletePatientFromSupabase(id) {
 
     return true;
 }
-
 // Renderizar tabla
 function renderTable(filter = '') {
     const tbody = document.getElementById('patientsList');
@@ -1040,8 +1039,13 @@ function migrateProfessionalNames() {
     savePatients();
 }
 
-function openFicha(id) {
+    async function openFicha(id) {
     const p = patients.find(p => p.id === id);
+    if (!p) return;
+
+    const visitasSupabase = await loadVisitasFromSupabase(id);
+    p.visitas = visitasSupabase;
+
     const area = currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional';
     const profLabel = `${area}${currentProfesionalNombre ? ' - ' + currentProfesionalNombre : ''}`;
     
@@ -1049,7 +1053,7 @@ function openFicha(id) {
     document.getElementById('fDetails').innerHTML = `<strong>RUT:</strong> ${p.rut} | <strong>Edad:</strong> ${p.edad || '-'} | <strong>Nacimiento:</strong> ${p.fechaNacimiento} <br> <strong>Domicilio:</strong> ${p.domicilio || '-'}`;
     
     // --- MIGRACIÓN Y SEPARACIÓN DE DATOS (REQUERIMIENTO OBLIGATORIO) ---
-    if (!p.visitas) p.visitas = p.sessions || [];
+    if (!p.visitas) p.visitas = [];
     if (!p.entregas) {
         p.entregas = [];
         // Mover entregas que estaban en docs a la nueva estructura
@@ -2673,7 +2677,7 @@ function captureSignatureToBase64(canvas) {
     return canvas.toDataURL('image/png');
 }
 
-document.getElementById('sessionForm').addEventListener('submit', (e) => {
+document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
@@ -2689,15 +2693,18 @@ document.getElementById('sessionForm').addEventListener('submit', (e) => {
     }
 
     if (!finalFirmaBase64) {
-        const msg = currentSignatureType === 'manual' ? 'La firma manual es obligatoria.' : 
-                    (currentSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
+        const msg = currentSignatureType === 'manual'
+            ? 'La firma manual es obligatoria.'
+            : (currentSignatureType === 'archivo'
+                ? 'Debe seleccionar una imagen.'
+                : 'Debe capturar una foto.');
         alert('⚠️ ' + msg);
         return;
     }
 
     if (!p.visitas) p.visitas = [];
-    
-    const newVisita = {
+
+    const visitaLocal = {
         num: p.visitas.length + 1,
         fecha: document.getElementById('sFecha').value,
         tipo: document.getElementById('sTipo').value,
@@ -2715,32 +2722,19 @@ document.getElementById('sessionForm').addEventListener('submit', (e) => {
         profesional: currentProfesional
     };
 
-    p.visitas.push(newVisita);
-    p.ultimaVisita = newVisita.fecha.split('-').reverse().join('/'); // Formato DD/MM/YYYY para la tabla
-    
+    const visitaGuardada = await saveVisitaToSupabase(currentPatientId, visitaLocal);
+    if (!visitaGuardada) return;
+
+    p.visitas.push(visitaGuardada);
+    p.ultimaVisita = visitaGuardada.fecha.split('-').reverse().join('/');
+
     savePatients();
     renderVisitas();
     renderTable();
     closeModal('sessionModal');
-    stopCamera(); // Asegurar apagar cámara
+    stopCamera();
     alert('✅ Visita domiciliaria registrada correctamente.');
 });
-
-function renderVisitas() {
-    const list = document.getElementById('sessionsList');
-    if (!list) return;
-    const p = patients.find(x => x.id === currentPatientId);
-    
-    if (!p || !p.visitas || p.visitas.length === 0) {
-        list.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: var(--text-tertiary); background: rgba(0,0,0,0.02); border-radius: 20px; border: 1px dashed #ddd;">
-                <span style="font-size: 2rem; display: block; margin-bottom: 10px;">📋</span>
-                No hay visitas registradas para este paciente.
-            </div>
-        `;
-        return;
-    }
-
     // Ordenar por número de sesión descendente (más reciente arriba)
     const sorted = [...(p.visitas || [])].sort((a, b) => b.num - a.num);
 
@@ -2940,7 +2934,7 @@ function prepareAndPrint() {
     }, 250);
 }
 
-function deleteVisita(num) {
+async function deleteVisita(num) {
     if (!confirm(`¿Está seguro de que desea eliminar el registro de la Visita ${num}? Esta acción no se puede deshacer.`)) {
         return;
     }
@@ -2948,14 +2942,18 @@ function deleteVisita(num) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
 
+    const visita = p.visitas.find(v => v.num === num);
+    if (!visita) return;
+
+    const ok = await deleteVisitaFromSupabase(visita.id);
+    if (!ok) return;
+
     p.visitas = p.visitas.filter(s => s.num !== num);
-    
-    // Re-numerar visitas para mantener consistencia
+
     p.visitas.forEach((s, idx) => {
         s.num = idx + 1;
     });
 
-    // Actualizar última visita
     if (p.visitas.length > 0) {
         const last = p.visitas[p.visitas.length - 1];
         p.ultimaVisita = last.fecha.split('-').reverse().join('/');
