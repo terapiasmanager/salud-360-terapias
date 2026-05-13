@@ -2857,12 +2857,15 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     const submitBtn = e.submitter || document.querySelector('#sessionForm button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = true;
+        submitBtn.dataset.originalText = submitBtn.textContent;
         submitBtn.textContent = 'Guardando...';
+        submitBtn.style.opacity = '0.7';
+        submitBtn.style.pointerEvents = 'none';
     }
 
     try {
         const p = patients.find(x => x.id === currentPatientId);
-        if (!p) return;
+        if (!p) throw new Error('No se encontró el paciente actual.');
 
         let finalFirmaBase64 = null;
 
@@ -2880,13 +2883,12 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
                 : (currentSignatureType === 'archivo'
                     ? 'Debe seleccionar una imagen.'
                     : 'Debe capturar una foto.');
-            alert('⚠️ ' + msg);
-            return;
+            throw new Error(msg);
         }
 
         if (!p.visitas) p.visitas = [];
 
-        const nextNum = (p.visitas && p.visitas.length > 0)
+        const nextNum = (p.visitas.length > 0)
             ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
             : 1;
 
@@ -2910,7 +2912,7 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         };
 
         const visitaGuardada = await syncVisitaToSupabase(newVisita, p.id);
-        if (!visitaGuardada) return;
+        if (!visitaGuardada) throw new Error('No se pudo guardar la visita en Supabase.');
 
         const visitaFinal = {
             id: visitaGuardada.id,
@@ -2934,7 +2936,7 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         p.visitas.push(visitaFinal);
 
         const okUltima = await actualizarUltimaVisitaPaciente(p);
-        if (!okUltima) return;
+        if (!okUltima) throw new Error('La visita se guardó, pero no se pudo actualizar la última visita.');
 
         savePatients();
 
@@ -2946,15 +2948,16 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         stopCamera();
     } catch (error) {
         console.error('Error final en submit de visita:', error);
-        alert('❌ La visita se guardó parcialmente o hubo un error al actualizar la interfaz.');
+        alert('❌ ' + (error.message || 'Ocurrió un error al registrar la visita.'));
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.textContent = '✅ Registrar Visita';
+            submitBtn.textContent = submitBtn.dataset.originalText || '✅ Registrar Visita';
+            submitBtn.style.opacity = '1';
+            submitBtn.style.pointerEvents = 'auto';
         }
     }
 });
-
 function renderVisitas() {
     const list = document.getElementById('sessionsList');
     if (!list) return;
