@@ -828,7 +828,7 @@ async function syncVisitaToSupabase(v, patientId) {
     }
 
     return data;
-}
+} 
 async function syncEntregaToSupabase(e, patientId) {
     const { error } = await db
         .from('entregas')
