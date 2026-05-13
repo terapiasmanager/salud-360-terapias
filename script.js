@@ -52,11 +52,8 @@ const users = [
     { username: "rriffo", password: "1737", nombre: "Rode" }
 ];
 
-let patients = JSON.parse(localStorage.getItem('tera_patients')) || [
-    { id: '1', nombre: 'Juan Pérez', edad: '46', rut: '12.345.678-9', fechaNacimiento: '1980-05-15', domicilio: 'Av. Siempre Viva 123', ultimaVisita: '15/04/2026', docs: [
-        { titulo: 'Encuesta Inicial', contenido: 'Paciente reporta mejoría en movilidad. Se aplicó cuestionario estándar.', fecha: '15/04/2026' }
-    ]} // Data de prueba inicial
-];
+let patients = [];
+
 let currentPatientId = null;
 let currentProfesional = null;
 let currentProfesionalNombre = "";
@@ -648,6 +645,93 @@ const testsConfig = {
 function savePatients() {
     localStorage.setItem('tera_patients', JSON.stringify(patients));
 }
+async function loadPatientsFromSupabase() {
+    const { data, error } = await supabaseClient
+        .from('pacientes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error cargando pacientes desde Supabase:', error);
+        return;
+    }
+
+    patients = (data || []).map(p => ({
+        id: p.id,
+        nombre: p.nombre || '',
+        edad: p.edad ? String(p.edad) : '',
+        rut: p.rut || '',
+        fechaNacimiento: p.fecha_nacimiento || '',
+        domicilio: p.domicilio || '',
+        telefono: p.telefono || '',
+        ultimaVisita: p.ultima_visita || '',
+        docs: [],
+        visitas: [],
+        entregas: []
+    }));
+
+    savePatients();
+    renderTable();
+}
+
+async function savePatientToSupabase(patient) {
+    const payload = {
+        nombre: patient.nombre,
+        rut: patient.rut,
+        edad: patient.edad ? Number(patient.edad) : null,
+        fecha_nacimiento: patient.fechaNacimiento || null,
+        domicilio: patient.domicilio || null,
+        telefono: patient.telefono || null,
+        ultima_visita: patient.ultimaVisita || null
+    };
+
+    const isRealUuid = patient.id && !String(patient.id).startsWith('local-');
+
+    if (isRealUuid) {
+        const { error } = await supabaseClient
+            .from('pacientes')
+            .update(payload)
+            .eq('id', patient.id);
+
+        if (error) {
+            console.error('Error actualizando paciente en Supabase:', error);
+            alert('No se pudo actualizar el paciente.');
+            return false;
+        }
+
+        return true;
+    } else {
+        const { data, error } = await supabaseClient
+            .from('pacientes')
+            .insert(payload)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error creando paciente en Supabase:', error);
+            alert('No se pudo crear el paciente.');
+            return false;
+        }
+
+        patient.id = data.id;
+        return true;
+    }
+}
+
+async function deletePatientFromSupabase(id) {
+    const { error } = await supabaseClient
+        .from('pacientes')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error eliminando paciente en Supabase:', error);
+        alert('No se pudo eliminar el paciente.');
+        return false;
+    }
+
+    return true;
+}
 
 // Renderizar tabla
 function renderTable(filter = '') {
@@ -721,9 +805,10 @@ document.getElementById('pFecha').addEventListener('change', (e) => {
 });
 
 // Guardar Paciente
-document.getElementById('patientForm').addEventListener('submit', (e) => {
+document.getElementById('patientForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('patientId').value || Date.now().toString();
+
+    const id = document.getElementById('patientId').value || ('local-' + Date.now());
     const nombre = document.getElementById('pNombre').value;
     const edad = document.getElementById('pEdad').value;
     const rut = document.getElementById('pRut').value;
@@ -731,19 +816,34 @@ document.getElementById('patientForm').addEventListener('submit', (e) => {
     const domicilio = document.getElementById('pDomicilio').value;
     const telefono = document.getElementById('pTelefono').value;
 
-    const existingIndex = patients.findIndex(p => p.id === id);
-    if(existingIndex >= 0) {
-        patients[existingIndex].nombre = nombre;
-        patients[existingIndex].edad = edad;
-        patients[existingIndex].rut = rut;
-        patients[existingIndex].fechaNacimiento = fechaNav;
-        patients[existingIndex].domicilio = domicilio;
-        patients[existingIndex].telefono = telefono;
+    let patient = patients.find(p => p.id === id);
+
+    if (patient) {
+        patient.nombre = nombre;
+        patient.edad = edad;
+        patient.rut = rut;
+        patient.fechaNacimiento = fechaNav;
+        patient.domicilio = domicilio;
+        patient.telefono = telefono;
     } else {
-        patients.push({
-            id, nombre, edad, rut, fechaNacimiento: fechaNav, domicilio, telefono, ultimaVisita: '', docs: []
-        });
+        patient = {
+            id,
+            nombre,
+            edad,
+            rut,
+            fechaNacimiento: fechaNav,
+            domicilio,
+            telefono,
+            ultimaVisita: '',
+            docs: [],
+            visitas: [],
+            entregas: []
+        };
+        patients.push(patient);
     }
+
+    const ok = await savePatientToSupabase(patient);
+    if (!ok) return;
 
     savePatients();
     renderTable();
@@ -751,12 +851,17 @@ document.getElementById('patientForm').addEventListener('submit', (e) => {
 });
 
 // Eliminar Paciente
-function deletePatient(id) {
-    if(confirm('¿Seguro que deseas eliminar a este paciente y todos sus registros? Esta acción no se puede deshacer.')) {
-        patients = patients.filter(p => p.id !== id);
-        savePatients();
-        renderTable();
+async function deletePatient(id) {
+    if (!confirm('¿Seguro que deseas eliminar a este paciente y todos sus registros? Esta acción no se puede deshacer.')) {
+        return;
     }
+
+    const ok = await deletePatientFromSupabase(id);
+    if (!ok) return;
+
+    patients = patients.filter(p => p.id !== id);
+    savePatients();
+    renderTable();
 }
 
 // --- FICHA DEL PACIENTE Y DOCUMENTOS ---
@@ -838,7 +943,9 @@ function populateProfesionalDropdown(selectId, area) {
 }
 
 // Listener para cambio de especialidad en el formulario de sesiones
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadPatientsFromSupabase();
+
     // Migrar nombres antiguos para consistencia
     migrateProfessionalNames();
 
