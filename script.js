@@ -735,17 +735,29 @@ async function deletePatientFromSupabase(id) {
     return true;
 }
 
-async function loadVisitasFromSupabase(patientId) {
-    const { data, error } = await supabaseClient
-        .from('visitas')
-        .select('*')
-        .eq('paciente_id', patientId)
-        .order('num', { ascending: true });
+   async function syncPatientLastVisitFromSupabase(patientId) {
+    const visitas = await loadVisitasFromSupabase(patientId);
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient) return '';
+
+    if (visitas.length > 0) {
+        const ultima = [...visitas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha))[0];
+        patient.ultimaVisita = ultima.fecha.split('-').reverse().join('/');
+    } else {
+        patient.ultimaVisita = '';
+    }
+
+    const { error } = await supabaseClient
+        .from('pacientes')
+        .update({ ultima_visita: patient.ultimaVisita || null })
+        .eq('id', patientId);
 
     if (error) {
-        console.error('Error cargando visitas desde Supabase:', error);
-        return [];
+        console.error('Error sincronizando última visita:', error);
     }
+
+    return patient.ultimaVisita;
+}
 
     return (data || []).map(v => ({
         id: v.id,
