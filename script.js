@@ -795,28 +795,38 @@ async function syncPatientToSupabase(p) {
     return data;
 }
 async function syncVisitaToSupabase(v, patientId) {
-    const { error } = await db
-        .from('visitas')
-        .upsert({
-            paciente_id: patientId,
-            num: v.num,
-            fecha: v.fecha,
-            tipo: v.tipo,
-            hora_inicio: v.horaI,
-            hora_termino: v.horaT,
-            objetivo: v.objetivo,
-            actividades: v.actividades,
-            observaciones: v.obs,
-            firma_base64: v.firma,
-            firma_tipo: v.firmaTipo,
-            firma_nombre: v.firmaNombre,
-            firma_rut: v.firmaRut,
-            relacion: v.relacion,
-            profesional_nombre: v.profesionalNombre
-        });
-    if (error) console.error("Error sincronizando visita:", error);
-}
+    const payload = {
+        paciente_id: patientId,
+        num: v.num,
+        fecha: v.fecha,
+        tipo: v.tipo,
+        hora_inicio: v.horaI,
+        hora_termino: v.horaT,
+        objetivo: v.objetivo,
+        actividades: v.actividades,
+        observaciones: v.obs,
+        firma_base64: v.firma,
+        firma_tipo: v.firmaTipo,
+        firma_nombre: v.firmaNombre,
+        firma_rut: v.firmaRut,
+        relacion: v.relacion,
+        profesional_nombre: v.profesionalNombre
+    };
 
+    const { data, error } = await db
+        .from('visitas')
+        .insert(payload)
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error sincronizando visita:", error);
+        alert("Error al guardar visita en Supabase: " + error.message);
+        return null;
+    }
+
+    return data;
+}
 async function syncEntregaToSupabase(e, patientId) {
     const { error } = await db
         .from('entregas')
@@ -2853,17 +2863,20 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     }
 
     if (!finalFirmaBase64) {
-        const msg = currentSignatureType === 'manual' ? 'La firma manual es obligatoria.' :
-            (currentSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
+        const msg = currentSignatureType === 'manual'
+            ? 'La firma manual es obligatoria.'
+            : (currentSignatureType === 'archivo'
+                ? 'Debe seleccionar una imagen.'
+                : 'Debe capturar una foto.');
         alert('⚠️ ' + msg);
         return;
     }
 
     if (!p.visitas) p.visitas = [];
 
-   const nextNum = (p.visitas && p.visitas.length > 0)
-    ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
-    : 1;
+    const nextNum = (p.visitas && p.visitas.length > 0)
+        ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
+        : 1;
 
     const newVisita = {
         id: null,
@@ -2884,9 +2897,30 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         profesional: currentProfesional
     };
 
-    p.visitas.push(newVisita);
+    const visitaGuardada = await syncVisitaToSupabase(newVisita, p.id);
+    if (!visitaGuardada) return;
 
-    await syncVisitaToSupabase(newVisita, p.id);
+    const visitaFinal = {
+        id: visitaGuardada.id,
+        num: visitaGuardada.num,
+        fecha: visitaGuardada.fecha,
+        tipo: visitaGuardada.tipo,
+        horaI: visitaGuardada.hora_inicio,
+        horaT: visitaGuardada.hora_termino,
+        objetivo: visitaGuardada.objetivo,
+        actividades: visitaGuardada.actividades,
+        obs: visitaGuardada.observaciones,
+        firma: visitaGuardada.firma_base64,
+        firmaTipo: visitaGuardada.firma_tipo,
+        firmaNombre: visitaGuardada.firma_nombre,
+        firmaRut: visitaGuardada.firma_rut,
+        relacion: visitaGuardada.relacion,
+        profesionalNombre: visitaGuardada.profesional_nombre,
+        profesional: visitaGuardada.tipo === 'Psicología' ? 'psicologo' : 'terapeuta'
+    };
+
+    p.visitas.push(visitaFinal);
+
     await actualizarUltimaVisitaPaciente(p);
 
     savePatients();
