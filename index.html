@@ -355,31 +355,101 @@
                                 </div>
                             </div>
 
-                            <!-- Firma Paciente -->
+                            <!-- Firma Paciente / Receptor -->
                             <div
-                                style="background: rgba(0,0,0,0.02); padding: 20px; border-radius: 12px; margin-top: 20px;">
-                                <label style="display: block; font-weight: 700; margin-bottom: 10px;">✍️ Firma de
-                                    Recepción (Paciente o Cuidador)</label>
-                                <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 10px;">Declaro
+                                style="background: rgba(99, 102, 241, 0.03); padding: 25px; border-radius: 20px; margin-top: 20px; border: 1px solid rgba(99, 102, 241, 0.15);">
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-weight: 700; color: #4338ca;">
+                                    <span>✍️</span> Firma de Recepción (Paciente o Cuidador)
+                                </label>
+                                <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 15px;">Declaro
                                     haber recibido el artículo descrito conforme y en el estado indicado.</p>
-                                <div
-                                    style="background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; position: relative;">
-                                    <canvas id="artSignatureCanvas" width="600" height="150"
-                                        style="width: 100%; height: 150px; cursor: crosshair; touch-action: none; background: white;"></canvas>
-                                    <button type="button" class="btn-outline" onclick="clearArtSignature()"
-                                        style="position: absolute; bottom: 5px; right: 5px; padding: 2px 8px; font-size: 0.7rem;">Borrar</button>
+
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-tertiary); margin-bottom: 10px; display: block;">Tipo de Validación / Firma:</label>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <label class="lb-sex-option" style="flex: 1; min-width: 140px; margin: 0;">
+                                            <input type="radio" name="artFirmaTipo" value="manual" checked onchange="toggleArtSignatureSource('manual')">
+                                            <span class="lb-sex-label" style="padding: 10px; font-size: 0.85rem;">✍️ Manual</span>
+                                        </label>
+                                        <label class="lb-sex-option" style="flex: 1; min-width: 140px; margin: 0;">
+                                            <input type="radio" name="artFirmaTipo" value="archivo" onchange="toggleArtSignatureSource('archivo')">
+                                            <span class="lb-sex-label" style="padding: 10px; font-size: 0.85rem;">📂 Imagen</span>
+                                        </label>
+                                        <label class="lb-sex-option" style="flex: 1; min-width: 140px; margin: 0;">
+                                            <input type="radio" name="artFirmaTipo" value="camara" onchange="toggleArtSignatureSource('camara')">
+                                            <span class="lb-sex-label" style="padding: 10px; font-size: 0.85rem;">📸 Cámara</span>
+                                        </label>
+                                    </div>
                                 </div>
-                                <div class="test-form-grid" style="margin-top: 15px;">
+
+                                <!-- OPCIÓN A: FIRMA MANUAL (CANVAS) -->
+                                <div id="artSigSourceManual" class="art-sig-source-container">
+                                    <div style="background: white; border-radius: 12px; border: 2px solid rgba(99, 102, 241, 0.2); overflow: hidden; position: relative;">
+                                        <canvas id="artSignatureCanvas" width="600" height="150"
+                                            style="width: 100%; height: 150px; cursor: crosshair; touch-action: none; background: white;"></canvas>
+                                        <div style="position: absolute; bottom: 10px; right: 10px;">
+                                            <button type="button" class="btn-outline" onclick="clearArtSignature()"
+                                                style="padding: 4px 12px; font-size: 0.75rem; background: rgba(255,255,255,0.9);">🗑️
+                                                Borrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- OPCIÓN B: ARCHIVO / IMAGEN -->
+                                <div id="artSigSourceArchivo" class="art-sig-source-container" style="display: none;">
+                                    <div style="background: white; border-radius: 12px; border: 2px dashed rgba(99, 102, 241, 0.3); padding: 20px; text-align: center;">
+                                        <input type="file" id="artFirmaArchivo" accept="image/*" style="display: none;" onchange="handleArtSignatureFile(this)">
+                                        <button type="button" class="btn-outline" onclick="document.getElementById('artFirmaArchivo').click()" style="width: 100%; margin-bottom: 15px; border-color: #6366f1; color: #4338ca;">
+                                            📁 Seleccionar Imagen de Firma / Huella
+                                        </button>
+                                        <div id="artFirmaArchivoPreview" style="display: none; margin-top: 10px;">
+                                            <img id="artImgFirmaPrev" src="" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid #ddd;">
+                                            <p style="font-size: 0.7rem; color: var(--text-tertiary); margin-top: 5px;">Imagen cargada correctamente</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- OPCIÓN C: CÁMARA -->
+                                <div id="artSigSourceCamara" class="art-sig-source-container" style="display: none;">
+                                    <div style="background: white; border-radius: 12px; border: 2px solid rgba(99, 102, 241, 0.2); overflow: hidden; position: relative; text-align: center;">
+                                        <div id="artCameraControls">
+                                            <video id="artSignatureVideo" style="width: 100%; height: 200px; background: #000; display: block;" autoplay playsinline></video>
+                                            <div style="padding: 10px; background: #f8fafc; display: flex; gap: 10px; justify-content: center;">
+                                                <button type="button" class="btn-primary" onclick="captureFromArtCamera()" style="padding: 8px 16px; font-size: 0.8rem; background: #4338ca;">📸 Capturar Foto</button>
+                                                <button type="button" class="btn-outline" onclick="startArtCamera()" style="padding: 8px 16px; font-size: 0.8rem;">🔄 Reintentar</button>
+                                            </div>
+                                        </div>
+                                        <div id="artCameraPreview" style="display: none;">
+                                            <canvas id="artCameraResultCanvas" width="600" height="400" style="width: 100%; height: auto; display: block;"></canvas>
+                                            <div style="padding: 10px; background: #f8fafc; display: flex; gap: 10px; justify-content: center;">
+                                                <button type="button" class="btn-outline" onclick="resetArtCamera()" style="padding: 8px 16px; font-size: 0.8rem;">🗑️ Eliminar y Repetir</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="test-form-grid" style="margin-top: 20px;">
                                     <div class="form-group">
-                                        <label>Nombre de quien firma</label>
-                                        <input type="text" id="artFirmaNombre" class="form-input" required>
+                                        <label>Nombre del Firmante</label>
+                                        <input type="text" id="artFirmaNombre" class="form-input" placeholder="Nombre completo" required>
                                     </div>
                                     <div class="form-group">
-                                        <label>Relación / Vínculo</label>
-                                        <input type="text" id="artRelacion" class="form-input" required>
+                                        <label>RUT del Firmante</label>
+                                        <input type="text" id="artFirmaRut" class="form-input" placeholder="12.345.678-9" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Vínculo / Relación</label>
+                                        <select id="artRelacion" class="form-input" required>
+                                            <option value="Paciente">Paciente Titular</option>
+                                            <option value="Cuidador">Cuidador Principal</option>
+                                            <option value="Familiar">Familiar Directo</option>
+                                            <option value="Representante">Representante Legal</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
+
 
                             <div
                                 style="display: flex; gap: 15px; margin-top: 30px; align-items: center; justify-content: center;">
@@ -510,16 +580,70 @@
                         <span>✍️</span> Firma del Paciente o Cuidador
                     </label>
 
-                    <div
-                        style="background: white; border-radius: 12px; border: 2px solid rgba(6,182,212,0.2); overflow: hidden; position: relative;">
-                        <canvas id="signatureCanvas" width="600" height="180"
-                            style="width: 100%; height: 180px; cursor: crosshair; touch-action: none; background: white;"></canvas>
-                        <div style="position: absolute; bottom: 10px; right: 10px;">
-                            <button type="button" class="btn-outline" onclick="clearSignature()"
-                                style="padding: 4px 12px; font-size: 0.75rem; background: rgba(255,255,255,0.9);">🗑️
-                                Borrar</button>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-tertiary); margin-bottom: 10px; display: block;">Tipo de Validación / Firma:</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <label class="lb-sex-option" style="flex: 1; min-width: 140px; margin: 0;">
+                                <input type="radio" name="sFirmaTipo" value="manual" checked onchange="toggleSignatureSource('manual')">
+                                <span class="lb-sex-label" style="padding: 10px; font-size: 0.85rem;">✍️ Manual</span>
+                            </label>
+                            <label class="lb-sex-option" style="flex: 1; min-width: 140px; margin: 0;">
+                                <input type="radio" name="sFirmaTipo" value="archivo" onchange="toggleSignatureSource('archivo')">
+                                <span class="lb-sex-label" style="padding: 10px; font-size: 0.85rem;">📂 Imagen</span>
+                            </label>
+                            <label class="lb-sex-option" style="flex: 1; min-width: 140px; margin: 0;">
+                                <input type="radio" name="sFirmaTipo" value="camara" onchange="toggleSignatureSource('camara')">
+                                <span class="lb-sex-label" style="padding: 10px; font-size: 0.85rem;">📸 Cámara</span>
+                            </label>
                         </div>
                     </div>
+
+                    <!-- OPCIÓN A: FIRMA MANUAL (CANVAS) -->
+                    <div id="sigSourceManual" class="sig-source-container">
+                        <div style="background: white; border-radius: 12px; border: 2px solid rgba(6,182,212,0.2); overflow: hidden; position: relative;">
+                            <canvas id="signatureCanvas" width="600" height="180"
+                                style="width: 100%; height: 180px; cursor: crosshair; touch-action: none; background: white;"></canvas>
+                            <div style="position: absolute; bottom: 10px; right: 10px;">
+                                <button type="button" class="btn-outline" onclick="clearSignature()"
+                                    style="padding: 4px 12px; font-size: 0.75rem; background: rgba(255,255,255,0.9);">🗑️
+                                    Borrar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OPCIÓN B: ARCHIVO / IMAGEN -->
+                    <div id="sigSourceArchivo" class="sig-source-container" style="display: none;">
+                        <div style="background: white; border-radius: 12px; border: 2px dashed rgba(6,182,212,0.3); padding: 20px; text-align: center;">
+                            <input type="file" id="sFirmaArchivo" accept="image/*" style="display: none;" onchange="handleSignatureFile(this)">
+                            <button type="button" class="btn-outline" onclick="document.getElementById('sFirmaArchivo').click()" style="width: 100%; margin-bottom: 15px;">
+                                📁 Seleccionar Imagen de Firma / Huella
+                            </button>
+                            <div id="firmaArchivoPreview" style="display: none; margin-top: 10px;">
+                                <img id="imgFirmaPrev" src="" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid #ddd;">
+                                <p style="font-size: 0.7rem; color: var(--text-tertiary); margin-top: 5px;">Imagen cargada correctamente</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OPCIÓN C: CÁMARA -->
+                    <div id="sigSourceCamara" class="sig-source-container" style="display: none;">
+                        <div style="background: white; border-radius: 12px; border: 2px solid rgba(6,182,212,0.2); overflow: hidden; position: relative; text-align: center;">
+                            <div id="cameraControls">
+                                <video id="signatureVideo" style="width: 100%; height: 200px; background: #000; display: block;" autoplay playsinline></video>
+                                <div style="padding: 10px; background: #f8fafc; display: flex; gap: 10px; justify-content: center;">
+                                    <button type="button" class="btn-primary" onclick="captureFromCamera()" style="padding: 8px 16px; font-size: 0.8rem;">📸 Capturar Foto</button>
+                                    <button type="button" class="btn-outline" onclick="startCamera()" style="padding: 8px 16px; font-size: 0.8rem;">🔄 Reintentar</button>
+                                </div>
+                            </div>
+                            <div id="cameraPreview" style="display: none;">
+                                <canvas id="cameraResultCanvas" width="600" height="400" style="width: 100%; height: auto; display: block;"></canvas>
+                                <div style="padding: 10px; background: #f8fafc; display: flex; gap: 10px; justify-content: center;">
+                                    <button type="button" class="btn-outline" onclick="resetCamera()" style="padding: 8px 16px; font-size: 0.8rem;">🗑️ Eliminar y Repetir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <div class="test-form-grid" style="margin-top: 20px;">
                         <div class="form-group">
@@ -614,10 +738,115 @@
             </tbody>
         </table>
 
-        <div class="print-footer">
-            <p>Documento generado por Sistema Salud 360 - Programa Adulto Mayor Lo Barnechea</p>
+    </div>
+
+    <!-- Contenedor de Impresión Visita Individual (Oculto en Web) -->
+    <div id="printVisitaIndividualContainer" class="print-only">
+        <div class="print-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 2px solid #0891b2; padding-bottom: 15px; margin-bottom: 20px;">
+                <div style="text-align: left;">
+                    <h2 style="margin: 0; font-size: 16pt; color: #0e7490; font-family: 'Plus Jakarta Sans', sans-serif;">REGISTRO INDIVIDUAL DE VISITA DOMICILIARIA</h2>
+                    <p style="margin: 5px 0 0 0; font-size: 10pt; font-weight: bold; color: #666;">PROGRAMA DEL ADULTO MAYOR — MUNICIPALIDAD DE LO BARNECHEA</p>
+                </div>
+                <img src="images/logo.png" alt="Logo" style="height: 50px;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <table class="cto-print-table">
+                <tr>
+                    <th colspan="2" class="cto-print-header" style="background: #0891b2 !important;">I. DATOS DEL PACIENTE</th>
+                </tr>
+                <tr>
+                    <td style="width: 30%;"><strong>Nombre Completo:</strong></td>
+                    <td id="privNombre"></td>
+                </tr>
+                <tr>
+                    <td><strong>RUT:</strong></td>
+                    <td id="privRut"></td>
+                </tr>
+                <tr>
+                    <td><strong>Domicilio:</strong></td>
+                    <td id="privDir"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <table class="cto-print-table">
+                <tr>
+                    <th colspan="2" class="cto-print-header" style="background: #0891b2 !important;">II. DATOS DE LA VISITA</th>
+                </tr>
+                <tr>
+                    <td style="width: 30%;"><strong>Número de Visita:</strong></td>
+                    <td id="privNum"></td>
+                </tr>
+                <tr>
+                    <td><strong>Fecha y Horario:</strong></td>
+                    <td id="privFechaHora"></td>
+                </tr>
+                <tr>
+                    <td><strong>Tipo de Atención:</strong></td>
+                    <td id="privTipo"></td>
+                </tr>
+                <tr>
+                    <td><strong>Profesional:</strong></td>
+                    <td id="privProf"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <table class="cto-print-table">
+                <tr>
+                    <th class="cto-print-header" style="background: #0891b2 !important;">III. CONTENIDO CLÍNICO</th>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="margin-bottom: 10px;">
+                            <strong>Objetivo de la sesión:</strong>
+                            <p id="privObjetivo" style="margin: 5px 0 15px 0; font-size: 10pt; text-align: justify;"></p>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>Actividades realizadas:</strong>
+                            <p id="privActividades" style="margin: 5px 0 15px 0; font-size: 10pt; text-align: justify;"></p>
+                        </div>
+                        <div id="privObsContainer">
+                            <strong>Observaciones:</strong>
+                            <p id="privObs" style="margin: 5px 0 0 0; font-size: 10pt; text-align: justify;"></p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-top: 50px; display: flex; justify-content: space-around; align-items: flex-end; page-break-inside: avoid;">
+            <div style="text-align: center; width: 250px;">
+                <div style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                    <img id="privFirmaImg" src="" style="max-width: 200px; max-height: 80px;">
+                </div>
+                <div style="border-top: 1px solid #000; padding-top: 5px;">
+                    <p style="margin: 0; font-size: 10pt; font-weight: bold;" id="privFirmanteNombre"></p>
+                    <p style="margin: 0; font-size: 9pt; color: #666;" id="privFirmanteRel"></p>
+                    <p style="margin: 0; font-size: 8pt; color: #888;">Firma del Receptor (Paciente/Cuidador)</p>
+                </div>
+            </div>
+            <div style="text-align: center; width: 250px;">
+                <div style="height: 100px; display: flex; align-items: center; justify-content: center; border-bottom: 1px dashed #ccc; margin-bottom: 5px;">
+                    <!-- Espacio para firma timbre si aplica -->
+                </div>
+                <div style="padding-top: 5px;">
+                    <p style="margin: 0; font-size: 10pt; font-weight: bold;">Firma Profesional</p>
+                    <p style="margin: 0; font-size: 9pt; color: #666;">Salud 360 - Lo Barnechea</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="print-footer" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; text-align: center; font-size: 8pt; color: #888;">
+            Documento generado por Sistema Salud 360 - Programa Adulto Mayor Lo Barnechea
         </div>
     </div>
+
 
     <!-- Contenedor Acta Recepción Artículo (Impresión) -->
     <div id="printArticuloContainer" class="print-only">
@@ -763,7 +992,14 @@
         </div>
     </div>
 
-    <script src="script.js?v=24"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://yfkvmymhbgzfnqxjmwlg.supabase.co";
+  const SUPABASE_URL = "https://yfkvmymhbgzfnqxjmwlg.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_bckoA9BGNQAFxyk0vLL_cQ_VzkRfN0M";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+<script src="script.js"></script>
 </body>
 
 </html>
