@@ -786,6 +786,62 @@ async function syncEntregaToSupabase(e, patientId) {
     if (error) console.error("Error sincronizando entrega:", error);
 }
 
+function mapVisitaFromSupabase(v) {
+    return {
+        id: v.id,
+        num: v.num,
+        fecha: v.fecha,
+        tipo: v.tipo,
+        horaI: v.hora_inicio,
+        horaT: v.hora_termino,
+        objetivo: v.objetivo,
+        actividades: v.actividades,
+        obs: v.observaciones,
+        firma: v.firma_base64,
+        firmaTipo: v.firma_tipo || 'manual',
+        firmaNombre: v.firma_nombre,
+        firmaRut: v.firma_rut,
+        relacion: v.relacion,
+        profesionalNombre: v.profesional_nombre,
+        profesional: v.tipo === 'Psicología' ? 'psicologo' : 'terapeuta'
+    };
+}
+
+function mapEntregaFromSupabase(e) {
+    return {
+        id: e.id,
+        tipo: e.articulo_tipo,
+        desc: e.descripcion,
+        estado: e.estado || 'Nuevo',
+        fecha: e.fecha,
+        prof: e.profesional,
+        firma: e.firma_paciente_base64,
+        firmaProf: e.firma_profesional_base64,
+        firmanteNombre: e.firmante_nombre,
+        firmaRut: e.firmante_rut,
+        relacion: e.relacion
+    };
+}
+
+function calcularUltimaVisitaDesdeVisitas(visitas) {
+    if (!visitas || visitas.length === 0) return '';
+    const ultima = [...visitas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha))[0];
+    return ultima.fecha ? ultima.fecha.split('-').reverse().join('/') : '';
+}
+
+async function actualizarUltimaVisitaPaciente(p) {
+    p.ultimaVisita = calcularUltimaVisitaDesdeVisitas(p.visitas);
+
+    const { error } = await supabase
+        .from('pacientes')
+        .update({ ultima_visita: p.ultimaVisita || null })
+        .eq('id', p.id);
+
+    if (error) {
+        console.error("Error actualizando última visita del paciente:", error);
+    }
+}
+
 // Renderizar tabla
 function renderTable(filter = '') {
     const tbody = document.getElementById('patientsList');
