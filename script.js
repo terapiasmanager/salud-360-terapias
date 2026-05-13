@@ -1157,7 +1157,7 @@ function openFicha(id) {
     document.getElementById('fDetails').innerHTML = `<strong>RUT:</strong> ${p.rut} | <strong>Edad:</strong> ${p.edad || '-'} | <strong>Nacimiento:</strong> ${p.fechaNacimiento} <br> <strong>Domicilio:</strong> ${p.domicilio || '-'}`;
 
     // --- MIGRACIÓN Y SEPARACIÓN DE DATOS (REQUERIMIENTO OBLIGATORIO) ---
-    if (!p.visitas) p.visitas = p.sessions || [];
+    if (!p.visitas) p.visitas = [];
     if (!p.entregas) {
         p.entregas = [];
         // Mover entregas que estaban en docs a la nueva estructura
