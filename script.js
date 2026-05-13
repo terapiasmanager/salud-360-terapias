@@ -52,8 +52,7 @@ const users = [
     { username: "rriffo", password: "1737", nombre: "Rode" }
 ];
 
-let patients = [];
-
+let patients = []; // Se cargará desde Supabase
 let currentPatientId = null;
 let currentProfesional = null;
 let currentProfesionalNombre = "";
@@ -642,206 +641,115 @@ const testsConfig = {
     'mmse': testMMSE
 };
 
-// Guardar paciente
-function savePatients() {
+// --- LOGICA DE SUPABASE ---
+async function loadDataFromSupabase() {
+    try {
+        console.log("Cargando datos desde Supabase...");
+        
+        // 1. Cargar Pacientes
+        const { data: pData, error: pError } = await supabase.from('pacientes').select('*');
+        if (pError) throw pError;
+
+        // 2. Cargar Visitas
+        const { data: vData, error: vError } = await supabase.from('visitas').select('*');
+        if (vError) throw vError;
+
+        // 3. Cargar Entregas
+        const { data: eData, error: eError } = await supabase.from('entregas').select('*');
+        if (eError) throw eError;
+
+        // Reconstruir estructura local
+        patients = pData.map(p => ({
+            id: p.id,
+            nombre: p.nombre,
+            rut: p.rut,
+            edad: p.edad,
+            fechaNacimiento: p.fecha_nacimiento,
+            domicilio: p.domicilio,
+            telefono: p.telefono,
+            ultimaVisita: p.ultima_visita,
+            visitas: vData.filter(v => v.paciente_id === p.id),
+            entregas: eData.filter(e => e.paciente_id === p.id),
+            docs: [] // Puedes mapear docs si los usas por separado
+        }));
+
+        renderTable();
+        console.log("Datos sincronizados correctamente.");
+    } catch (err) {
+        console.error("Error cargando desde Supabase:", err);
+        // Fallback a localStorage si falla la red
+        patients = JSON.parse(localStorage.getItem('tera_patients')) || [];
+        renderTable();
+    }
+}
+
+// Llamar al cargar la página
+window.addEventListener('DOMContentLoaded', loadDataFromSupabase);
+
+async function savePatients() {
+    // Mantenemos localStorage como respaldo
     localStorage.setItem('tera_patients', JSON.stringify(patients));
 }
 
-async function loadPatientsFromSupabase() {
-    const { data, error } = await supabaseClient
+// Función específica para guardar un paciente en Supabase
+async function syncPatientToSupabase(p) {
+    const { data, error } = await supabase
         .from('pacientes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error cargando pacientes desde Supabase:', error);
-        return;
-    }
-
-    patients = (data || []).map(p => ({
-        id: p.id,
-        nombre: p.nombre || '',
-        edad: p.edad ? String(p.edad) : '',
-        rut: p.rut || '',
-        fechaNacimiento: p.fecha_nacimiento || '',
-        domicilio: p.domicilio || '',
-        telefono: p.telefono || '',
-        ultimaVisita: p.ultima_visita || '',
-        docs: [],
-        visitas: [],
-        entregas: []
-    }));
-
-    savePatients();
-    renderTable();
+        .upsert({
+            id: p.id,
+            nombre: p.nombre,
+            rut: p.rut,
+            edad: p.edad,
+            fecha_nacimiento: p.fechaNacimiento,
+            domicilio: p.domicilio,
+            telefono: p.telefono,
+            ultima_visita: p.ultimaVisita
+        });
+    if (error) console.error("Error sincronizando paciente:", error);
 }
 
-async function savePatientToSupabase(patient) {
-    const payload = {
-        nombre: patient.nombre,
-        rut: patient.rut,
-        edad: patient.edad ? Number(patient.edad) : null,
-        fecha_nacimiento: patient.fechaNacimiento || null,
-        domicilio: patient.domicilio || null,
-        telefono: patient.telefono || null,
-        ultima_visita: patient.ultimaVisita || null
-    };
-
-    const isRealUuid = patient.id && !String(patient.id).startsWith('local-');
-
-    if (isRealUuid) {
-        const { error } = await supabaseClient
-            .from('pacientes')
-            .update(payload)
-            .eq('id', patient.id);
-
-        if (error) {
-            console.error('Error actualizando paciente en Supabase:', error);
-            alert('No se pudo actualizar el paciente.');
-            return false;
-        }
-
-        return true;
-    } else {
-        const { data, error } = await supabaseClient
-            .from('pacientes')
-            .insert(payload)
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error creando paciente en Supabase:', error);
-            alert('No se pudo crear el paciente.');
-            return false;
-        }
-
-        patient.id = data.id;
-        return true;
-    }
-}
-
-async function deletePatientFromSupabase(id) {
-    const { error } = await supabaseClient
-        .from('pacientes')
-        .delete()
-        .eq('id', id);
-
-    if (error) {
-        console.error('Error eliminando paciente en Supabase:', error);
-        alert('No se pudo eliminar el paciente.');
-        return false;
-    }
-
-    return true;
-}
-
-   async function syncPatientLastVisitFromSupabase(patientId) {
-    const visitas = await loadVisitasFromSupabase(patientId);
-    const patient = patients.find(p => p.id === patientId);
-    if (!patient) return '';
-
-    if (visitas.length > 0) {
-        const ultima = [...visitas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha))[0];
-        patient.ultimaVisita = ultima.fecha.split('-').reverse().join('/');
-    } else {
-        patient.ultimaVisita = '';
-    }
-
-    const { error } = await supabaseClient
-        .from('pacientes')
-        .update({ ultima_visita: patient.ultimaVisita || null })
-        .eq('id', patientId);
-
-    if (error) {
-        console.error('Error sincronizando última visita:', error);
-    }
-
-    return patient.ultimaVisita;
-}
-
-    return (data || []).map(v => ({
-        id: v.id,
-        num: v.num,
-        fecha: v.fecha,
-        tipo: v.tipo,
-        horaI: v.hora_inicio,
-        horaT: v.hora_termino,
-        objetivo: v.objetivo,
-        actividades: v.actividades,
-        obs: v.observaciones,
-        firma: v.firma,
-        firmaNombre: v.firma_nombre,
-        firmaRut: v.firma_rut,
-        relacion: v.relacion,
-        profesionalNombre: v.profesional_nombre,
-        profesional: v.profesional_area
-    }));
-}
-
-async function saveVisitaToSupabase(patientId, visita) {
-    const payload = {
-        paciente_id: patientId,
-        num: visita.num,
-        fecha: visita.fecha || null,
-        tipo: visita.tipo || null,
-        hora_inicio: visita.horaI || null,
-        hora_termino: visita.horaT || null,
-        objetivo: visita.objetivo || null,
-        actividades: visita.actividades || null,
-        observaciones: visita.obs || null,
-        firma: visita.firma || null,
-        firma_nombre: visita.firmaNombre || null,
-        firma_rut: visita.firmaRut || null,
-        relacion: visita.relacion || null,
-        profesional_nombre: visita.profesionalNombre || null,
-        profesional_area: visita.profesional || null
-    };
-
-    const { data, error } = await supabaseClient
+async function syncVisitaToSupabase(v, patientId) {
+    const { error } = await supabase
         .from('visitas')
-        .insert(payload)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error guardando visita en Supabase:', error);
-        alert('No se pudo guardar la visita: ' + (error?.message || 'Error desconocido'));
-        return null;
-    }
-
-    return {
-        id: data.id,
-        num: data.num,
-        fecha: data.fecha,
-        tipo: data.tipo,
-        horaI: data.hora_inicio,
-        horaT: data.hora_termino,
-        objetivo: data.objetivo,
-        actividades: data.actividades,
-        obs: data.observaciones,
-        firma: data.firma,
-        firmaNombre: data.firma_nombre,
-        firmaRut: data.firma_rut,
-        relacion: data.relacion,
-        profesionalNombre: data.profesional_nombre,
-        profesional: data.profesional_area
-    };
+        .upsert({
+            paciente_id: patientId,
+            num: v.num,
+            fecha: v.fecha,
+            tipo: v.tipo,
+            hora_inicio: v.horaI,
+            hora_termino: v.horaT,
+            objetivo: v.objetivo,
+            actividades: v.actividades,
+            observaciones: v.obs,
+            firma_base64: v.firma,
+            firma_tipo: v.firmaTipo,
+            firma_nombre: v.firmaNombre,
+            firma_rut: v.firmaRut,
+            relacion: v.relacion,
+            profesional_nombre: v.profesionalNombre
+        });
+    if (error) console.error("Error sincronizando visita:", error);
 }
 
-async function deleteVisitaFromSupabase(visitaId) {
-    const { error } = await supabaseClient
-        .from('visitas')
-        .delete()
-        .eq('id', visitaId);
-
-    if (error) {
-        console.error('Error eliminando visita en Supabase:', error);
-        alert('No se pudo eliminar la visita.');
-        return false;
-    }
-
-    return true;
+async function syncEntregaToSupabase(e, patientId) {
+    const { error } = await supabase
+        .from('entregas')
+        .upsert({
+            paciente_id: patientId,
+            articulo_tipo: e.tipo,
+            descripcion: e.desc,
+            estado: e.estado,
+            fecha: e.fecha,
+            profesional: e.prof,
+            firma_paciente_base64: e.firma,
+            firma_profesional_base64: e.firmaProf,
+            firmante_nombre: e.firmanteNombre,
+            firmante_rut: e.firmaRut,
+            relacion: e.relacion
+        });
+    if (error) console.error("Error sincronizando entrega:", error);
 }
+
 // Renderizar tabla
 function renderTable(filter = '') {
     const tbody = document.getElementById('patientsList');
@@ -914,10 +822,9 @@ document.getElementById('pFecha').addEventListener('change', (e) => {
 });
 
 // Guardar Paciente
-document.getElementById('patientForm').addEventListener('submit', async (e) => {
+document.getElementById('patientForm').addEventListener('submit', (e) => {
     e.preventDefault();
-
-    const id = document.getElementById('patientId').value || ('local-' + Date.now());
+    const id = document.getElementById('patientId').value || Date.now().toString();
     const nombre = document.getElementById('pNombre').value;
     const edad = document.getElementById('pEdad').value;
     const rut = document.getElementById('pRut').value;
@@ -925,35 +832,24 @@ document.getElementById('patientForm').addEventListener('submit', async (e) => {
     const domicilio = document.getElementById('pDomicilio').value;
     const telefono = document.getElementById('pTelefono').value;
 
-    let patient = patients.find(p => p.id === id);
+    const pObj = existingIndex >= 0 ? patients[existingIndex] : { id };
+    
+    pObj.nombre = nombre;
+    pObj.edad = edad;
+    pObj.rut = rut;
+    pObj.fechaNacimiento = fechaNav;
+    pObj.domicilio = domicilio;
+    pObj.telefono = telefono;
 
-    if (patient) {
-        patient.nombre = nombre;
-        patient.edad = edad;
-        patient.rut = rut;
-        patient.fechaNacimiento = fechaNav;
-        patient.domicilio = domicilio;
-        patient.telefono = telefono;
-    } else {
-        patient = {
-            id,
-            nombre,
-            edad,
-            rut,
-            fechaNacimiento: fechaNav,
-            domicilio,
-            telefono,
-            ultimaVisita: '',
-            docs: [],
-            visitas: [],
-            entregas: []
-        };
-        patients.push(patient);
+    if (existingIndex === -1) {
+        pObj.ultimaVisita = '';
+        pObj.visitas = [];
+        pObj.entregas = [];
+        pObj.docs = [];
+        patients.push(pObj);
     }
 
-    const ok = await savePatientToSupabase(patient);
-    if (!ok) return;
-
+    syncPatientToSupabase(pObj);
     savePatients();
     renderTable();
     closeModal('patientModal');
@@ -961,16 +857,16 @@ document.getElementById('patientForm').addEventListener('submit', async (e) => {
 
 // Eliminar Paciente
 async function deletePatient(id) {
-    if (!confirm('¿Seguro que deseas eliminar a este paciente y todos sus registros? Esta acción no se puede deshacer.')) {
-        return;
+    if(confirm('¿Seguro que deseas eliminar a este paciente y todos sus registros? Esta acción no se puede deshacer.')) {
+        const { error } = await supabase.from('pacientes').delete().eq('id', id);
+        if (error) {
+            alert("Error al eliminar en Supabase: " + error.message);
+            return;
+        }
+        patients = patients.filter(p => p.id !== id);
+        savePatients();
+        renderTable();
     }
-
-    const ok = await deletePatientFromSupabase(id);
-    if (!ok) return;
-
-    patients = patients.filter(p => p.id !== id);
-    savePatients();
-    renderTable();
 }
 
 // --- FICHA DEL PACIENTE Y DOCUMENTOS ---
@@ -1052,9 +948,7 @@ function populateProfesionalDropdown(selectId, area) {
 }
 
 // Listener para cambio de especialidad en el formulario de sesiones
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadPatientsFromSupabase();
-
+document.addEventListener('DOMContentLoaded', () => {
     // Migrar nombres antiguos para consistencia
     migrateProfessionalNames();
 
@@ -1149,13 +1043,8 @@ function migrateProfessionalNames() {
     savePatients();
 }
 
-    async function openFicha(id) {
+function openFicha(id) {
     const p = patients.find(p => p.id === id);
-    if (!p) return;
-
-    const visitasSupabase = await loadVisitasFromSupabase(id);
-    p.visitas = visitasSupabase;
-
     const area = currentProfesional === 'psicologo' ? 'Psicología' : 'Terapia Ocupacional';
     const profLabel = `${area}${currentProfesionalNombre ? ' - ' + currentProfesionalNombre : ''}`;
     
@@ -1163,7 +1052,7 @@ function migrateProfessionalNames() {
     document.getElementById('fDetails').innerHTML = `<strong>RUT:</strong> ${p.rut} | <strong>Edad:</strong> ${p.edad || '-'} | <strong>Nacimiento:</strong> ${p.fechaNacimiento} <br> <strong>Domicilio:</strong> ${p.domicilio || '-'}`;
     
     // --- MIGRACIÓN Y SEPARACIÓN DE DATOS (REQUERIMIENTO OBLIGATORIO) ---
-    if (!p.visitas) p.visitas = [];
+    if (!p.visitas) p.visitas = p.sessions || [];
     if (!p.entregas) {
         p.entregas = [];
         // Mover entregas que estaban en docs a la nueva estructura
@@ -2787,8 +2676,7 @@ function captureSignatureToBase64(canvas) {
     return canvas.toDataURL('image/png');
 }
 
-// Cambio para guardar visita
-document.getElementById('sessionForm').addEventListener('submit', async (e) => {
+document.getElementById('sessionForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
@@ -2804,18 +2692,15 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     }
 
     if (!finalFirmaBase64) {
-        const msg = currentSignatureType === 'manual'
-            ? 'La firma manual es obligatoria.'
-            : (currentSignatureType === 'archivo'
-                ? 'Debe seleccionar una imagen.'
-                : 'Debe capturar una foto.');
+        const msg = currentSignatureType === 'manual' ? 'La firma manual es obligatoria.' : 
+                    (currentSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
         alert('⚠️ ' + msg);
         return;
     }
 
     if (!p.visitas) p.visitas = [];
-
-    const visitaLocal = {
+    
+    const newVisita = {
         num: p.visitas.length + 1,
         fecha: document.getElementById('sFecha').value,
         tipo: document.getElementById('sTipo').value,
@@ -2833,28 +2718,23 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         profesional: currentProfesional
     };
 
-    const visitaGuardada = await saveVisitaToSupabase(currentPatientId, visitaLocal);
-    if (!visitaGuardada) return;
-
-   p.visitas.push(visitaGuardada);
-p.ultimaVisita = visitaGuardada.fecha.split('-').reverse().join('/');
-
-const okPaciente = await savePatientToSupabase(p);
-if (!okPaciente) return;
-
-savePatients();
-renderVisitas();
-renderTable();
-closeModal('sessionModal');
-stopCamera();
-alert('✅ Visita domiciliaria registrada correctamente.');
+    p.visitas.push(newVisita);
+    p.ultimaVisita = newVisita.fecha.split('-').reverse().join('/'); // Formato DD/MM/YYYY para la tabla
+    
+    syncVisitaToSupabase(newVisita, p.id);
+    savePatients();
+    renderVisitas();
+    renderTable();
+    closeModal('sessionModal');
+    stopCamera(); // Asegurar apagar cámara
+    alert('✅ Visita domiciliaria registrada correctamente.');
 });
 
 function renderVisitas() {
     const list = document.getElementById('sessionsList');
     if (!list) return;
     const p = patients.find(x => x.id === currentPatientId);
-
+    
     if (!p || !p.visitas || p.visitas.length === 0) {
         list.innerHTML = `
             <div style="text-align: center; padding: 40px; color: var(--text-tertiary); background: rgba(0,0,0,0.02); border-radius: 20px; border: 1px dashed #ddd;">
@@ -2865,6 +2745,7 @@ function renderVisitas() {
         return;
     }
 
+    // Ordenar por número de sesión descendente (más reciente arriba)
     const sorted = [...(p.visitas || [])].sort((a, b) => b.num - a.num);
 
     list.innerHTML = sorted.map(s => `
@@ -2914,6 +2795,7 @@ function renderVisitas() {
         </div>
     `).join('');
 
+    // --- RENDERIZAR TABLA DE IMPRESIÓN OFICIAL ---
     const printTbody = document.getElementById('printTableBody');
     if (printTbody) {
         if (!p.visitas || p.visitas.length === 0) {
@@ -3062,7 +2944,7 @@ function prepareAndPrint() {
     }, 250);
 }
 
-async function deleteVisita(num) {
+function deleteVisita(num) {
     if (!confirm(`¿Está seguro de que desea eliminar el registro de la Visita ${num}? Esta acción no se puede deshacer.`)) {
         return;
     }
@@ -3070,31 +2952,24 @@ async function deleteVisita(num) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
 
-    const visita = p.visitas.find(v => v.num === num);
-    if (!visita) return;
-
-    const ok = await deleteVisitaFromSupabase(visita.id);
-    if (!ok) return;
-
     p.visitas = p.visitas.filter(s => s.num !== num);
-
+    
+    // Re-numerar visitas para mantener consistencia
     p.visitas.forEach((s, idx) => {
         s.num = idx + 1;
     });
 
-   if (p.visitas.length > 0) {
-    const last = p.visitas[p.visitas.length - 1];
-    p.ultimaVisita = last.fecha.split('-').reverse().join('/');
-} else {
-    p.ultimaVisita = '';
-}
+    // Actualizar última visita
+    if (p.visitas.length > 0) {
+        const last = p.visitas[p.visitas.length - 1];
+        p.ultimaVisita = last.fecha.split('-').reverse().join('/');
+    } else {
+        p.ultimaVisita = 'Sin visitas';
+    }
 
-const okPaciente = await savePatientToSupabase(p);
-if (!okPaciente) return;
-
-savePatients();
-renderVisitas();
-renderTable();
+    savePatients();
+    renderVisitas();
+    renderTable();
 }
 
 // --- RECEPCIÓN DE ARTÍCULOS KINESIOLÓGICOS ---
@@ -3417,6 +3292,7 @@ document.getElementById('articuloForm').addEventListener('submit', (e) => {
     if (!p.entregas) p.entregas = [];
     p.entregas.unshift(data);
 
+    syncEntregaToSupabase(data, p.id);
     savePatients();
     renderArticulos();
     

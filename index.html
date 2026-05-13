@@ -990,15 +990,16 @@
             style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; text-align: center; font-size: 8pt; color: #888;">
             Documento generado por Sistema Salud 360 — Informe de Uso Interno Municipal
         </div>
-    </div>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // CONFIGURACIÓN DE SUPABASE
+        const SUPABASE_URL = 'TU_URL_DE_SUPABASE';
+        const SUPABASE_KEY = 'TU_ANON_KEY_DE_SUPABASE';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    </script>
 
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://yfkvmymhbgzfnqxjmwlg.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_bckoA9BGNQAFxyk0vLL_cQ_VzkRfN0M";
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-</script>
-<script src="script.js"></script>
+    <script src="script.js?v=26"></script>
 </body>
 
 </html>
