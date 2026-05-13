@@ -929,7 +929,8 @@ document.getElementById('pFecha').addEventListener('change', (e) => {
 // Guardar Paciente
 document.getElementById('patientForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('patientId').value;
+
+    const id = document.getElementById('patientId').value || null;
     const nombre = document.getElementById('pNombre').value;
     const edad = document.getElementById('pEdad').value;
     const rut = document.getElementById('pRut').value;
@@ -938,34 +939,45 @@ document.getElementById('patientForm').addEventListener('submit', async (e) => {
     const telefono = document.getElementById('pTelefono').value;
 
     const pObj = {
-        id: id || null,
-        nombre, edad, rut, fechaNacimiento: fechaNav, domicilio, telefono, ultimaVisita: ''
+        id,
+        nombre,
+        edad,
+        rut,
+        fechaNacimiento: fechaNav,
+        domicilio,
+        telefono,
+        ultimaVisita: ''
     };
 
-    // Guardar en Supabase y obtener el paciente procesado
     const savedPatient = await syncPatientToSupabase(pObj);
+    if (!savedPatient) return;
 
-    if (savedPatient) {
-        const existingIndex = patients.findIndex(p => p.id === id);
-        const finalPatient = {
-            ...pObj,
-            id: savedPatient.id, // ID real de DB
-            visitas: existingIndex >= 0 ? patients[existingIndex].visitas : [],
-            entregas: existingIndex >= 0 ? patients[existingIndex].entregas : [],
-            docs: existingIndex >= 0 ? patients[existingIndex].docs : []
-        };
+    const existingIndex = patients.findIndex(p => p.id === id);
 
-        if (existingIndex >= 0) {
-            patients[existingIndex] = finalPatient;
-        } else {
-            patients.push(finalPatient);
-        }
+    const finalPatient = {
+        id: savedPatient.id,
+        nombre: savedPatient.nombre,
+        edad: savedPatient.edad,
+        rut: savedPatient.rut,
+        fechaNacimiento: savedPatient.fecha_nacimiento,
+        domicilio: savedPatient.domicilio,
+        telefono: savedPatient.telefono,
+        ultimaVisita: savedPatient.ultima_visita || '',
+        visitas: existingIndex >= 0 ? patients[existingIndex].visitas : [],
+        entregas: existingIndex >= 0 ? patients[existingIndex].entregas : [],
+        docs: existingIndex >= 0 ? patients[existingIndex].docs : []
+    };
 
-        savePatients(); // Backup local
-        renderTable();
-        closeModal('patientModal');
-        alert("✅ Paciente guardado correctamente.");
+    if (existingIndex >= 0) {
+        patients[existingIndex] = finalPatient;
+    } else {
+        patients.push(finalPatient);
     }
+
+    savePatients();
+    renderTable();
+    closeModal('patientModal');
+    alert("✅ Paciente guardado correctamente.");
 });
 
 // Eliminar Paciente
