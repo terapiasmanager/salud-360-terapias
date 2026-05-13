@@ -685,27 +685,27 @@ async function loadDataFromSupabase() {
             console.warn("No se pudieron cargar entregas:", entregasRes.error.message);
         }
 
-        patients = pData.map(p => {
-            const visitasPaciente = vData
-                .filter(v => v.paciente_id === p.id)
-                .map(v => ({
-                    id: v.id,
-                    num: v.num,
-                    fecha: v.fecha,
-                    tipo: v.tipo,
-                    horaI: v.hora_inicio,
-                    horaT: v.hora_termino,
-                    objetivo: v.objetivo,
-                    actividades: v.actividades,
-                    obs: v.observaciones,
-                    firma: v.firma,
-                    firmaTipo: v.firma_tipo || 'manual',
-                    firmaNombre: v.firma_nombre,
-                    firmaRut: v.firma_rut,
-                    relacion: v.relacion,
-                    profesionalNombre: v.profesional_nombre,
-                    profesional: v.tipo === 'Psicología' ? 'psicologo' : 'terapeuta'
-                }));
+     patients = pData.map(p => {
+    const visitasPaciente = vData
+        .filter(v => v.paciente_id === p.id)
+        .map(v => ({
+            id: v.id,
+            num: v.num,
+            fecha: v.fecha,
+            tipo: v.tipo,
+            horaI: v.hora_inicio,
+            horaT: v.hora_termino,
+            objetivo: v.objetivo,
+            actividades: v.actividades,
+            obs: v.observaciones,
+            firma: v.firma,
+            firmaTipo: 'manual',
+            firmaNombre: v.firma_nombre,
+            firmaRut: v.firma_rut,
+            relacion: v.relacion,
+            profesionalNombre: v.profesional_nombre,
+            profesional: v.profesional_area
+        }));
 
             const entregasPaciente = eData
                 .filter(e => e.paciente_id === p.id)
@@ -806,11 +806,11 @@ async function syncVisitaToSupabase(v, patientId) {
         actividades: v.actividades,
         observaciones: v.obs,
         firma: v.firma,
-        firma_tipo: v.firmaTipo,
         firma_nombre: v.firmaNombre,
         firma_rut: v.firmaRut,
         relacion: v.relacion,
-        profesional_nombre: v.profesionalNombre
+        profesional_nombre: v.profesionalNombre,
+        profesional_area: v.profesional
     };
 
     console.log("Payload visita:", payload);
@@ -860,12 +860,12 @@ function mapVisitaFromSupabase(v) {
         actividades: v.actividades,
         obs: v.observaciones,
         firma: v.firma,
-        firmaTipo: v.firma_tipo || 'manual',
+        firmaTipo: 'manual',
         firmaNombre: v.firma_nombre,
         firmaRut: v.firma_rut,
         relacion: v.relacion,
         profesionalNombre: v.profesional_nombre,
-        profesional: v.tipo === 'Psicología' ? 'psicologo' : 'terapeuta'
+        profesional: v.profesional_area
     };
 }
 
@@ -2903,24 +2903,23 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     if (!visitaGuardada) return;
 
     const visitaFinal = {
-        id: visitaGuardada.id,
-        num: visitaGuardada.num,
-        fecha: visitaGuardada.fecha,
-        tipo: visitaGuardada.tipo,
-        horaI: visitaGuardada.hora_inicio,
-        horaT: visitaGuardada.hora_termino,
-        objetivo: visitaGuardada.objetivo,
-        actividades: visitaGuardada.actividades,
-        obs: visitaGuardada.observaciones,
-        firma: visitaGuardada.firma,
-        firmaTipo: visitaGuardada.firma_tipo,
-        firmaNombre: visitaGuardada.firma_nombre,
-        firmaRut: visitaGuardada.firma_rut,
-        relacion: visitaGuardada.relacion,
-        profesionalNombre: visitaGuardada.profesional_nombre,
-        profesional: visitaGuardada.tipo === 'Psicología' ? 'psicologo' : 'terapeuta'
-    };
-
+    id: visitaGuardada.id,
+    num: visitaGuardada.num,
+    fecha: visitaGuardada.fecha,
+    tipo: visitaGuardada.tipo,
+    horaI: visitaGuardada.hora_inicio,
+    horaT: visitaGuardada.hora_termino,
+    objetivo: visitaGuardada.objetivo,
+    actividades: visitaGuardada.actividades,
+    obs: visitaGuardada.observaciones,
+    firma: visitaGuardada.firma,
+    firmaTipo: currentSignatureType,
+    firmaNombre: visitaGuardada.firma_nombre,
+    firmaRut: visitaGuardada.firma_rut,
+    relacion: visitaGuardada.relacion,
+    profesionalNombre: visitaGuardada.profesional_nombre,
+    profesional: visitaGuardada.profesional_area
+};
     p.visitas.push(visitaFinal);
 
     await actualizarUltimaVisitaPaciente(p);
