@@ -898,6 +898,23 @@ function calcularUltimaVisitaDesdeVisitas(visitas) {
 async function actualizarUltimaVisitaPaciente(p) {
     const ultimaFechaISO = calcularUltimaVisitaDesdeVisitas(p.visitas);
 
+    p.ultimaVisita = ultimaFechaISO;
+
+    const { error } = await db
+        .from('pacientes')
+        .update({ ultima_visita: ultimaFechaISO || null })
+        .eq('id', p.id);
+
+    if (error) {
+        console.error("Error actualizando última visita:", error);
+        return false;
+    }
+
+    return true;
+}
+async function actualizarUltimaVisitaPaciente(p) {
+    const ultimaFechaISO = calcularUltimaVisitaDesdeVisitas(p.visitas);
+
     // Guardamos ISO en memoria y en DB
     p.ultimaVisita = ultimaFechaISO;
 
@@ -947,7 +964,7 @@ function renderTable(filter = '') {
         tr.innerHTML = `
             <td><strong>${p.nombre}</strong></td>
             <td>${p.rut}</td>
-           <td>${formatFechaDisplay(p.ultimaVisita)}</td>
+            <td>${formatFechaDisplay(p.ultimaVisita)}</td>
             <td>
                 <button class="action-btn" onclick="askProfesional('${p.id}')">Evaluación</button>
                 <button class="action-btn delete" onclick="deletePatient('${p.id}')">Eliminar</button>
@@ -3212,9 +3229,11 @@ async function deleteVisita(num) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
 
-    const visitaAEliminar = p.visitas.find(s => s.num === num);
+    const visitaAEliminar = p.visitas.find(v => v.num === num);
+    if (!visitaAEliminar) return;
 
-    if (visitaAEliminar && visitaAEliminar.id) {
+    // 1. Eliminar en Supabase
+    if (visitaAEliminar.id) {
         const { error } = await db
             .from('visitas')
             .delete()
@@ -3222,25 +3241,36 @@ async function deleteVisita(num) {
 
         if (error) {
             console.error("Error eliminando visita en Supabase:", error);
-            alert("No se pudo eliminar la visita en Supabase.");
+            alert("❌ No se pudo eliminar la visita.");
             return;
         }
     }
 
-    p.visitas = p.visitas.filter(s => s.num !== num);
+    // 2. Eliminar localmente
+    p.visitas = p.visitas.filter(v => v.num !== num);
 
-    p.visitas
+    // 3. Reordenar numeración
+    p.visitas = p.visitas
         .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
-        .forEach((s, idx) => {
-            s.num = idx + 1;
-        });
+        .map((v, idx) => ({
+            ...v,
+            num: idx + 1
+        }));
 
-   await actualizarUltimaVisitaPaciente(p);
+    // 4. Recalcular y guardar última visita
+    const okUltima = await actualizarUltimaVisitaPaciente(p);
+    if (!okUltima) {
+        alert("❌ La visita se eliminó, pero no se pudo actualizar la última visita.");
+        return;
+    }
+
+    // 5. Guardar respaldo local y refrescar UI
     savePatients();
     renderVisitas();
     renderTable();
-}
 
+    alert("✅ Visita eliminada correctamente.");
+}
 // --- RECEPCIÓN DE ARTÍCULOS KINESIOLÓGICOS ---
 let artCanvas, artCtx;
 let artProfCanvas, artProfCtx;
