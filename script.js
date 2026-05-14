@@ -3499,24 +3499,7 @@ async function saveProfSignature() {
     alert("✅ Firma del profesional guardada correctamente.");
 }
 
-    // Validar firma
-    const blank = document.createElement('canvas');
-    blank.width = modalArtProfCanvas.width;
-    blank.height = modalArtProfCanvas.height;
-    if (modalArtProfCanvas.toDataURL() === blank.toDataURL()) {
-        alert("Por favor, registre su firma antes de guardar.");
-        return;
-    }
-
-    const art = p.entregas.find(a => a.id === currentArtIdForSignature);
-    if (art) {
-        art.firmaProf = modalArtProfCanvas.toDataURL();
-        savePatients();
-        renderArticulos();
-        closeModal('artProfSignatureModal');
-        alert("✅ Firma del profesional guardada correctamente.");
-    }
-}
+   
 
 function clearArtSignature() { if (artCtx) artCtx.clearRect(0, 0, artCanvas.width, artCanvas.height); }
 
