@@ -830,22 +830,50 @@ async function syncVisitaToSupabase(v, patientId) {
     return data;
 } 
 async function syncEntregaToSupabase(e, patientId) {
+    const payload = {
+        paciente_id: patientId,
+        articulo_tipo: e.tipo,
+        descripcion: e.desc,
+        estado: e.estado,
+        fecha: e.fecha,
+        profesional: e.prof,
+        firma_paciente_base64: e.firma,
+        firma_profesional_base64: e.firmaProf || null,
+        firmante_nombre: e.firmanteNombre,
+        firmante_rut: e.firmaRut,
+        relacion: e.relacion
+    };
+
+    console.log("Payload entrega:", payload);
+
+    const { data, error } = await db
+        .from('entregas')
+        .insert(payload)
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error sincronizando entrega:", error);
+        alert("❌ Error al guardar entrega en Supabase: " + error.message);
+        return null;
+    }
+
+    return data;
+}
+
+async function syncFirmaProfesionalEntrega(entregaId, firmaProfBase64) {
     const { error } = await db
         .from('entregas')
-        .upsert({
-            paciente_id: patientId,
-            articulo_tipo: e.tipo,
-            descripcion: e.desc,
-            estado: e.estado,
-            fecha: e.fecha,
-            profesional: e.prof,
-            firma_paciente_base64: e.firma,
-            firma_profesional_base64: e.firmaProf,
-            firmante_nombre: e.firmanteNombre,
-            firmante_rut: e.firmaRut,
-            relacion: e.relacion
-        });
-    if (error) console.error("Error sincronizando entrega:", error);
+        .update({ firma_profesional_base64: firmaProfBase64 })
+        .eq('id', entregaId);
+
+    if (error) {
+        console.error("Error sincronizando firma profesional:", error);
+        alert("❌ No se pudo guardar la firma profesional en Supabase.");
+        return false;
+    }
+
+    return true;
 }
 
 function mapVisitaFromSupabase(v) {
@@ -3442,9 +3470,34 @@ function openProfSignatureModal(artId) {
     newBtn.addEventListener('click', saveProfSignature);
 }
 
-function saveProfSignature() {
+async function saveProfSignature() {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !currentArtIdForSignature) return;
+
+    const blank = document.createElement('canvas');
+    blank.width = modalArtProfCanvas.width;
+    blank.height = modalArtProfCanvas.height;
+
+    if (modalArtProfCanvas.toDataURL() === blank.toDataURL()) {
+        alert("Por favor, registre su firma antes de guardar.");
+        return;
+    }
+
+    const art = p.entregas.find(a => a.id === currentArtIdForSignature);
+    if (!art) return;
+
+    const firmaProfBase64 = modalArtProfCanvas.toDataURL();
+
+    const ok = await syncFirmaProfesionalEntrega(currentArtIdForSignature, firmaProfBase64);
+    if (!ok) return;
+
+    art.firmaProf = firmaProfBase64;
+
+    savePatients();
+    renderArticulos();
+    closeModal('artProfSignatureModal');
+    alert("✅ Firma del profesional guardada correctamente.");
+}
 
     // Validar firma
     const blank = document.createElement('canvas');
@@ -3549,54 +3602,93 @@ function resetArtCamera() {
     startArtCamera();
 }
 
-document.getElementById('articuloForm').addEventListener('submit', (e) => {
+document.getElementById('articuloForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const p = patients.find(x => x.id === currentPatientId);
-    if (!p) return;
 
-    // Determinar firma según tipo seleccionado
-    let finalFirmaBase64 = null;
+    const form = document.getElementById('articuloForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return;
 
-    if (currentArtSignatureType === 'manual') {
-        finalFirmaBase64 = captureSignatureToBase64(artCanvas);
-    } else if (currentArtSignatureType === 'archivo') {
-        finalFirmaBase64 = artFileSignatureBase64;
-    } else if (currentArtSignatureType === 'camara') {
-        finalFirmaBase64 = artCameraSignatureBase64;
+    submitBtn.disabled = true;
+    submitBtn.dataset.originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Guardando...';
+    submitBtn.style.pointerEvents = 'none';
+    submitBtn.style.opacity = '0.7';
+
+    try {
+        const p = patients.find(x => x.id === currentPatientId);
+        if (!p) throw new Error('No se encontró el paciente.');
+
+        let finalFirmaBase64 = null;
+
+        if (currentArtSignatureType === 'manual') {
+            finalFirmaBase64 = captureSignatureToBase64(artCanvas);
+        } else if (currentArtSignatureType === 'archivo') {
+            finalFirmaBase64 = artFileSignatureBase64;
+        } else if (currentArtSignatureType === 'camara') {
+            finalFirmaBase64 = artCameraSignatureBase64;
+        }
+
+        if (!finalFirmaBase64) {
+            throw new Error(
+                currentArtSignatureType === 'manual'
+                    ? 'La firma manual es obligatoria.'
+                    : currentArtSignatureType === 'archivo'
+                        ? 'Debe seleccionar una imagen.'
+                        : 'Debe capturar una foto.'
+            );
+        }
+
+        const data = {
+            id: null,
+            tipo: document.getElementById('artTipo').value,
+            desc: document.getElementById('artDesc').value,
+            estado: 'Nuevo',
+            fecha: document.getElementById('artFecha').value,
+            prof: document.getElementById('artProf').value,
+            firma: finalFirmaBase64,
+            firmaProf: '',
+            firmanteNombre: document.getElementById('artFirmaNombre').value,
+            firmaRut: document.getElementById('artFirmaRut').value,
+            relacion: document.getElementById('artRelacion').value
+        };
+
+        const entregaGuardada = await syncEntregaToSupabase(data, p.id);
+        if (!entregaGuardada) throw new Error('No se pudo guardar la entrega.');
+
+        const entregaFinal = {
+            id: entregaGuardada.id,
+            tipo: entregaGuardada.articulo_tipo,
+            desc: entregaGuardada.descripcion,
+            estado: entregaGuardada.estado || 'Nuevo',
+            fecha: entregaGuardada.fecha,
+            prof: entregaGuardada.profesional,
+            firma: entregaGuardada.firma_paciente_base64,
+            firmaProf: entregaGuardada.firma_profesional_base64 || '',
+            firmanteNombre: entregaGuardada.firmante_nombre,
+            firmaRut: entregaGuardada.firmante_rut,
+            relacion: entregaGuardada.relacion
+        };
+
+        if (!p.entregas) p.entregas = [];
+        p.entregas.unshift(entregaFinal);
+
+        savePatients();
+        renderArticulos();
+
+        form.reset();
+        closeArticuloForm();
+
+        alert("✅ Entrega guardada correctamente.");
+    } catch (error) {
+        console.error("Error final en entrega:", error);
+        alert("❌ " + (error.message || "Ocurrió un error al guardar la entrega."));
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = submitBtn.dataset.originalText || '💾 Guardar entrega';
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.style.opacity = '1';
     }
-
-    if (!finalFirmaBase64) {
-        const msg = currentArtSignatureType === 'manual' ? 'La firma manual es obligatoria.' :
-            (currentArtSignatureType === 'archivo' ? 'Debe seleccionar una imagen.' : 'Debe capturar una foto.');
-        alert('⚠️ ' + msg);
-        return;
-    }
-
-    const data = {
-        id: 'art-' + Date.now(),
-        tipo: document.getElementById('artTipo').value,
-        desc: document.getElementById('artDesc').value,
-        estado: 'Nuevo',
-        fecha: document.getElementById('artFecha').value,
-        prof: document.getElementById('artProf').value,
-        firma: finalFirmaBase64,
-        firmaTipo: currentArtSignatureType,
-        firmaProf: '', // Se firma posteriormente
-        firmanteNombre: document.getElementById('artFirmaNombre').value,
-        firmaRut: document.getElementById('artFirmaRut').value,
-        relacion: document.getElementById('artRelacion').value
-    };
-
-    // Guardar en coleccion independiente ENTREGAS
-    if (!p.entregas) p.entregas = [];
-    p.entregas.unshift(data);
-
-    syncEntregaToSupabase(data, p.id);
-    savePatients();
-    renderArticulos();
-
-    closeArticuloForm();
-    alert("✅ Entrega guardada correctamente.");
 });
 
 function prepareArticuloPrint(data, p) {
