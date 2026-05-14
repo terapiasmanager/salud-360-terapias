@@ -888,8 +888,8 @@ function mapEntregaFromSupabase(e) {
 function calcularUltimaVisitaDesdeVisitas(visitas) {
     if (!visitas || visitas.length === 0) return '';
 
-    const ultima = [...visitas].sort(
-        (a, b) => new Date(b.fecha) - new Date(a.fecha)
+    const ultima = [...visitas].sort((a, b) =>
+        b.fecha.localeCompare(a.fecha)
     )[0];
 
     return ultima.fecha || '';
@@ -3251,7 +3251,7 @@ async function deleteVisita(num) {
 
     // 3. Reordenar numeración
     p.visitas = p.visitas
-        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+        .sort((a, b) => a.fecha.localeCompare(b.fecha))
         .map((v, idx) => ({
             ...v,
             num: idx + 1
