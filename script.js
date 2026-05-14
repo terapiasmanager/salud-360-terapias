@@ -940,24 +940,6 @@ async function actualizarUltimaVisitaPaciente(p) {
 
     return true;
 }
-async function actualizarUltimaVisitaPaciente(p) {
-    const ultimaFechaISO = calcularUltimaVisitaDesdeVisitas(p.visitas);
-
-    // Guardamos ISO en memoria y en DB
-    p.ultimaVisita = ultimaFechaISO;
-
-    const { error } = await db
-        .from('pacientes')
-        .update({ ultima_visita: ultimaFechaISO || null })
-        .eq('id', p.id);
-
-    if (error) {
-        console.error("Error actualizando última visita:", error);
-        return false;
-    }
-
-    return true;
-}
 
 function formatFechaDisplay(fecha) {
     if (!fecha) return 'Sin visitas';
