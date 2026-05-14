@@ -731,7 +731,7 @@ async function loadDataFromSupabase() {
                 fechaNacimiento: p.fecha_nacimiento || '',
                 domicilio: p.domicilio || '',
                 telefono: p.telefono || '',
-                ultimaVisita: p.ultima_visita || calcularUltimaVisitaDesdeVisitas(visitasPaciente) || '',
+                ultimaVisita: p.ultima_visita || '',
                 visitas: visitasPaciente,
                 entregas: entregasPaciente,
                 docs: JSON.parse(localStorage.getItem(`docs_${p.id}`) || '[]')
@@ -892,16 +892,18 @@ function calcularUltimaVisitaDesdeVisitas(visitas) {
         (a, b) => new Date(b.fecha) - new Date(a.fecha)
     )[0];
 
-    return ultima.fecha
-        ? ultima.fecha.split('-').reverse().join('/')
-        : '';
+    return ultima.fecha || '';
 }
+
 async function actualizarUltimaVisitaPaciente(p) {
-    p.ultimaVisita = calcularUltimaVisitaDesdeVisitas(p.visitas);
+    const ultimaFechaISO = calcularUltimaVisitaDesdeVisitas(p.visitas);
+
+    // Guardamos ISO en memoria y en DB
+    p.ultimaVisita = ultimaFechaISO;
 
     const { error } = await db
         .from('pacientes')
-        .update({ ultima_visita: p.ultimaVisita || null })
+        .update({ ultima_visita: ultimaFechaISO || null })
         .eq('id', p.id);
 
     if (error) {
@@ -911,6 +913,19 @@ async function actualizarUltimaVisitaPaciente(p) {
 
     return true;
 }
+
+function formatFechaDisplay(fecha) {
+    if (!fecha) return 'Sin visitas';
+
+    if (fecha.includes('/')) return fecha;
+
+    const partes = fecha.split('-');
+    if (partes.length === 3) {
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    return fecha;
+} 
 
 // Renderizar tabla
 function renderTable(filter = '') {
@@ -932,7 +947,7 @@ function renderTable(filter = '') {
         tr.innerHTML = `
             <td><strong>${p.nombre}</strong></td>
             <td>${p.rut}</td>
-            <td>${p.ultimaVisita || 'Sin visitas'}</td>
+           <td>${formatFechaDisplay(p.ultimaVisita)}</td>
             <td>
                 <button class="action-btn" onclick="askProfesional('${p.id}')">Evaluación</button>
                 <button class="action-btn delete" onclick="deletePatient('${p.id}')">Eliminar</button>
@@ -2943,10 +2958,13 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
 
         p.visitas.push(visitaFinal);
 
-        const okUltima = await actualizarUltimaVisitaPaciente(p);
+       const okUltima = await actualizarUltimaVisitaPaciente(p);
         if (!okUltima) throw new Error('Error actualizando última visita.');
 
         savePatients();
+        renderVisitas();
+        renderTable();
+
 
         // 🔥 ACTUALIZA AL INSTANTE LA TABLA
         renderVisitas();
