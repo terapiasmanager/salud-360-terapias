@@ -700,6 +700,11 @@ async function loadDataFromSupabase() {
         }
 
      patients = pData.map(p => {
+    const firmaProfDocsPaciente = dData.filter(d =>
+        d.paciente_id === p.id &&
+        d.test_id === 'firma-profesional-visita'
+    );
+
     const visitasPaciente = vData
         .filter(v => v.paciente_id === p.id)
         .map(v => ({
@@ -713,7 +718,7 @@ async function loadDataFromSupabase() {
             actividades: v.actividades,
             obs: v.observaciones,
             firma: v.firma,
-            firmaProf: v.firma_profesional_base64,
+            firmaProf: v.firma_profesional_base64 || getFirmaProfesionalVisitaFromDocumentos(v, firmaProfDocsPaciente),
             firmaTipo: 'manual',
             firmaNombre: v.firma_nombre,
             firmaRut: v.firma_rut,
@@ -845,6 +850,36 @@ function mapDocumentoFromSupabase(d) {
     };
 }
 
+function getFirmaProfesionalVisitaFromDocumentos(visita, docs) {
+    const doc = (docs || []).find(d => {
+        const raw = d.raw_data || {};
+        return raw.visitaId === visita.id || Number(raw.visitaNum) === Number(visita.num);
+    });
+    return doc && doc.raw_data ? doc.raw_data.firmaProf || '' : '';
+}
+
+async function syncFirmaProfesionalVisitaDocumento(visita, patientId, firmaProfBase64) {
+    if (!visita || !visita.id || !firmaProfBase64) return null;
+
+    return syncDocumentoToSupabase({
+        id: `firma-prof-visita-${visita.id}`,
+        testId: 'firma-profesional-visita',
+        titulo: `Firma profesional visita ${visita.num || ''}`.trim(),
+        contenido: 'Respaldo de firma profesional de acta de visita.',
+        rawData: {
+            visitaId: visita.id,
+            visitaNum: visita.num,
+            firmaProf: firmaProfBase64
+        },
+        fecha: visita.fecha || new Date().toLocaleDateString('es-CL'),
+        fechaGuardado: new Date().toISOString(),
+        profesional: visita.profesional_nombre || visita.profesionalNombre || currentProfesionalNombre || '',
+        isTest: false,
+        estado: 'finalizado',
+        editable: false
+    }, patientId);
+}
+
 function normalizeDocumentoForSupabase(doc, patientId) {
     return {
         id: doc.id,
@@ -955,11 +990,31 @@ async function syncVisitaToSupabase(v, patientId) {
 
     console.log("Payload visita:", payload);
 
-    const { data, error } = await db
+    let { data, error } = await db
         .from('visitas')
         .insert(payload)
         .select()
         .single();
+
+    if (error && error.message && error.message.includes('firma_profesional_base64')) {
+        console.warn("La columna firma_profesional_base64 no esta disponible para insert. Reintentando con respaldo en documentos.");
+        const fallbackPayload = { ...payload };
+        delete fallbackPayload.firma_profesional_base64;
+
+        const retry = await db
+            .from('visitas')
+            .insert(fallbackPayload)
+            .select()
+            .single();
+
+        data = retry.data;
+        error = retry.error;
+
+        if (!error && data) {
+            data.firma_profesional_base64 = v.firmaProf;
+            await syncFirmaProfesionalVisitaDocumento(data, patientId, v.firmaProf);
+        }
+    }
 
     if (error) {
         console.error("Error sincronizando visita:", error);
@@ -3284,7 +3339,7 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
             actividades: visitaGuardada.actividades,
             obs: visitaGuardada.observaciones,
             firma: visitaGuardada.firma,
-            firmaProf: visitaGuardada.firma_profesional_base64,
+            firmaProf: visitaGuardada.firma_profesional_base64 || newVisita.firmaProf,
             firmaNombre: visitaGuardada.firma_nombre,
             firmaRut: visitaGuardada.firma_rut,
             relacion: visitaGuardada.relacion,
