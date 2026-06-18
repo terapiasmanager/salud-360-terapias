@@ -3,3 +3,5 @@
 
 alter table public.visitas
 add column if not exists firma_profesional_base64 text;
+
+notify pgrst, 'reload schema';
