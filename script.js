@@ -45,7 +45,7 @@ let currentUser = null;
 const users = [
     { username: "acontreras", password: "1593", nombre: "Alejandra" },
     { username: "jnoguera", password: "2028", nombre: "Jacinta" },
-    { username: "jvilches", password: "1739", nombre: "Josefa" },
+    { username: "afarina", password: "1739", nombre: "Anriette" },
     { username: "ccampos", password: "1927", nombre: "Catalina" },
     { username: "admi", password: "9876", nombre: "Administrador" },
     { username: "chidalgo", password: "2015", nombre: "Constanza" },
@@ -61,24 +61,20 @@ let currentDraftId = null;
 
 const PROFESIONALES_LISTA = {
     'terapeuta': [
-        "Rode Javiera Riffo Mendoza",
         "Alejandra Andrea Contreras Valdés",
-        "Constanza Hidalgo Cárdenas",
-        "Catalina Campos"
+        "Constanza Hidalgo Cárdenas"
     ],
     'psicologo': [
-        "Josefa Vilches",
+        "Anriette Fariña",
         "Jacinta Noguera Barthou"
     ]
 };
 
 const USER_PROFILES = {
-    acontreras: { area: 'terapeuta', nombre: 'Alejandra Andrea Contreras ValdÃ©s' },
-    ccampos: { area: 'terapeuta', nombre: 'Catalina Campos' },
-    chidalgo: { area: 'terapeuta', nombre: 'Constanza Hidalgo CÃ¡rdenas' },
-    rriffo: { area: 'terapeuta', nombre: 'Rode Javiera Riffo Mendoza' },
-    jnoguera: { area: 'psicologo', nombre: 'Jacinta Noguera Barthou' },
-    jvilches: { area: 'psicologo', nombre: 'Josefa Vilches' }
+    acontreras: { area: 'terapeuta', nombre: 'Alejandra Contreras' },
+    chidalgo: { area: 'terapeuta', nombre: 'Constanza Hidalgo' },
+    jnoguera: { area: 'psicologo', nombre: 'Jacinta Noguera' },
+    afarina: { area: 'psicologo', nombre: 'Anriette Fariña' }
 };
 
 const plantillasProfesionales = {
@@ -1487,11 +1483,9 @@ function normalizeName(name) {
     if (!name || typeof name !== 'string') return name;
 
     const exactMatches = {
-        "RODE JAVIERA RIFFO MENDOZA": "Rode Javiera Riffo Mendoza",
         "ALEJANDRA ANDREA CONTRERAS VALDÉS": "Alejandra Andrea Contreras Valdés",
         "CONSTANZA HIDALGO CÁRDENAS": "Constanza Hidalgo Cárdenas",
-        "CATALINA CAMPOS": "Catalina Campos",
-        "JOSEFA VILCHES": "Josefa Vilches",
+        "ANRIETTE FARIÑA": "Anriette Fariña",
         "JACINTA NOGUERA BARTHOU": "Jacinta Noguera Barthou"
     };
 
