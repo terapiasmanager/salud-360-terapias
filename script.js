@@ -696,7 +696,7 @@ async function loadDataFromSupabase() {
         }
 
      patients = pData.map(p => {
-    const firmaProfDocsPaciente = dData.filter(d =>
+    const firmaProfDocumentosPaciente = dData.filter(d =>
         d.paciente_id === p.id &&
         d.test_id === 'firma-profesional-visita'
     );
@@ -714,7 +714,7 @@ async function loadDataFromSupabase() {
             actividades: v.actividades,
             obs: v.observaciones,
             firma: v.firma,
-            firmaProf: v.firma_profesional_base64 || getFirmaProfesionalVisitaFromDocumentos(v, firmaProfDocsPaciente),
+            firmaProf: v.firma_profesional_base64 || getFirmaProfesionalVisitaFromDocumentos(v, firmaProfDocumentosPaciente),
             firmaTipo: 'manual',
             firmaNombre: v.firma_nombre,
             firmaRut: v.firma_rut,
