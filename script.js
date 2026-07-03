@@ -680,7 +680,7 @@ async function loadDataFromSupabase() {
         const entregasRes = await db.from('entregas').select('*');
         const documentosRes = await db.from('documentos').select('*');
 
-        const pData = pacientesRes.data || [];
+       const pData = pacientesRes.data || [];
         const vData = visitasRes.error ? [] : (visitasRes.data || []);
         const eData = entregasRes.error ? [] : (entregasRes.data || []);
         const dData = documentosRes.error ? [] : (documentosRes.data || []);
@@ -770,6 +770,24 @@ async function loadDataFromSupabase() {
         renderTable();
     }
 }
+
+const docsPaciente = dData
+    .filter(d => d.paciente_id === p.id)
+    .map(d => ({
+        id: d.id,
+        testId: d.test_id,
+        titulo: d.titulo,
+        contenido: d.contenido,
+        rawData: d.raw_data || {},
+        fecha: d.fecha,
+        profesional: d.profesional,
+        isTest: d.is_test,
+        estado: d.estado,
+        firma: d.firma,
+        firmaNombre: d.firma_nombre,
+        firmaRut: d.firma_rut,
+        firmaRelacion: d.firma_relacion
+    }));
 // Llamar al cargar la página
 window.addEventListener('DOMContentLoaded', async () => {
     if (!db.auth) return;
@@ -1046,6 +1064,51 @@ async function syncEntregaToSupabase(e, patientId) {
     if (error) {
         console.error("Error sincronizando entrega:", error);
         alert("❌ Error al guardar entrega en Supabase: " + error.message);
+        return null;
+    }
+
+    return data;
+}
+
+async function syncDocumentoToSupabase(doc, patientId) {
+    const payload = {
+        paciente_id: patientId,
+        test_id: doc.testId || null,
+        titulo: doc.titulo || '',
+        contenido: doc.contenido || '',
+        raw_data: doc.rawData || {},
+        fecha: doc.fecha || '',
+        profesional: doc.profesional || '',
+        is_test: !!doc.isTest,
+        estado: doc.estado || 'finalizado',
+        firma: doc.firma || null,
+        firma_nombre: doc.firmaNombre || null,
+        firma_rut: doc.firmaRut || null,
+        firma_relacion: doc.firmaRelacion || null
+    };
+
+    let response;
+
+    if (doc.id) {
+        response = await db
+            .from('documentos')
+            .update(payload)
+            .eq('id', doc.id)
+            .select()
+            .single();
+    } else {
+        response = await db
+            .from('documentos')
+            .insert(payload)
+            .select()
+            .single();
+    }
+
+    const { data, error } = response;
+
+    if (error) {
+        console.error("Error sincronizando documento:", error);
+        alert("❌ No se pudo guardar la encuesta/formulario en Supabase: " + error.message);
         return null;
     }
 
