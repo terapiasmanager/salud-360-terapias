@@ -928,14 +928,15 @@ async function deleteDocumentoFromSupabase(docId) {
 
 // Función específica para guardar un paciente en Supabase
 async function syncPatientToSupabase(p) {
-    const pData = {
-        nombre: p.nombre,
-        rut: p.rut,
-        edad: p.edad,
-        fecha_nacimiento: p.fechaNacimiento,
-        domicilio: p.domicilio,
-        telefono: p.telefono,
-        ultima_visita: p.ultimaVisita || null
+   const pData = {
+    nombre: p.nombre || '',
+    rut: p.rut || null,
+    edad: p.edad || null,
+    fecha_nacimiento: p.fechaNacimiento || null,
+    domicilio: p.domicilio || null,
+    telefono: p.telefono || null,
+    ultima_visita: p.ultimaVisita || null
+};
     };
 
     let response;
