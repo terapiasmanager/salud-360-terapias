@@ -180,27 +180,27 @@
                 <input type="hidden" id="patientId">
                 <div class="form-group">
                     <label>Nombre Completo</label>
-                    <input type="text" id="pNombre" class="form-input" required>
+                    <input type="text" id="pNombre" class="form-input">
                 </div>
                 <div class="form-group">
                     <label>Edad</label>
-                    <input type="number" id="pEdad" class="form-input" required>
+                    <input type="number" id="pEdad" class="form-input">
                 </div>
                 <div class="form-group">
                     <label>RUT</label>
-                    <input type="text" id="pRut" class="form-input" required>
+                    <input type="text" id="pRut" class="form-input">
                 </div>
                 <div class="form-group">
                     <label>Fecha de Nacimiento</label>
-                    <input type="date" id="pFecha" class="form-input" required>
+                    <input type="date" id="pFecha" class="form-input">
                 </div>
                 <div class="form-group">
                     <label>Domicilio</label>
-                    <input type="text" id="pDomicilio" class="form-input" required>
+                    <input type="text" id="pDomicilio" class="form-input">
                 </div>
                 <div class="form-group">
                     <label>Teléfono de Contacto</label>
-                    <input type="tel" id="pTelefono" class="form-input" placeholder="+56 9 ..." required>
+                    <input type="tel" id="pTelefono" class="form-input" placeholder="+56 9 ...">
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Guardar Paciente</button>
             </form>
@@ -215,11 +215,10 @@
             <p style="color: var(--text-secondary); margin-bottom: 25px;">Elige tu especialidad para cargar las
                 encuestas y formularios correspondientes.</p>
             <div id="profStep1" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn-primary" onclick="selectArea('psicologo')" style="flex: 1; min-width: 150px;">🧠
-                    Psicólogo</button>
+                <button class="btn-primary" onclick="selectArea('psicologo')" style="flex: 1; min-width: 150px;">Psicólogo</button>
                 <button class="btn-primary"
                     style="flex: 1; background: linear-gradient(135deg, var(--primary-700), var(--primary-800)); min-width: 150px;"
-                    onclick="selectArea('terapeuta')">👐 Terapeuta Ocupacional</button>
+                    onclick="selectArea('terapeuta')">Terapeuta Ocupacional</button>
             </div>
 
             <div id="profStep2" style="display: none; margin-top: 20px;">
@@ -333,13 +332,12 @@
                                         <div class="form-group">
                                             <label>Tipo de Artículo</label>
                                             <input type="text" id="artTipo" class="form-input"
-                                                placeholder="Ej: Silla de ruedas, Andador, etc." required>
+                                                placeholder="Ej: Silla de ruedas, Andador, etc.">
                                         </div>
                                          <div class="form-group" style="grid-column: 1 / -1;">
                                              <label>Descripción / Especificaciones</label>
                                              <input type="text" id="artDesc" class="form-input"
-                                                 placeholder="Marca, modelo, número de serie o características..."
-                                                 required>
+                                                 placeholder="Marca, modelo, número de serie o características...">
                                          </div>
                                     </div>
                                 </div>
@@ -347,11 +345,11 @@
                                 <!-- Datos de la Entrega -->
                                 <div class="form-group">
                                     <label>Fecha de Entrega</label>
-                                    <input type="date" id="artFecha" class="form-input" required>
+                                    <input type="date" id="artFecha" class="form-input">
                                 </div>
                                 <div class="form-group">
                                     <label>Profesional que entrega</label>
-                                    <select id="artProf" class="form-input" required></select>
+                                    <select id="artProf" class="form-input"></select>
                                 </div>
                             </div>
 
@@ -432,15 +430,15 @@
                                 <div class="test-form-grid" style="margin-top: 20px;">
                                     <div class="form-group">
                                         <label>Nombre del Firmante</label>
-                                        <input type="text" id="artFirmaNombre" class="form-input" placeholder="Nombre completo" required>
+                                        <input type="text" id="artFirmaNombre" class="form-input" placeholder="Nombre completo">
                                     </div>
                                     <div class="form-group">
                                         <label>RUT del Firmante</label>
-                                        <input type="text" id="artFirmaRut" class="form-input" placeholder="12.345.678-9" required>
+                                        <input type="text" id="artFirmaRut" class="form-input" placeholder="12.345.678-9">
                                     </div>
                                     <div class="form-group">
                                         <label>Vínculo / Relación</label>
-                                        <select id="artRelacion" class="form-input" required>
+                                        <select id="artRelacion" class="form-input">
                                             <option value="Paciente">Paciente Titular</option>
                                             <option value="Cuidador">Cuidador Principal</option>
                                             <option value="Familiar">Familiar Directo</option>
@@ -479,11 +477,11 @@
             <form id="loginForm">
                 <div class="form-group" style="text-align: left;">
                     <label style="font-weight: 600; color: var(--primary-700); font-size: 0.9rem; margin-bottom: 8px; display: block;">Usuario</label>
-                    <input type="text" id="loginUser" class="form-input" placeholder="Nombre de usuario" required style="padding: 12px 15px;">
+                    <input type="text" id="loginUser" class="form-input" placeholder="Nombre de usuario" style="padding: 12px 15px;">
                 </div>
                 <div class="form-group" style="text-align: left; margin-top: 20px;">
                     <label style="font-weight: 600; color: var(--primary-700); font-size: 0.9rem; margin-bottom: 8px; display: block;">Contraseña</label>
-                    <input type="password" id="loginPass" class="form-input" placeholder="••••••••" required style="padding: 12px 15px;">
+                    <input type="password" id="loginPass" class="form-input" placeholder="••••••••" style="padding: 12px 15px;">
                 </div>
                 <div id="loginError" style="color: #ef4444; font-size: 0.85rem; margin-top: 15px; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; display: none;">
                     ⚠️ Usuario o contraseña incorrectos
@@ -532,39 +530,39 @@
                 <div class="test-form-grid" style="margin-bottom: 20px;">
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label>Nombre del Profesional</label>
-                        <select id="sProfesionalNombre" class="form-input" required></select>
+                        <select id="sProfesionalNombre" class="form-input" ></select>
                     </div>
                     <div class="form-group">
                         <label>Fecha de la Visita</label>
-                        <input type="date" id="sFecha" class="form-input" required>
+                        <input type="date" id="sFecha" class="form-input">
                     </div>
                     <div class="form-group">
                         <label>Especialidad / Atención</label>
-                        <select id="sTipo" class="form-input" required>
-                            <option value="Psicología">🧠 Psicología</option>
-                            <option value="Terapia Ocupacional">👐 Terapia Ocupacional</option>
+                        <select id="sTipo" class="form-input" >
+                            <option value="Psicología">Psicología</option>
+                            <option value="Terapia Ocupacional">Terapia Ocupacional</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Hora Inicio</label>
-                        <input type="time" id="sHoraI" class="form-input" required>
+                        <input type="time" id="sHoraI" class="form-input">
                     </div>
                     <div class="form-group">
                         <label>Hora Término</label>
-                        <input type="time" id="sHoraT" class="form-input" required>
+                        <input type="time" id="sHoraT" class="form-input">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Objetivo de la Sesión</label>
                     <input type="text" id="sObjetivo" class="form-input"
-                        placeholder="Ej: Evaluar estado emocional, Trabajo en ABVD..." required>
+                        placeholder="Ej: Evaluar estado emocional, Trabajo en ABVD...">
                 </div>
 
                 <div class="form-group">
                     <label>Actividades Realizadas</label>
                     <textarea id="sActividades" class="form-input" rows="3"
-                        placeholder="Detalle las intervenciones realizadas..." required></textarea>
+                        placeholder="Detalle las intervenciones realizadas..." ></textarea>
                 </div>
 
                 <div class="form-group">
@@ -648,16 +646,15 @@
                     <div class="test-form-grid" style="margin-top: 20px;">
                         <div class="form-group">
                             <label>Nombre del Firmante</label>
-                            <input type="text" id="sFirmaNombre" class="form-input" placeholder="Nombre completo"
-                                required>
+                            <input type="text" id="sFirmaNombre" class="form-input" placeholder="Nombre completo">
                         </div>
                         <div class="form-group">
                             <label>RUT del Firmante</label>
-                            <input type="text" id="sFirmaRut" class="form-input" placeholder="12.345.678-9" required>
+                            <input type="text" id="sFirmaRut" class="form-input" placeholder="12.345.678-9" >
                         </div>
                         <div class="form-group">
                             <label>Vínculo / Relación</label>
-                            <select id="sRelacion" class="form-input" required>
+                            <select id="sRelacion" class="form-input" >
                                 <option value="Paciente">Paciente Titular</option>
                                 <option value="Cuidador">Cuidador Principal</option>
                                 <option value="Familiar">Familiar Directo</option>
