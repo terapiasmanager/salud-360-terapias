@@ -1171,6 +1171,7 @@ function renderTable(filter = '') {
             <td>${formatFechaDisplay(p.ultimaVisita)}</td>
             <td>
                 <button class="action-btn" onclick="askProfesional('${p.id}')">Evaluación</button>
+               <button class="action-btn" onclick="editPatient('${p.id}')">Editar</button>
                 <button class="action-btn delete" onclick="deletePatient('${p.id}')">Eliminar</button>
             </td>
         `;
@@ -1198,6 +1199,22 @@ function showAddPatientModal() {
     document.getElementById('patientForm').reset();
     document.getElementById('patientId').value = '';
     document.getElementById('modalTitle').textContent = 'Nuevo Paciente';
+    document.getElementById('patientModal').classList.add('active');
+}
+
+function editPatient(id) {
+    const p = patients.find(x => x.id === id);
+    if (!p) return;
+
+    document.getElementById('patientId').value = p.id || '';
+    document.getElementById('pNombre').value = p.nombre || '';
+    document.getElementById('pEdad').value = p.edad || '';
+    document.getElementById('pRut').value = p.rut || '';
+    document.getElementById('pFecha').value = p.fechaNacimiento || '';
+    document.getElementById('pDomicilio').value = p.domicilio || '';
+    document.getElementById('pTelefono').value = p.telefono || '';
+
+    document.getElementById('modalTitle').textContent = 'Editar Paciente';
     document.getElementById('patientModal').classList.add('active');
 }
 
