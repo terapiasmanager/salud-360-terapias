@@ -58,6 +58,7 @@ let currentProfesional = null;
 let currentProfesionalNombre = "";
 let currentTestId = null;
 let currentDraftId = null;
+let currentEditingVisitaId = null;
 
 const PROFESIONALES_LISTA = {
     'terapeuta': [
@@ -1620,6 +1621,7 @@ function openTestForm(testId, draftId = null) {
     }
 
     currentTestId = testId;
+    currentDraftId = draftId || null;
     const titleEl = document.getElementById('testTitle');
     const subEl = document.getElementById('testSubtitle');
     if (titleEl) titleEl.textContent = config.title;
@@ -2922,7 +2924,7 @@ function renderDocs() {
     p.docs.forEach(d => {
         const div = document.createElement('div');
         div.className = 'doc-item';
-        const profBadge = d.profesional === 'psicologo' ? '🧠 Psicología' : (d.profesional === 'terapeuta' ? '👐 Terapia Ocupacional' : '📄 General');
+        const profBadge = d.profesional === 'psicologo' ? '🧠 Psicología' : (d.profesional === 'terapeuta' ? '👐 Terapia Ocupacional' : 'General');
 
         const isDraft = d.estado === 'borrador';
         const statusBadge = isDraft ? '<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; border: 1px solid #fde68a; margin-left: 10px;">💾 BORRADOR</span>' : '';
@@ -2942,7 +2944,7 @@ function renderDocs() {
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px; min-width: 130px;">
                     ${d.isTest && !isDraft ? `<button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; width: 100%;" onclick="printTestDoc('${d.id}')">🖨️ Imprimir Informe</button>` : ''}
-                    ${isDraft ? `<button class="btn-primary" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; background: #0891b2; border-color: #0891b2; width: 100%;" onclick="openTestForm('${d.testId}', '${d.id}')">✏️ Editar Borrador</button>` : ''}
+                    ${d.testId ? `<button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; width: 100%;" onclick="openTestForm('${d.testId}', '${d.id}')">✏️ Editar</button>` : ''}
                     ${isDraft ? `<button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; border-color: #ef4444; color: #ef4444; width: 100%;" onclick="deleteDraft('${d.id}')">🗑️ Eliminar</button>` : ''}
                 </div>
             </div>
