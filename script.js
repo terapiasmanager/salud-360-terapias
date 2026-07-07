@@ -1613,6 +1613,8 @@ function openFicha(id) {
 
 
 function openTestForm(testId, draftId = null) {
+    currentTestId = testId;
+    currentDraftId = draftId || null;
     console.log('Opening test:', testId);
     const config = testsConfig[testId];
     if (!config) {
@@ -1620,8 +1622,7 @@ function openTestForm(testId, draftId = null) {
         return;
     }
 
-    currentTestId = testId;
-    currentDraftId = draftId || null;
+    
     const titleEl = document.getElementById('testTitle');
     const subEl = document.getElementById('testSubtitle');
     if (titleEl) titleEl.textContent = config.title;
@@ -2943,7 +2944,7 @@ function renderDocs() {
                     <p style="white-space: pre-line; margin-top:8px; font-size: 0.9rem; color: var(--text-secondary);">${d.contenido.substring(0, 150)}${d.contenido.length > 150 ? '...' : ''}</p>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px; min-width: 130px;">
-                    ${d.isTest && !isDraft ? `<button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; width: 100%;" onclick="printTestDoc('${d.id}')">🖨️ Imprimir Informe</button>` : ''}
+                   ${d.isTest && !isDraft ? `<button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; width: 100%;" onclick="printTestDoc('${d.id}')">🖨️ Imprimir Informe</button>` : ''}
                     ${d.testId ? `<button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; width: 100%;" onclick="openTestForm('${d.testId}', '${d.id}')">✏️ Editar</button>` : ''}
                     ${isDraft ? `<button class="btn-outline" style="padding: 6px 12px; font-size: 0.75rem; white-space: nowrap; border-color: #ef4444; color: #ef4444; width: 100%;" onclick="deleteDraft('${d.id}')">🗑️ Eliminar</button>` : ''}
                 </div>
