@@ -2975,6 +2975,13 @@ let isProfessionalDrawing = false;
 let professionalSignatureCanvas, profSigCtx;
 
 function openSessionForm() {
+    const form = document.getElementById('sessionForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Registrar Visita';
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.style.opacity = '1';
     currentEditingVisitaId = null;
     try {
         const p = patients.find(x => x.id === currentPatientId);
@@ -3391,6 +3398,11 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
 
         alert('✅ Visita domiciliaria registrada correctamente.');
 
+        submitBtn.disabled = false;
+        submitBtn.textContent = currentEditingVisitaId ? 'Guardar cambios' : 'Registrar Visita';
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.style.opacity = '1';
+
     } catch (error) {
         console.error('Error:', error);
         alert('❌ ' + error.message);
@@ -3526,6 +3538,11 @@ function openEditVisita(visitaId) {
     const form = document.getElementById('sessionForm');
     if (!form) return;
     form.reset();
+    const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar cambios';
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.style.opacity = '1';
 
     document.getElementById('sFecha').value = visita.fecha || '';
     document.getElementById('sTipo').value = visita.tipo || '';
