@@ -986,33 +986,24 @@ async function syncVisitaToSupabase(v, patientId) {
         profesional_area: v.profesional
     };
 
-    console.log("Payload visita:", payload);
+    let response;
 
-    let { data, error } = await db
-        .from('visitas')
-        .insert(payload)
-        .select()
-        .single();
-
-    if (error && error.message && error.message.includes('firma_profesional_base64')) {
-        console.warn("La columna firma_profesional_base64 no esta disponible para insert. Reintentando con respaldo en documentos.");
-        const fallbackPayload = { ...payload };
-        delete fallbackPayload.firma_profesional_base64;
-
-        const retry = await db
+    if (v.id) {
+        response = await db
             .from('visitas')
-            .insert(fallbackPayload)
+            .update(payload)
+            .eq('id', v.id)
             .select()
             .single();
-
-        data = retry.data;
-        error = retry.error;
-
-        if (!error && data) {
-            data.firma_profesional_base64 = v.firmaProf;
-            await syncFirmaProfesionalVisitaDocumento(data, patientId, v.firmaProf);
-        }
+    } else {
+        response = await db
+            .from('visitas')
+            .insert(payload)
+            .select()
+            .single();
     }
+
+    let { data, error } = response;
 
     if (error) {
         console.error("Error sincronizando visita:", error);
@@ -1021,7 +1012,7 @@ async function syncVisitaToSupabase(v, patientId) {
     }
 
     return data;
-} 
+}
 async function syncEntregaToSupabase(e, patientId) {
     const payload = {
         paciente_id: patientId,
@@ -2984,6 +2975,7 @@ let isProfessionalDrawing = false;
 let professionalSignatureCanvas, profSigCtx;
 
 function openSessionForm() {
+    currentEditingVisitaId = null;
     try {
         const p = patients.find(x => x.id === currentPatientId);
         if (!p) {
@@ -3318,29 +3310,32 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
 
         if (!p.visitas) p.visitas = [];
 
-        const nextNum = p.visitas.length > 0
-            ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
-            : 1;
+        const visitaExistente = p.visitas.find(v => v.id === currentEditingVisitaId);
 
-        const newVisita = {
-            id: null,
-            num: nextNum,
-            fecha: document.getElementById('sFecha').value,
-            tipo: document.getElementById('sTipo').value,
-            horaI: document.getElementById('sHoraI').value,
-            horaT: document.getElementById('sHoraT').value,
-            objetivo: document.getElementById('sObjetivo').value,
-            actividades: document.getElementById('sActividades').value,
-            obs: document.getElementById('sObs').value,
-            firma: finalFirmaBase64,
-            firmaProf: finalFirmaProfesionalBase64,
-            firmaNombre: document.getElementById('sFirmaNombre').value,
-            firmaRut: document.getElementById('sFirmaRut').value,
-            relacion: document.getElementById('sRelacion').value,
-            profesionalNombre: document.getElementById('sProfesionalNombre').value,
-            profesional: currentProfesional
-        };
+            const nextNum = visitaExistente
+                    ? visitaExistente.num
+                    : (p.visitas.length > 0
+                    ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
+                    : 1);
 
+            const newVisita = {
+                    id: currentEditingVisitaId || null,
+                    num: nextNum,
+                    fecha: document.getElementById('sFecha').value,
+                    tipo: document.getElementById('sTipo').value,
+                    horaI: document.getElementById('sHoraI').value,
+                    horaT: document.getElementById('sHoraT').value,
+                    objetivo: document.getElementById('sObjetivo').value,
+                    actividades: document.getElementById('sActividades').value,
+                    obs: document.getElementById('sObs').value,
+                   firma: finalFirmaBase64,
+                    firmaProf: finalFirmaProfesionalBase64,
+                    firmaNombre: document.getElementById('sFirmaNombre').value,
+                    firmaRut: document.getElementById('sFirmaRut').value,
+                    relacion: document.getElementById('sRelacion').value,
+                    profesionalNombre: document.getElementById('sProfesionalNombre').value,
+                    profesional: currentProfesional
+                };
         const visitaGuardada = await syncVisitaToSupabase(newVisita, p.id);
         if (!visitaGuardada) throw new Error('No se pudo guardar la visita.');
 
@@ -3363,7 +3358,14 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
             profesional: visitaGuardada.profesional_area
         };
 
+        if (currentEditingVisitaId) {
+        const idx = p.visitas.findIndex(v => v.id === currentEditingVisitaId);
+        if (idx !== -1) {
+        p.visitas[idx] = visitaFinal;
+            }
+            } else {
         p.visitas.push(visitaFinal);
+            }
 
        const okUltima = await actualizarUltimaVisitaPaciente(p);
         if (!okUltima) throw new Error('Error actualizando última visita.');
@@ -3383,6 +3385,9 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
         clearProfessionalSignature();
         stopCamera();
         closeModal('sessionModal');
+
+        currentEditingVisitaId = null;
+        submitBtn.textContent = submitBtn.dataset.originalText || 'Registrar Visita';
 
         alert('✅ Visita domiciliaria registrada correctamente.');
 
@@ -3429,6 +3434,7 @@ function renderVisitas() {
                     <span title="Fecha de visita">📅 ${s.fecha.split('-').reverse().join('/')}</span>
                     <span title="Horario">⏰ ${s.horaI} - ${s.horaT}</span>
                     <button class="action-btn" onclick="printSingleVisita(${s.num})" style="margin-left: 10px; font-size: 0.8rem; background: var(--primary-100); color: var(--primary-700); border: 1px solid var(--primary-200);" title="Imprimir esta visita">🖨️ Imprimir Registro</button>
+                    <button class="action-btn" onclick="openEditVisita('${s.id}')" style="margin-left: 5px; font-size: 0.8rem;" title="Editar visita">✏️ Editar</button>
                     <button class="action-btn delete" onclick="deleteVisita(${s.num})" style="margin-left: 5px; font-size: 0.8rem;" title="Eliminar registro">🗑️</button>
                 </div>
             </div>
@@ -3506,6 +3512,60 @@ function renderVisitas() {
             }).join('');
         }
     }
+}
+
+function openEditVisita(visitaId) {
+    const p = patients.find(x => x.id === currentPatientId);
+    if (!p || !p.visitas) return;
+
+    const visita = p.visitas.find(v => v.id === visitaId);
+    if (!visita) return;
+
+    currentEditingVisitaId = visita.id;
+
+    const form = document.getElementById('sessionForm');
+    if (!form) return;
+    form.reset();
+
+    document.getElementById('sFecha').value = visita.fecha || '';
+    document.getElementById('sTipo').value = visita.tipo || '';
+    document.getElementById('sHoraI').value = visita.horaI || '';
+    document.getElementById('sHoraT').value = visita.horaT || '';
+    document.getElementById('sObjetivo').value = visita.objetivo || '';
+    document.getElementById('sActividades').value = visita.actividades || '';
+    document.getElementById('sObs').value = visita.obs || '';
+    document.getElementById('sFirmaNombre').value = visita.firmaNombre || '';
+    document.getElementById('sFirmaRut').value = visita.firmaRut || '';
+    document.getElementById('sRelacion').value = visita.relacion || '';
+    document.getElementById('sProfesionalNombre').value = visita.profesionalNombre || '';
+
+    document.getElementById('sessionModal').classList.add('active');
+
+    setTimeout(() => {
+        initSignaturePad();
+        initProfessionalSignaturePad();
+
+        if (visita.firma && signatureCanvas && sigCtx) {
+            const img = new Image();
+            img.onload = () => {
+                sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+                sigCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
+            };
+            img.src = visita.firma;
+        }
+
+        if (visita.firmaProf && professionalSignatureCanvas && profSigCtx) {
+            const img2 = new Image();
+            img2.onload = () => {
+                profSigCtx.clearRect(0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
+                profSigCtx.drawImage(img2, 0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
+            };
+            img2.src = visita.firmaProf;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Guardar cambios';
+    }, 300);
 }
 
 function printSingleVisita(num) {
