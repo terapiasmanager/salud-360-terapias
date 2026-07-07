@@ -787,9 +787,29 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function savePatients() {
-    // Mantenemos localStorage como respaldo
-    localStorage.setItem('tera_patients', JSON.stringify(patients));
-    saveAllDocsLocalBackups();
+    try {
+        // Guardar solo respaldo liviano, sin firmas ni docs pesados
+        const lightweightPatients = (patients || []).map(p => ({
+            id: p.id,
+            nombre: p.nombre || '',
+            rut: p.rut || '',
+            edad: p.edad || '',
+            fechaNacimiento: p.fechaNacimiento || '',
+            domicilio: p.domicilio || '',
+            telefono: p.telefono || '',
+            ultimaVisita: p.ultimaVisita || ''
+        }));
+
+        localStorage.setItem('tera_patients', JSON.stringify(lightweightPatients));
+    } catch (error) {
+        console.warn('No se pudo guardar tera_patients en localStorage:', error);
+    }
+
+    try {
+        saveAllDocsLocalBackups();
+    } catch (error) {
+        console.warn('No se pudieron guardar respaldos locales de documentos:', error);
+    }
 }
 
 function loadLocalDocsForPatient(patientId) {
