@@ -688,6 +688,10 @@ async function loadDataFromSupabase() {
         const eData = entregasRes.error ? [] : (entregasRes.data || []);
         const dData = documentosRes.error ? [] : (documentosRes.data || []);
 
+        console.log("PACIENTES DATA:", pData);
+        console.log("VISITAS DATA:", vData);
+        console.log("DOCUMENTOS DATA:", dData);
+
         if (visitasRes.error) {
             console.warn("No se pudieron cargar visitas:", visitasRes.error.message);
         }
@@ -700,12 +704,12 @@ async function loadDataFromSupabase() {
 
      patients = pData.map(p => {
     const firmaProfDocumentosPaciente = dData.filter(d =>
-        d.paciente_id === p.id &&
-        d.test_id === 'firma-profesional-visita'
+    String(d.paciente_id) === String(p.id) &&
+    d.test_id === 'firma-profesional-visita'
     );
 
     const visitasPaciente = vData
-        .filter(v => v.paciente_id === p.id)
+    .filter(v => String(v.paciente_id) === String(p.id))
         .map(v => ({
             id: v.id,
             num: v.num,
@@ -726,8 +730,8 @@ async function loadDataFromSupabase() {
             profesional: v.profesional_area
         }));
 
-            const entregasPaciente = eData
-                .filter(e => e.paciente_id === p.id)
+           const entregasPaciente = eData
+                .filter(e => String(e.paciente_id) === String(p.id))
                 .map(e => ({
                     id: e.id,
                     tipo: e.articulo_tipo,
@@ -743,10 +747,10 @@ async function loadDataFromSupabase() {
                 }));
 
             const documentosPaciente = mergeDocs(
-                dData
-                    .filter(d => d.paciente_id === p.id)
-                    .map(mapDocumentoFromSupabase),
-                loadLocalDocsForPatient(p.id)
+            dData
+                .filter(d => String(d.paciente_id) === String(p.id))
+                .map(mapDocumentoFromSupabase),
+              loadLocalDocsForPatient(p.id)
             );
 
             return {
@@ -763,7 +767,13 @@ async function loadDataFromSupabase() {
                 docs: documentosPaciente
             };
         });
-
+        console.log("PACIENTES CON VISITAS:", patients.map(p => ({
+        nombre: p.nombre,
+        id: p.id,
+        visitas: p.visitas.length,
+        docs: p.docs.length
+        })));
+        
         savePatients();
         renderTable();
         console.log("Pacientes cargados correctamente:", patients.length);
