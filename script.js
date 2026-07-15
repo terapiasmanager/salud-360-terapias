@@ -3652,7 +3652,11 @@ if (firmaPaciente && signatureCanvas && sigCtx) {
         sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
         sigCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
     };
+    if (firmaPaciente) {
     img.src = firmaPaciente;
+} else {
+    img.removeAttribute('src');
+}
     }
 
     if (firmaProfesional && professionalSignatureCanvas && profSigCtx) {
