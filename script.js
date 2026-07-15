@@ -3742,7 +3742,7 @@ async function printSingleVisita(num) {
     setTimeout(() => {
         window.print();
     }, 250);
-}
+
 
 function setActivePrintContainer(id) {
     document.querySelectorAll('.print-only').forEach(el => el.classList.remove('active-print'));
