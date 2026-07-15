@@ -679,7 +679,11 @@ async function loadDataFromSupabase() {
         const pacientesRes = await db.from('pacientes').select('*');
         if (pacientesRes.error) throw pacientesRes.error;
 
-        const visitasRes = await db.from('visitas').select('*');
+        const visitasRes = await db
+    .from('visitas')
+    .select('id, paciente_id, num, fecha, tipo, hora_inicio, hora_termino, objetivo, actividades, observaciones, firma_nombre, firma_rut, relacion, profesional_nombre, profesional_area');
+
+        
         const entregasRes = await db.from('entregas').select('*');
         const documentosRes = await db.from('documentos').select('*');
 
@@ -720,8 +724,8 @@ async function loadDataFromSupabase() {
             objetivo: v.objetivo,
             actividades: v.actividades,
             obs: v.observaciones,
-            firma: v.firma,
-            firmaProf: v.firma_profesional_base64 || getFirmaProfesionalVisitaFromDocumentos(v, firmaProfDocumentosPaciente),
+            firma: null,
+            firmaProf: getFirmaProfesionalVisitaFromDocumentos(v, firmaProfDocumentosPaciente) || null,
             firmaTipo: 'manual',
             firmaNombre: v.firma_nombre,
             firmaRut: v.firma_rut,
@@ -959,6 +963,23 @@ async function deleteDocumentoFromSupabase(docId) {
     return true;
 }
 
+
+//funcion para carga una visita completa cuando haga falta
+async function loadFullVisitaById(visitaId) {
+    const { data, error } = await db
+        .from('visitas')
+        .select('*')
+        .eq('id', visitaId)
+        .single();
+
+    if (error) {
+        console.error('Error cargando visita completa:', error);
+        return null;
+    }
+
+    return data;
+}
+
 // Función específica para guardar un paciente en Supabase
 async function syncPatientToSupabase(p) {
     const pData = {
@@ -1045,6 +1066,8 @@ async function syncVisitaToSupabase(v, patientId) {
 
     return data;
 }
+
+
 async function syncEntregaToSupabase(e, patientId) {
     const payload = {
         paciente_id: patientId,
@@ -1139,6 +1162,21 @@ function calcularUltimaVisitaDesdeVisitas(visitas) {
     )[0];
 
     return ultima.fecha || '';
+}
+
+async function loadFullVisitaById(visitaId) {
+    const { data, error } = await db
+        .from('visitas')
+        .select('*')
+        .eq('id', visitaId)
+        .single();
+
+    if (error) {
+        console.error('Error cargando visita completa:', error);
+        return null;
+    }
+
+    return data;
 }
 
 async function actualizarUltimaVisitaPaciente(p) {
@@ -3560,23 +3598,32 @@ function renderVisitas() {
     }
 }
 
-function openEditVisita(visitaId) {
+async function openEditVisita(visitaId) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.visitas) return;
 
     const visita = p.visitas.find(v => v.id === visitaId);
     if (!visita) return;
 
+    const visitaDb = await loadFullVisitaById(visitaId);
+    if (!visitaDb) {
+        alert('No se pudo cargar la visita completa.');
+        return;
+    }
+
     currentEditingVisitaId = visita.id;
 
     const form = document.getElementById('sessionForm');
     if (!form) return;
     form.reset();
+
     const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Guardar cambios';
         submitBtn.style.pointerEvents = 'auto';
         submitBtn.style.opacity = '1';
+    }
 
     document.getElementById('sFecha').value = visita.fecha || '';
     document.getElementById('sTipo').value = visita.tipo || '';
@@ -3590,35 +3637,36 @@ function openEditVisita(visitaId) {
     document.getElementById('sRelacion').value = visita.relacion || '';
     document.getElementById('sProfesionalNombre').value = visita.profesionalNombre || '';
 
+    const firmaPaciente = visitaDb.firma || visita.firma || null;
+    const firmaProfesional = visitaDb.firma_profesional_base64 || visita.firmaProf || null;
+
     document.getElementById('sessionModal').classList.add('active');
 
     setTimeout(() => {
         initSignaturePad();
         initProfessionalSignaturePad();
 
-        if (visita.firma && signatureCanvas && sigCtx) {
+        if (firmaPaciente && signatureCanvas && sigCtx) {
             const img = new Image();
             img.onload = () => {
                 sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
                 sigCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
             };
-            img.src = visita.firma;
+            img.src = firmaPaciente;
         }
 
-        if (visita.firmaProf && professionalSignatureCanvas && profSigCtx) {
+        if (firmaProfesional && professionalSignatureCanvas && profSigCtx) {
             const img2 = new Image();
             img2.onload = () => {
                 profSigCtx.clearRect(0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
                 profSigCtx.drawImage(img2, 0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
             };
-            img2.src = visita.firmaProf;
+            img2.src = firmaProfesional;
         }
 
-        const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.textContent = 'Guardar cambios';
     }, 300);
 }
-
 function printSingleVisita(num) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.visitas) return;
