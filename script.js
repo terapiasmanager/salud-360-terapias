@@ -3637,8 +3637,8 @@ async function openEditVisita(visitaId) {
     document.getElementById('sRelacion').value = visita.relacion || '';
     document.getElementById('sProfesionalNombre').value = visita.profesionalNombre || '';
 
-    const firmaPaciente = visitaDb.firma || visita.firma || null;
-    const firmaProfesional = visitaDb.firma_profesional_base64 || visita.firmaProf || null;
+    const firmaPaciente = visitaDb?.firma || visita?.firma || '';
+    const firmaProfesional = visitaDb?.firma_profesional_base64 || visita?.firmaProf || '';
 
     document.getElementById('sessionModal').classList.add('active');
 
@@ -3646,36 +3646,47 @@ async function openEditVisita(visitaId) {
         initSignaturePad();
         initProfessionalSignaturePad();
 
-        if (firmaPaciente && signatureCanvas && sigCtx) {
-            const img = new Image();
-            img.onload = () => {
-                sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
-                sigCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
-            };
-            img.src = firmaPaciente;
-        }
+if (firmaPaciente && signatureCanvas && sigCtx) {
+    const img = new Image();
+    img.onload = () => {
+        sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+        sigCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
+    };
+    img.src = firmaPaciente;
+    }
 
-        if (firmaProfesional && professionalSignatureCanvas && profSigCtx) {
-            const img2 = new Image();
-            img2.onload = () => {
-                profSigCtx.clearRect(0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
-                profSigCtx.drawImage(img2, 0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
-            };
-            img2.src = firmaProfesional;
-        }
-
+    if (firmaProfesional && professionalSignatureCanvas && profSigCtx) {
+        const img2 = new Image();
+        img2.onload = () => {
+            profSigCtx.clearRect(0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
+            profSigCtx.drawImage(img2, 0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
+        };
+        img2.src = firmaProfesional;
+    }
         if (submitBtn) submitBtn.textContent = 'Guardar cambios';
     }, 300);
 }
-function printSingleVisita(num) {
+async function printSingleVisita(num) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.visitas) return;
 
-    const s = p.visitas.find(v => v.num === num);
-    if (!s) {
-        alert("No se encontró el registro de la visita.");
+    const visita = p.visitas.find(v => v.num === num);
+    if (!visita) return;
+
+    const visitaDb = await loadFullVisitaById(visita.id);
+    if (!visitaDb) {
+        alert('No se pudo cargar la visita completa para imprimir.');
         return;
     }
+
+    const visitaCompleta = {
+        ...visita,
+        firma: visitaDb.firma || '',
+        firmaProf: visitaDb.firma_profesional_base64 || visita.firmaProf || ''
+    };
+
+    renderSingleVisitaPrint(visitaCompleta);
+}
 
     // 1. Activar contenedor individual
     setActivePrintContainer('printVisitaIndividualContainer');
