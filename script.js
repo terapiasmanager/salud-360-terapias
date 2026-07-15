@@ -3679,14 +3679,11 @@ async function printSingleVisita(num) {
         return;
     }
 
-    const visitaCompleta = {
+    const s = {
         ...visita,
         firma: visitaDb.firma || '',
         firmaProf: visitaDb.firma_profesional_base64 || visita.firmaProf || ''
     };
-
-    renderSingleVisitaPrint(visitaCompleta);
-}
 
     // 1. Activar contenedor individual
     setActivePrintContainer('printVisitaIndividualContainer');
@@ -3714,19 +3711,21 @@ async function printSingleVisita(num) {
         obsContainer.style.display = 'none';
     }
 
-    // 5. Llenar firma
+    // 5. Llenar firma paciente
     const firmaImg = document.getElementById('privFirmaImg');
-    if (s.firma && s.firma.length > 100) {
-        firmaImg.src = s.firma;
-        firmaImg.style.display = 'block';
-    } else {
-        firmaImg.style.display = 'none';
+    if (firmaImg) {
+        if (s.firma && s.firma.length > 100) {
+            firmaImg.src = s.firma;
+            firmaImg.style.display = 'block';
+        } else {
+            firmaImg.style.display = 'none';
+        }
     }
 
     document.getElementById('privFirmanteNombre').textContent = s.firmaNombre || '---';
     document.getElementById('privFirmanteRel').textContent = `${s.relacion || '---'} ${s.firmaRut ? '| RUT: ' + s.firmaRut : ''}`;
 
-    // 6. Ejecutar impresión
+    // 6. Llenar firma profesional
     const firmaProfImg = document.getElementById('privFirmaProfImg');
     if (firmaProfImg) {
         if (s.firmaProf && s.firmaProf.length > 100) {
@@ -3736,8 +3735,11 @@ async function printSingleVisita(num) {
             firmaProfImg.style.display = 'none';
         }
     }
+
     const firmaProfNombre = document.getElementById('privFirmaProfNombre');
-    if (firmaProfNombre) firmaProfNombre.textContent = s.profesionalNombre || 'Firma Profesional';
+    if (firmaProfNombre) {
+        firmaProfNombre.textContent = s.profesionalNombre || 'Firma Profesional';
+    }
 
     setTimeout(() => {
         window.print();
