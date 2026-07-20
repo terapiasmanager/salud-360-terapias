@@ -62,12 +62,12 @@ let currentEditingVisitaId = null;
 
 const PROFESIONALES_LISTA = {
     'terapeuta': [
-        "Alejandra Contreras Valdés",
         "Constanza Hidalgo Cárdenas",
         "Cindie Palma Araneda",
         "Nataly Mersey Ortega"
     ],
     'psicologo': [
+        "Vicente Acuña",
         "Anriette Fariña",
         "Jacinta Noguera Barthou"
     ]
@@ -1564,7 +1564,7 @@ function normalizeName(name) {
     if (!name || typeof name !== 'string') return name;
 
     const exactMatches = {
-        "ALEJANDRA ANDREA CONTRERAS VALDÉS": "Alejandra Andrea Contreras Valdés",
+        "VICENTE ACUÑA BAGIOLI": "Vicente Acuña Bagioli",
         "CONSTANZA HIDALGO CÁRDENAS": "Constanza Hidalgo Cárdenas",
         "NATALY MERSEY ORTEGA" : "Nataly Mersey Ortega",
         "CINDIE PALMA ARANEDA" : "Cindie Palma Araneda",
