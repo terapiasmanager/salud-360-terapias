@@ -232,6 +232,8 @@
         </div>
     </div>
 
+</div> <!-- Cierre final de #sectionArticulos -->
+
     <!-- Modal Ficha de Paciente -->
     <div id="fichaModal" class="modal">
         <div class="modal-content glass-card" style="max-width: 800px; width: 95%;">
@@ -303,6 +305,23 @@
                         </div>
                     </div>
 
+                    <!-- ➕ PEGAR AQUÍ: Tabla de entregas registradas -->
+                    <div style="margin-top: 20px; overflow-x: auto;">
+                      <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                          <tr style="border-bottom: 2px solid rgba(99, 102, 241, 0.2); text-align: left; font-size: 0.9rem; color: #4338ca;">
+                            <th style="padding: 10px;">Fecha</th>
+                            <th style="padding: 10px;">Profesional</th>
+                            <th style="padding: 10px;">Comprobante</th>
+                            <th style="padding: 10px; text-align: center;">Acción</th>
+                          </tr>
+                      </thead>
+                        <tbody id="tablaEntregasBody">
+                      <!-- JavaScript llenará esta lista dinámicamente -->
+                        </tbody>
+                      </table>
+                    </div>
+                    
                     <div id="articulosList" class="docs-grid" style="margin-bottom: 20px;">
                         <!-- Los artículos se cargan aquí -->
                     </div>
@@ -352,6 +371,17 @@
                                     <select id="artProf" class="form-input"></select>
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                              <label>Profesional que entrega</label>
+                              <select id="artProf" class="form-input"></select>
+                                </div>
+
+                            <!-- ➕ PEGAR AQUÍ: Campo para adjuntar la foto -->
+                                <div class="form-group">
+                                  <label>📸 Adjuntar Foto o Comprobante (Opcional)</label>
+                                  <input type="file" id="imagen-entrega" class="form-input" accept="image/*">
+                                </div>
 
                             <!-- Firma Paciente / Receptor -->
                             <div
