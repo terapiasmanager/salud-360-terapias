@@ -5267,3 +5267,86 @@ function printUltimaEntrega() {
 
 // Inicializar sistema
 renderTable();
+
+async function subirImagenStorage(archivo) {
+  if (!archivo) return null;
+  const extension = archivo.name.split('.').pop();
+  const nombreArchivo = `${Date.now()}_entrega.${extension}`;
+
+  const { error } = await supabase.storage
+    .from('archivos')
+    .upload(nombreArchivo, archivo);
+
+  if (error) {
+    console.error("Error al subir archivo:", error);
+    return null;
+  }
+
+  const { data } = supabase.storage.from('archivos').getPublicUrl(nombreArchivo);
+  return data.publicUrl;
+}
+
+// Dentro de la función que guarda la entrega en Supabase
+const inputFoto = document.getElementById('imagen-entrega');
+const archivoFoto = inputFoto ? inputFoto.files[0] : null;
+
+// Subir foto si seleccionó alguna
+const urlFoto = await subirImagenStorage(archivoFoto);
+
+// Incluir la URL en el objeto que mandas a Supabase
+const payload = {
+  fecha: document.getElementById('artFecha').value,
+  profesional: document.getElementById('artProf').value,
+  imagen_url: urlFoto, // 👈 Se guarda la URL de la foto
+  // ... tus otros campos
+};
+
+const { error } = await supabase.from('entregas').insert([payload]);
+if (!error) {
+  cargarTablaEntregas(); // Recarga la tabla
+}
+
+async function cargarTablaEntregas() {
+  const tbody = document.getElementById('tablaEntregasBody');
+  if (!tbody) return;
+
+  const { data: entregas, error } = await supabase
+    .from('entregas')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return console.error(error);
+
+  tbody.innerHTML = entregas.map(item => `
+    <tr style="border-bottom: 1px solid #eee;">
+      <td style="padding: 10px;">${item.fecha || '-'}</td>
+      <td style="padding: 10px;">${item.profesional || '-'}</td>
+      <td style="padding: 10px;">
+        ${item.imagen_url 
+          ? `<a href="${item.imagen_url}" target="_blank" style="color: #6366f1; font-weight: 600;">🖼️ Ver Foto</a>` 
+          : '<span style="color:#aaa;">Sin foto</span>'}
+      </td>
+      <td style="padding: 10px; text-align: center;">
+        <button onclick="eliminarEntrega('${item.id}')" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+          🗑️ Borrar
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function eliminarEntrega(idEntrega) {
+  if (!confirm("¿Deseas eliminar esta entrega mal registrada?")) return;
+
+  const { error } = await supabase
+    .from('entregas')
+    .delete()
+    .eq('id', idEntrega);
+
+  if (error) {
+    alert("Error al eliminar la entrega: " + error.message);
+  } else {
+    alert("Entrega eliminada correctamente");
+    cargarTablaEntregas(); // Refresca la tabla
+  }
+}
