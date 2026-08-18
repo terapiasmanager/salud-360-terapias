@@ -5330,7 +5330,7 @@ async function eliminarEntrega(idEntrega) {
   }
 }
 
-async function imprimirHistorialCompletoEvaluaciones() {
+window.imprimirHistorialCompletoEvaluaciones = async function() {
   const p = patients.find(x => x.id === currentPatientId);
   if (!p) return alert("Por favor, selecciona un paciente primero.");
 
@@ -5347,46 +5347,42 @@ async function imprimirHistorialCompletoEvaluaciones() {
   const container = document.getElementById('prTestContent');
   if (!container) return alert("No se encontró el contenedor #prTestContent.");
 
-  let html = `<div style="font-family: Arial, sans-serif; color: #000;">`;
+  let html = '<div style="font-family: Arial, sans-serif; color: #000;">';
 
-  historial.forEach((doc, index) => {
+  historial.forEach(function(doc, index) {
     const fecha = doc.fecha || doc.fecha_guardado || 'Sin fecha';
     const estadoText = doc.estado === 'borrador' ? ' (Borrador)' : '';
+    const titulo = doc.titulo || 'EVALUACIÓN / FORMULARIO';
+    const contenido = doc.contenido || 'Sin contenido registrado.';
+    const numVersion = historial.length - index;
 
-    html += `
-      <div style="page-break-after: always; break-after: page; padding: 20px 0;">
-        <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">
-          <h2 style="margin: 0; color: #1e3a8a; text-transform: uppercase; font-size: 14pt;">
-            ${doc.titulo || 'EVALUACIÓN / FORMULARIO'}${estadoText}
-          </h2>
-          <p style="margin: 5px 0 0 0; font-size: 10pt; color: #333;">
-            <strong>Versión #${historial.length - index}</strong> | 
-            <strong>Paciente:</strong> ${p.nombre} | 
-            <strong>RUT:</strong> ${p.rut || 'N/A'} | 
-            <strong>Fecha Guardado:</strong> ${fecha}
-          </p>
-        </div>
+    html += '<div style="page-break-after: always; break-after: page; padding: 20px 0;">';
+    html += '  <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">';
+    html += '    <h2 style="margin: 0; color: #1e3a8a; text-transform: uppercase; font-size: 14pt;">' + titulo + estadoText + '</h2>';
+    html += '    <p style="margin: 5px 0 0 0; font-size: 10pt; color: #333;">';
+    html += '      <strong>Versión #' + numVersion + '</strong> | ';
+    html += '      <strong>Paciente:</strong> ' + p.nombre + ' | ';
+    html += '      <strong>RUT:</strong> ' + (p.rut || 'N/A') + ' | ';
+    html += '      <strong>Fecha Guardado:</strong> ' + fecha;
+    html += '    </p>';
+    html += '  </div>';
+    html += '  <div style="font-size: 10pt; line-height: 1.5; color: #1e293b; white-space: pre-wrap; min-height: 400px;">' + contenido + '</div>';
 
-        <div style="font-size: 10pt; line-height: 1.5; color: #1e293b; white-space: pre-wrap; min-height: 400px;">
-          ${doc.contenido || 'Sin contenido registrado.'}
-        </div>
+    if (doc.profesional) {
+      html += '  <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; text-align: right; font-size: 9pt; color: #475569;">';
+      html += '    <strong>Profesional a cargo:</strong> ' + doc.profesional;
+      html += '  </div>';
+    }
 
-        ${doc.profesional ? `
-          <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; text-align: right; font-size: 9pt; color: #475569;">
-            <strong>Profesional a cargo:</strong> ${doc.profesional}
-          </div>
-        ` : ''}
-      </div>
-    `;
+    html += '</div>';
   });
 
-  html += `</div>`;
+  html += '</div>';
 
   container.innerHTML = html;
   setActivePrintContainer('formulario-imprimible');
 
-  setTimeout(() => {
+  setTimeout(function() {
     window.print();
   }, 300);
-}
-}
+};
