@@ -5444,5 +5444,5 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     console.error("Error al preparar la impresión:", err);
     alert("Ocurrió un error al procesar el historial para imprimir: " + err.message);
   }
-};
+}
 }
