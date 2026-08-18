@@ -5330,7 +5330,6 @@ async function eliminarEntrega(idEntrega) {
   }
 }
 
-// ✅ Esto sí debe quedar al final de script.js:
 async function imprimirHistorialCompletoEvaluaciones() {
   const p = patients.find(x => x.id === currentPatientId);
   if (!p) return alert("Por favor, selecciona un paciente primero.");
