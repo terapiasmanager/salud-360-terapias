@@ -5386,3 +5386,4 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     window.print();
   }, 300);
 };
+}
