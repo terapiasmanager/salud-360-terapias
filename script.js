@@ -5445,3 +5445,4 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     alert("Ocurrió un error al procesar el historial para imprimir: " + err.message);
   }
 };
+}
