@@ -5387,3 +5387,90 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
   }, 300);
 }
 }
+window.imprimirHistorialCompletoEvaluaciones = async function() {
+  try {
+    const p = patients.find(x => x.id === currentPatientId);
+    if (!p) return alert("Por favor, selecciona un paciente primero.");
+
+    // Consulta los documentos directamente desde Supabase
+    const { data: historial, error } = await db
+      .from('documentos')
+      .select('*')
+      .eq('paciente_id', p.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Error consultando Supabase:", error);
+      return alert("Error al obtener los documentos: " + error.message);
+    }
+
+    if (!historial || historial.length === 0) {
+      return alert("No hay evaluaciones guardadas en la base de datos para este paciente.");
+    }
+
+    const container = document.getElementById('prTestContent');
+    if (!container) return alert("No se encontró el contenedor de impresión #prTestContent.");
+
+    // Asignar datos del paciente a la cabecera
+    const setElem = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.innerText = val || 'N/A';
+    };
+    setElem('prTestNombre', p.nombre);
+    setElem('prTestRut', p.rut);
+    setElem('prTestEdad', p.edad);
+    setElem('prTestDir', p.domicilio);
+    setElem('prTestFecha', new Date().toLocaleDateString('es-CL'));
+    setElem('prTestProf', typeof currentProfesionalName !== 'undefined' ? currentProfesionalName : 'Profesional Salud 360');
+
+    let html = '<div style="font-family: Arial, sans-serif; color: #000;">';
+
+    historial.forEach((doc, index) => {
+      const fecha = doc.fecha || doc.fecha_guardado || 'Sin fecha';
+      const estadoText = doc.estado === 'borrador' ? ' (Borrador)' : '';
+      const titulo = doc.titulo || 'EVALUACIÓN / FORMULARIO';
+      const contenido = doc.contenido || 'Sin contenido registrado.';
+      const numVersion = historial.length - index;
+
+      html += '<div style="page-break-after: always; break-after: page; padding: 20px 0;">';
+      html += '  <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">';
+      html += '    <h2 style="margin: 0; color: #1e3a8a; text-transform: uppercase; font-size: 14pt;">' + titulo + estadoText + '</h2>';
+      html += '    <p style="margin: 5px 0 0 0; font-size: 10pt; color: #333;">';
+      html += '      <strong>Versión #' + numVersion + '</strong> | ';
+      html += '      <strong>Paciente:</strong> ' + p.nombre + ' | ';
+      html += '      <strong>RUT:</strong> ' + (p.rut || 'N/A') + ' | ';
+      html += '      <strong>Fecha Guardado:</strong> ' + fecha;
+      html += '    </p>';
+      html += '  </div>';
+      html += '  <div style="font-size: 10pt; line-height: 1.5; color: #1e293b; white-space: pre-wrap; min-height: 300px;">' + contenido + '</div>';
+
+      if (doc.profesional) {
+        html += '  <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; text-align: right; font-size: 9pt; color: #475569;">';
+        html += '    <strong>Profesional a cargo:</strong> ' + doc.profesional;
+        html += '  </div>';
+      }
+
+      html += '</div>';
+    });
+
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    if (typeof setActivePrintContainer === 'function') {
+      setActivePrintContainer('formulario-imprimible');
+    } else {
+      document.querySelectorAll('.print-only').forEach(el => el.style.display = 'none');
+      const pr = document.getElementById('formulario-imprimible');
+      if (pr) pr.style.display = 'block';
+    }
+
+    setTimeout(function() {
+      window.print();
+    }, 300);
+
+  } catch (err) {
+    console.error("Error al preparar la impresión:", err);
+    alert("Ocurrió un error al preparar el documento para imprimir.");
+  }
+};
