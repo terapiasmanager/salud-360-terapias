@@ -957,19 +957,23 @@ h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--text-primary); }
    CONFIGURACIÓN DEFINITIVA DE IMPRESIÓN (PDF Y PAPEL)
    ========================================================================== */
 
-/* Ocultar plantillas de impresión en la pantalla del navegador */
+/* ==========================================================================
+   OCULTAR PLANTILLAS DE IMPRESIÓN EN NAVEGADOR WEB
+   ========================================================================== */
 .print-only {
     display: none !important;
 }
 
+/* ==========================================================================
+   REGLA DEFINITIVA PARA IMPRESIÓN (PDF / PAPEL)
+   ========================================================================== */
 @media print {
-    /* 1. Ocultar la interfaz web y ventanas modales */
-    nav, .navbar, .hero, .services, .dashboard-section, .footer, 
-    .modal, .btn-primary, .btn-outline, .particles-container, #printDebug { 
-        display: none !important; 
+    /* Ocultar la interfaz web preservando la estructura de renderizado */
+    body * {
+        visibility: hidden !important;
     }
 
-    /* 2. Resetear el lienzo del documento para permitir múltiples páginas */
+    /* Desbloquear dimensiones en body/html para evitar hojas vacías */
     html, body {
         height: auto !important;
         min-height: 100% !important;
@@ -980,29 +984,37 @@ h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--text-primary); }
         padding: 0 !important;
     }
 
-    /* 3. Desplegar de forma estática el contenedor activo */
-    .print-only.active-print {
-        display: block !important;
-        visibility: visible !important;
-        position: static !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-    }
-
-    /* 4. Forzar visibilidad y color en todos los elementos internos */
-    .print-only.active-print * {
+    /* Hacer visible ÚNICAMENTE la plantilla activa de impresión y sus hijos */
+    .print-only.active-print,
+    .print-only.active-print *,
+    .print-only[style*="display: block"],
+    .print-only[style*="display: block"] *,
+    .print-only[style*="display:block"],
+    .print-only[style*="display:block"] * {
         visibility: visible !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* 5. Reglas de tablas y saltos de página */
-    .cto-print-table, .print-table, table {
+    /* Posicionar la plantilla activa en la parte superior de la hoja */
+    .print-only.active-print,
+    .print-only[style*="display: block"],
+    .print-only[style*="display:block"] {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        background: #ffffff !important;
+    }
+
+    /* Formato de tablas e imágenes */
+    table, .cto-print-table, .print-table {
         width: 100% !important;
         border-collapse: collapse !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 15px !important;
         page-break-inside: auto;
     }
 
