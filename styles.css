@@ -954,54 +954,51 @@ h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--text-primary); }
 }
 
 /* ==========================================================================
-   BLOQUE ÚNICO Y DEFINITIVO DE IMPRESIÓN (PDF / PAPEL)
+   CONFIGURACIÓN DEFINITIVA DE IMPRESIÓN (PDF Y PAPEL)
    ========================================================================== */
+
+/* Ocultar plantillas de impresión en la pantalla del navegador */
+.print-only {
+    display: none !important;
+}
+
 @media print {
-    /* 1. Ocultar la interfaz web completa */
+    /* 1. Ocultar la interfaz web y ventanas modales */
     nav, .navbar, .hero, .services, .dashboard-section, .footer, 
     .modal, .btn-primary, .btn-outline, .particles-container, #printDebug { 
         display: none !important; 
     }
 
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
+    /* 2. Resetear el lienzo del documento para permitir múltiples páginas */
+    html, body {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow: visible !important;
         background: #ffffff !important;
         color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* 2. Mantener ocultos los contenedores no seleccionados */
-    .print-only {
-        display: none !important;
-        visibility: hidden !important;
-    }
-
-    /* 3. Mostrar exclusivamente el contenedor marcado como activo */
-    .print-only.active-print,
-    #formulario-imprimible.active-print,
-    .print-only[style*="display: block"],
-    .print-only[style*="display:block"] {
+    /* 3. Desplegar de forma estática el contenedor activo */
+    .print-only.active-print {
         display: block !important;
         visibility: visible !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
+        position: static !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #ffffff !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
     }
 
-    /* 4. Forzar visibilidad interna y comportamiento de tablas */
-    .print-only.active-print *,
-    #formulario-imprimible.active-print * {
+    /* 4. Forzar visibilidad y color en todos los elementos internos */
+    .print-only.active-print * {
         visibility: visible !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
+    /* 5. Reglas de tablas y saltos de página */
     .cto-print-table, .print-table, table {
         width: 100% !important;
         border-collapse: collapse !important;
