@@ -5350,3 +5350,65 @@ async function eliminarEntrega(idEntrega) {
     cargarTablaEntregas(); // Refresca la tabla
   }
 }
+
+async function imprimirHistorialCompletoEvaluaciones() {
+  const p = patients.find(x => x.id === currentPatientId);
+  if (!p) return alert("Por favor, selecciona un paciente primero.");
+
+  // Consulta TODOS los registros guardados en la tabla 'documentos' para este paciente
+  const { data: historial, error } = await db
+    .from('documentos')
+    .select('*')
+    .eq('paciente_id', p.id)
+    .order('created_at', { ascending: false });
+
+  if (error || !historial || historial.length === 0) {
+    return alert("No hay evaluaciones ni formularios guardados en Supabase para este paciente.");
+  }
+
+  const container = document.getElementById('prTestContent');
+  if (!container) return alert("No se encontró el contenedor de impresión #prTestContent.");
+
+  let html = `<div style="font-family: Arial, sans-serif; color: #000;">`;
+
+  historial.forEach((doc, index) => {
+    const fecha = doc.fecha || doc.fecha_guardado || 'Sin fecha';
+    const estadoText = doc.estado === 'borrador' ? ' (Borrador)' : '';
+
+    html += `
+      <!-- La propiedad page-break-after: always fuerza a que cada guardado se imprima en una hoja completamente independiente -->
+      <div style="page-break-after: always; break-after: page; padding: 20px 0;">
+        <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">
+          <h2 style="margin: 0; color: #1e3a8a; text-transform: uppercase; font-size: 14pt;">
+            ${doc.titulo || 'EVALUACIÓN / FORMULARIO'}${estadoText}
+          </h2>
+          <p style="margin: 5px 0 0 0; font-size: 10pt; color: #333;">
+            <strong>Versión #${historial.length - index}</strong> | 
+            <strong>Paciente:</strong> ${p.nombre} | 
+            <strong>RUT:</strong> ${p.rut || 'N/A'} | 
+            <strong>Fecha Guardado:</strong> ${fecha}
+          </p>
+        </div>
+
+        <div style="font-size: 10pt; line-height: 1.5; color: #1e293b; white-space: pre-wrap; min-height: 400px;">
+          ${doc.contenido || 'Sin contenido registrado.'}
+        </div>
+
+        ${doc.profesional ? `
+          <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; text-align: right; font-size: 9pt; color: #475569;">
+            <strong>Profesional a cargo:</strong> ${doc.profesional}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  container.innerHTML = html;
+  setActivePrintContainer('formulario-imprimible');
+
+  setTimeout(() => {
+    window.print();
+  }, 300);
+}
