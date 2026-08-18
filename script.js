@@ -5284,27 +5284,6 @@ async function subirImagenStorage(archivo) {
 
   const { data } = supabase.storage.from('archivos').getPublicUrl(nombreArchivo);
   return data.publicUrl;
-}
-
-// Dentro de la función que guarda la entrega en Supabase
-const inputFoto = document.getElementById('imagen-entrega');
-const archivoFoto = inputFoto ? inputFoto.files[0] : null;
-
-// Subir foto si seleccionó alguna
-const urlFoto = await subirImagenStorage(archivoFoto);
-
-// Incluir la URL en el objeto que mandas a Supabase
-const payload = {
-  fecha: document.getElementById('artFecha').value,
-  profesional: document.getElementById('artProf').value,
-  imagen_url: urlFoto, // 👈 Se guarda la URL de la foto
-  // ... tus otros campos
-};
-
-const { error } = await supabase.from('entregas').insert([payload]);
-if (!error) {
-  cargarTablaEntregas(); // Recarga la tabla
-}
 
 async function cargarTablaEntregas() {
   const tbody = document.getElementById('tablaEntregasBody');
