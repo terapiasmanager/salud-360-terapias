@@ -5385,5 +5385,5 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
   setTimeout(function() {
     window.print();
   }, 300);
-};
+}
 }
