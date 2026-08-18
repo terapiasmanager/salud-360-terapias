@@ -5,7 +5,7 @@ window.addEventListener('scroll', () => {
     if (window.scrollY > 50) navbar.classList.add('scrolled');
     else navbar.classList.remove('scrolled');
 });
-
+ 
 // Partículas
 const particlesContainer = document.getElementById('particles');
 if (particlesContainer) {
