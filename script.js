@@ -5330,31 +5330,40 @@ async function eliminarEntrega(idEntrega) {
   }
 }
 
+// Función global para activar el contenedor correcto en impresión
+window.setActivePrintContainer = function(containerId) {
+  document.querySelectorAll('.print-only').forEach(el => {
+    el.style.display = 'none';
+    el.classList.remove('active-print');
+  });
+
+  const activeEl = document.getElementById(containerId);
+  if (activeEl) {
+    activeEl.style.display = 'block';
+    activeEl.classList.add('active-print');
+  }
+};
+
+// Función de impresión del historial de evaluaciones
 window.imprimirHistorialCompletoEvaluaciones = async function() {
   try {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return alert("Por favor, selecciona un paciente primero.");
 
-    // Consulta de documentos en Supabase
     const { data: historial, error } = await db
       .from('documentos')
       .select('*')
       .eq('paciente_id', p.id)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error("Error Supabase:", error);
-      return alert("Error al obtener evaluaciones: " + error.message);
-    }
-
-    if (!historial || historial.length === 0) {
+    if (error || !historial || historial.length === 0) {
       return alert("No hay evaluaciones guardadas en Supabase para este paciente.");
     }
 
     const container = document.getElementById('prTestContent');
     if (!container) return alert("No se encontró el contenedor #prTestContent.");
 
-    // Llenar datos del encabezado
+    // Llenar datos de cabecera
     const setElem = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.innerText = val || 'N/A';
@@ -5364,85 +5373,42 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     setElem('prTestEdad', p.edad || 'N/A');
     setElem('prTestDir', p.domicilio || 'N/A');
     setElem('prTestFecha', new Date().toLocaleDateString('es-CL'));
-    setElem('prTestProf', (typeof currentProfesionalName !== 'undefined' && currentProfesionalName) ? currentProfesionalName : 'Profesional Salud 360');
+    setElem('prTestProf', typeof currentProfesionalName !== 'undefined' ? currentProfesionalName : 'Profesional Salud 360');
 
-    let html = '<div style="font-family: Arial, sans-serif; color: #000; width: 100%;">';
-
+    let html = '';
     historial.forEach((doc, index) => {
-      const fecha = doc.fecha || doc.fecha_guardado || (doc.created_at ? new Date(doc.created_at).toLocaleDateString('es-CL') : 'Sin fecha');
-      const estadoText = doc.estado === 'borrador' ? ' (Borrador)' : '';
-      const titulo = doc.titulo || doc.nombre_test || doc.tipo || 'EVALUACIÓN / FORMULARIO';
-      const numVersion = historial.length - index;
-
-      // Formateo dinámico de contenido (JSON u Objeto o Texto)
-      let contenidoHtml = '';
-      const rawContent = doc.contenido || doc.datos || doc.respuestas || doc.detalles;
-
-      if (typeof rawContent === 'object' && rawContent !== null) {
-        contenidoHtml = '<table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:10pt;">';
-        Object.entries(rawContent).forEach(([key, val]) => {
-          contenidoHtml += `
-            <tr style="border-bottom: 1px solid #cbd5e1;">
-              <td style="padding: 6px; font-weight: bold; width: 45%; color: #1e3a8a;">${key}:</td>
-              <td style="padding: 6px; color: #000;">${val !== null && val !== undefined ? val : '-'}</td>
-            </tr>`;
-        });
-        contenidoHtml += '</table>';
-      } else if (typeof rawContent === 'string' && rawContent.trim().length > 0) {
-        contenidoHtml = `<div style="white-space: pre-wrap; font-size: 10pt; line-height: 1.5; color: #000;">${rawContent}</div>`;
-      } else {
-        contenidoHtml = '<p style="color: #666; font-style: italic;">Sin detalle registrado.</p>';
-      }
+      const fecha = doc.fecha || doc.fecha_guardado || 'Sin fecha';
+      const titulo = doc.titulo || doc.nombre_test || 'EVALUACIÓN CLÍNICA';
+      const rawContent = doc.contenido || doc.datos || doc.respuestas || 'Sin contenido registrado.';
+      
+      let detalle = typeof rawContent === 'object' 
+        ? JSON.stringify(rawContent, null, 2) 
+        : rawContent;
 
       html += `
-        <div style="page-break-after: always; break-after: page; padding: 15px 0; margin-bottom: 20px;">
-          <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; margin-bottom: 15px; text-align: center;">
-            <h2 style="margin: 0; color: #1e3a8a; text-transform: uppercase; font-size: 13pt;">${titulo}${estadoText}</h2>
-            <p style="margin: 4px 0 0 0; font-size: 9pt; color: #333;">
-              <strong>Evaluación #${numVersion}</strong> | 
-              <strong>Fecha:</strong> ${fecha} | 
-              <strong>Estado:</strong> ${doc.estado || 'Finalizado'}
+        <div style="page-break-after: always; break-after: page; padding: 20px 0;">
+          <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; text-align: center;">
+            <h2 style="margin:0; color:#1e3a8a; text-transform:uppercase; font-size:14pt;">${titulo}</h2>
+            <p style="margin:5px 0 0 0; font-size:9pt; color:#333;">
+              <strong>Versión #${historial.length - index}</strong> | <strong>Fecha:</strong> ${fecha}
             </p>
           </div>
-
-          <div style="padding: 10px 0;">
-            ${contenidoHtml}
-          </div>
-
-          ${doc.profesional ? `
-            <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 8px; text-align: right; font-size: 9pt; color: #333;">
-              <strong>Profesional Responsable:</strong> ${doc.profesional}
-            </div>
-          ` : ''}
-        </div>
-      `;
+          <div style="font-size:10pt; line-height:1.6; color:#000; white-space:pre-wrap; min-height:250px;">${detalle}</div>
+        </div>`;
     });
 
-    html += '</div>';
     container.innerHTML = html;
 
-    // Forzar activación del contenedor de impresión
-    document.querySelectorAll('.print-only').forEach(el => {
-      el.style.display = 'none';
-    });
+    // Activar contenedor para impresión
+    setActivePrintContainer('formulario-imprimible');
 
-    const printEl = document.getElementById('formulario-imprimible');
-    if (printEl) {
-      printEl.style.display = 'block';
-    }
-
-    if (typeof setActivePrintContainer === 'function') {
-      try { setActivePrintContainer('formulario-imprimible'); } catch(e){}
-    }
-
-    // Ejecutar impresión tras asegurar el renderizado en DOM
+    // Generar vista previa con margen para renderizado del DOM
     setTimeout(() => {
       window.print();
     }, 500);
 
   } catch (err) {
-    console.error("Error al preparar la impresión:", err);
-    alert("Ocurrió un error al procesar el historial para imprimir: " + err.message);
+    alert("Error al preparar documento: " + err.message);
   }
 }
 }
