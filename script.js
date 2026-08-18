@@ -5330,7 +5330,7 @@ async function eliminarEntrega(idEntrega) {
   }
 }
 
-// Función global para activar el contenedor correcto en impresión
+// Gestor de contenedores activos para impresión
 window.setActivePrintContainer = function(containerId) {
   document.querySelectorAll('.print-only').forEach(el => {
     el.style.display = 'none';
@@ -5344,7 +5344,7 @@ window.setActivePrintContainer = function(containerId) {
   }
 };
 
-// Función de impresión del historial de evaluaciones
+// Generación e impresión de evaluaciones
 window.imprimirHistorialCompletoEvaluaciones = async function() {
   try {
     const p = patients.find(x => x.id === currentPatientId);
@@ -5363,7 +5363,6 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     const container = document.getElementById('prTestContent');
     if (!container) return alert("No se encontró el contenedor #prTestContent.");
 
-    // Llenar datos de cabecera
     const setElem = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.innerText = val || 'N/A';
@@ -5399,13 +5398,12 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
 
     container.innerHTML = html;
 
-    // Activar contenedor para impresión
+    // Activar contenedor explícito
     setActivePrintContainer('formulario-imprimible');
 
-    // Generar vista previa con margen para renderizado del DOM
     setTimeout(() => {
       window.print();
-    }, 500);
+    }, 400);
 
   } catch (err) {
     alert("Error al preparar documento: " + err.message);
