@@ -5351,11 +5351,11 @@ async function eliminarEntrega(idEntrega) {
   }
 }
 
+// ✅ Esto sí debe quedar al final de script.js:
 async function imprimirHistorialCompletoEvaluaciones() {
   const p = patients.find(x => x.id === currentPatientId);
   if (!p) return alert("Por favor, selecciona un paciente primero.");
 
-  // Consulta TODOS los registros guardados en la tabla 'documentos' para este paciente
   const { data: historial, error } = await db
     .from('documentos')
     .select('*')
@@ -5363,11 +5363,11 @@ async function imprimirHistorialCompletoEvaluaciones() {
     .order('created_at', { ascending: false });
 
   if (error || !historial || historial.length === 0) {
-    return alert("No hay evaluaciones ni formularios guardados en Supabase para este paciente.");
+    return alert("No hay evaluaciones guardadas en Supabase para este paciente.");
   }
 
   const container = document.getElementById('prTestContent');
-  if (!container) return alert("No se encontró el contenedor de impresión #prTestContent.");
+  if (!container) return alert("No se encontró el contenedor #prTestContent.");
 
   let html = `<div style="font-family: Arial, sans-serif; color: #000;">`;
 
@@ -5376,7 +5376,6 @@ async function imprimirHistorialCompletoEvaluaciones() {
     const estadoText = doc.estado === 'borrador' ? ' (Borrador)' : '';
 
     html += `
-      <!-- La propiedad page-break-after: always fuerza a que cada guardado se imprima en una hoja completamente independiente -->
       <div style="page-break-after: always; break-after: page; padding: 20px 0;">
         <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">
           <h2 style="margin: 0; color: #1e3a8a; text-transform: uppercase; font-size: 14pt;">
