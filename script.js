@@ -5389,3 +5389,4 @@ async function imprimirHistorialCompletoEvaluaciones() {
     window.print();
   }, 300);
 }
+}
