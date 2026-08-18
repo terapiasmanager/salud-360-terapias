@@ -203,29 +203,28 @@
         </div>
     </div>
 
-    <!-- Modal Selección de Profesional -->
+    <!-- ➕ RESTABLECER AQUÍ: Modal Selección de Profesional -->
     <div id="profesionalModal" class="modal">
         <div class="modal-content glass-card" style="text-align: center;">
             <span class="close-modal" onclick="closeModal('profesionalModal')">&times;</span>
             <h3 style="margin-bottom: 20px;">Selecciona tu Perfil Profesional</h3>
             <p style="color: var(--text-secondary); margin-bottom: 25px;">Elige tu especialidad para cargar las encuestas y formularios correspondientes.</p>
             <div id="profStep1" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn-primary" onclick="selectArea('psicologo')" style="flex: 1; min-width: 150px;">Psicólogo</button>
-                <button class="btn-primary" style="flex: 1; background: linear-gradient(135deg, var(--primary-700), var(--primary-800)); min-width: 150px;" onclick="selectArea('terapeuta')">Terapeuta Ocupacional</button>
+                <button type="button" class="btn-primary" onclick="selectArea('psicologo')" style="flex: 1; min-width: 150px;">Psicólogo</button>
+                <button type="button" class="btn-primary" style="flex: 1; background: linear-gradient(135deg, var(--primary-700), var(--primary-800)); min-width: 150px;" onclick="selectArea('terapeuta')">Terapeuta Ocupacional</button>
             </div>
 
             <div id="profStep2" style="display: none; margin-top: 20px;">
                 <label style="display: block; margin-bottom: 10px; font-weight: 600;">Selecciona tu nombre:</label>
                 <select id="profNameSelect" class="form-input" style="margin-bottom: 20px;"></select>
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn-outline" onclick="backToStep1()" style="flex: 1;">Atrás</button>
-                    <button class="btn-primary" onclick="confirmProfesional()" style="flex: 2; background: #0891b2; border-color: #0891b2;">Confirmar</button>
+                    <button type="button" class="btn-outline" onclick="backToStep1()" style="flex: 1;">Atrás</button>
+                    <button type="button" class="btn-primary" onclick="confirmProfesional()" style="flex: 2; background: #0891b2; border-color: #0891b2;">Confirmar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Ficha de Paciente -->
     <div id="fichaModal" class="modal">
         <div class="modal-content glass-card" style="max-width: 900px; width: 95%;">
             <span class="close-modal" onclick="closeModal('fichaModal')">&times;</span>
