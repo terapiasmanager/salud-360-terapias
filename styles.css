@@ -897,101 +897,81 @@ h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--text-primary); }
     .dashboard-controls { flex-direction: column; }
     #searchInput { max-width: 100%; }
 }
-/* Estilos para Impresión de Actas (Formato Institucional) */
+/* ==========================================================================
+   ESTILOS UNIFICADOS PARA IMPRESIÓN (MÚLTIPLES MÓDULOS)
+   ========================================================================== */
 @media print {
-    /* Ocultar todos los elementos de la interfaz de usuario */
+    /* 1. Ocultar la interfaz web completa */
     nav, .navbar, .hero, .services, .dashboard-section, .footer, 
-    .modal, .btn-primary, .btn-outline, .particles-container,
-    #printDebug { 
+    .modal, .btn-primary, .btn-outline, .particles-container, #printDebug { 
         display: none !important; 
     }
 
-    /* Asegurar que el cuerpo no tenga márgenes/padding extra que generen hojas */
     body {
         margin: 0 !important;
         padding: 0 !important;
-        background: white !important;
+        background: #ffffff !important;
+        color: #000000 !important;
     }
 
-    /* Mostrar solo el contenedor de impresión activo */
+    /* 2. Ocultar por defecto todos los contenedores de impresión */
     .print-only {
         display: none !important;
         visibility: hidden !important;
     }
     
-    .print-only.active-print {
+    /* 3. Activar únicamente el contenedor seleccionado */
+    .print-only.active-print,
+    .print-only[style*="display: block"],
+    .print-only[style*="display:block"] {
         display: block !important;
         visibility: visible !important;
-        position: relative !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
+        background: #ffffff !important;
     }
 
-    .print-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        border-bottom: 2px solid #000;
-        padding-bottom: 15px;
-        margin-bottom: 20px;
+    /* 4. Forzar visibilidad y colores en todos los hijos del contenedor activo */
+    .print-only.active-print *,
+    .print-only[style*="display: block"] * {
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    .print-patient-data p {
-        margin: 4px 0;
-        font-size: 11pt;
-        color: #000;
+    /* 5. Reglas de tablas y maquetación interna */
+    .cto-print-table, .print-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 15px !important;
     }
 
-    .print-title {
-        text-align: center;
-        font-size: 16pt;
-        font-weight: 800;
-        margin: 20px 0;
-        text-transform: uppercase;
-        color: #000;
-    }
-
-    .print-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-    .print-table th, .print-table td {
-        border: 1px solid #000;
-        padding: 8px;
-        font-size: 9pt;
-        color: #000;
-        vertical-align: middle;
+    .cto-print-header {
+        background: #1e3a8a !important;
+        color: #ffffff !important;
+        font-weight: bold !important;
     }
 
     .print-table th {
-        background: #f2f2f2 !important;
-        -webkit-print-color-adjust: exact;
-        font-weight: 700;
+        background: #f8fafc !important;
+        color: #000000 !important;
     }
 
-    .print-footer {
-        margin-top: 30px;
-        font-size: 8pt;
-        color: #666;
-        text-align: center;
-        border-top: 1px solid #eee;
-        padding-top: 10px;
-    }
-
-    /* Asegurar que las imágenes se impriman */
     img {
-        max-width: 100%;
-        display: block;
+        max-width: 100% !important;
+        display: block !important;
+    }
+
+    /* 6. Control de saltos de página */
+    .no-break {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 }
-
-.print-only {
-    display: none;
-}
-
 /* Sesiones Refinadas (Web View) */
 .session-card {
     border-left: 5px solid var(--primary-500);
