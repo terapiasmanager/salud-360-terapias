@@ -964,23 +964,30 @@ h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--text-primary); }
    REGLA DEFINITIVA Y GLOBAL PARA IMPRESIÓN (SIN HOJAS BLANCAS)
    ========================================================================== */
 
-/* Ocultar todas las plantillas en pantalla normal */
+/* ==========================================================================
+   CONFIGURACIÓN DEFINITIVA DE IMPRESIÓN (SIN PÁGINAS EN BLANCO NI TEXTO OCULTO)
+   ========================================================================== */
+
+/* Ocultar plantillas de impresión en pantalla normal */
 .print-only {
     display: none !important;
 }
 
 @media print {
-    /* Configuración de hoja y márgenes limpios */
     @page {
         size: auto;
-        margin: 12mm 15mm;
+        margin: 10mm 12mm;
     }
 
-    /* Reset de dimensiones globales */
+    /* 1. Ocultar interfaz web por defecto */
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* 2. Resetear lienzo del navegador */
     html, body {
         height: auto !important;
         min-height: 0 !important;
-        max-height: none !important;
         margin: 0 !important;
         padding: 0 !important;
         overflow: visible !important;
@@ -988,62 +995,49 @@ h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--text-primary); }
         color: #000000 !important;
     }
 
-    /* Ocultar interfaz web completa */
-    nav, .navbar, .hero, .services, .dashboard-section, .footer, 
-    .modal, .btn-primary, .btn-outline, .particles-container, #printDebug { 
-        display: none !important; 
-    }
-
-    /* Desplegar únicamente el contenedor activo sin alturas fijas */
+    /* 3. Forzar visibilidad en el contenedor activo Y EN TODOS SUS HIJOS */
     .print-only.active-print,
-    .print-only[style*="display: block"],
-    .print-only[style*="display:block"] {
-        display: block !important;
-        visibility: visible !important;
-        position: relative !important;
-        width: 100% !important;
-        height: auto !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-    }
-
-    /* Activar visibilidad de elementos internos */
-    .print-only.active-print *,
-    .print-only[style*="display: block"] * {
+    #formulario-imprimible.active-print,
+    .active-print,
+    .active-print * {
         visibility: visible !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* Bloquear saltos de página y márgenes en el último elemento de cualquier documento */
-    .print-only.active-print > *:last-child,
-    .print-only.active-print div:last-child,
-    .print-only.active-print table:last-child,
-    .print-only.active-print tr:last-child,
-    .print-only.active-print p:last-child,
-    #prTestContent > div > div:last-child {
-        page-break-after: avoid !important;
-        break-after: avoid !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
+    /* 4. Posicionar el informe al inicio de la página de impresión */
+    .active-print {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
     }
 
-    /* Formato fluido para tablas */
-    table, .cto-print-table, .print-table {
+    /* 5. Estilos de tablas y contenido */
+    table, .cto-print-table, .print-table, .print-table-compact {
         width: 100% !important;
         border-collapse: collapse !important;
         margin-bottom: 10px !important;
         page-break-inside: auto;
     }
 
-    tr {
+    tr, .print-section {
         page-break-inside: avoid !important;
     }
 
     img {
         max-width: 100% !important;
         display: block !important;
+    }
+
+    /* Bloquear saltos en blanco al final */
+    .active-print > *:last-child,
+    #prTestContent > div:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
 }
