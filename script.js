@@ -5351,55 +5351,91 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return alert("Por favor, selecciona un paciente primero.");
 
+    // Consultar TODOS los registros del paciente en Supabase (Iniciales e Independientes)
     const { data: historial, error } = await db
       .from('documentos')
       .select('*')
       .eq('paciente_id', p.id)
       .order('created_at', { ascending: false });
 
-    if (error || !historial || historial.length === 0) {
+    if (error) throw error;
+    if (!historial || historial.length === 0) {
       return alert("No hay evaluaciones guardadas en Supabase para este paciente.");
     }
 
     const container = document.getElementById('prTestContent');
     if (!container) return alert("No se encontró el contenedor #prTestContent.");
 
+    // Cabecera general del informe
     const setElem = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.innerText = val || 'N/A';
     };
     setElem('prTestNombre', p.nombre);
     setElem('prTestRut', p.rut || 'N/A');
-    setElem('prTestEdad', p.edad || 'N/A');
+    setElem('prTestEdad', p.edad ? p.edad + ' años' : 'N/A');
     setElem('prTestDir', p.domicilio || 'N/A');
     setElem('prTestFecha', new Date().toLocaleDateString('es-CL'));
-    setElem('prTestProf', typeof currentProfesionalName !== 'undefined' ? currentProfesionalName : 'Profesional Salud 360');
+    setElem('prTestProf', typeof currentProfesionalName !== 'undefined' && currentProfesionalName ? currentProfesionalName : 'Profesional Salud 360');
 
-    let html = '';
+    let html = '<div style="font-family: Arial, sans-serif; color: #000; width: 100%;">';
+
+    // Recorrer cada documento (se imprimirá un reporte por cada test realizado)
     historial.forEach((doc, index) => {
-      const fecha = doc.fecha || doc.fecha_guardado || 'Sin fecha';
-      const titulo = doc.titulo || doc.nombre_test || 'EVALUACIÓN CLÍNICA';
-      const rawContent = doc.contenido || doc.datos || doc.respuestas || 'Sin contenido registrado.';
-      
-      let detalle = typeof rawContent === 'object' 
-        ? JSON.stringify(rawContent, null, 2) 
-        : rawContent;
+      const fecha = doc.fecha || doc.fecha_guardado || (doc.created_at ? new Date(doc.created_at).toLocaleDateString('es-CL') : 'Sin fecha');
+      const titulo = (doc.titulo || doc.nombre_test || 'EVALUACIÓN CLÍNICA').toUpperCase();
+      const numVersion = historial.length - index;
+      const raw = doc.raw_data || doc.contenido || doc.datos || doc.respuestas;
+
+      let detalleHtml = '';
+
+      // Si los datos están guardados como objeto JSON estructurado (Yesavage, Hamilton, etc.)
+      if (typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0) {
+        detalleHtml = `
+          <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:9pt; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="padding:6px; text-align:left; border:1px solid #cbd5e1; color:#1e3a8a;">Ítem / Pregunta</th>
+                <th style="padding:6px; text-align:left; border:1px solid #cbd5e1; color:#1e3a8a;">Respuesta / Puntuación</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+        Object.entries(raw).forEach(([clave, valor]) => {
+          let valStr = typeof valor === 'object' && valor !== null ? JSON.stringify(valor) : (valor !== undefined && valor !== null ? valor : '-');
+          detalleHtml += `
+            <tr>
+              <td style="padding:5px 8px; border:1px solid #e2e8f0; font-weight:bold; color:#334155;">${clave}</td>
+              <td style="padding:5px 8px; border:1px solid #e2e8f0; color:#0f172a;">${valStr}</td>
+            </tr>`;
+        });
+        detalleHtml += '</tbody></table>';
+      } 
+      // Si los datos están guardados como texto plano
+      else if (typeof doc.contenido === 'string' && doc.contenido.trim().length > 0) {
+        detalleHtml = `<div style="white-space: pre-wrap; font-size:9.5pt; line-height:1.5; color:#1e293b; padding:10px; background:#fafafa; border:1px solid #e2e8f0; border-radius:6px;">${doc.contenido}</div>`;
+      } else {
+        detalleHtml = '<p style="color:#64748b; font-style:italic;">Sin contenido registrado.</p>';
+      }
 
       html += `
-        <div style="page-break-after: always; break-after: page; padding: 20px 0;">
-          <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; text-align: center;">
-            <h2 style="margin:0; color:#1e3a8a; text-transform:uppercase; font-size:14pt;">${titulo}</h2>
-            <p style="margin:5px 0 0 0; font-size:9pt; color:#333;">
-              <strong>Versión #${historial.length - index}</strong> | <strong>Fecha:</strong> ${fecha}
+        <div style="page-break-after: always; break-after: page; padding: 15px 0; margin-bottom: 20px;">
+          <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; margin-bottom: 12px; text-align: center;">
+            <h2 style="margin:0; color:#1e3a8a; text-transform:uppercase; font-size:13pt;">${titulo}</h2>
+            <p style="margin:4px 0 0 0; font-size:9pt; color:#333;">
+              <strong>Registro #${numVersion}</strong> | 
+              <strong>Fecha:</strong> ${fecha} | 
+              <strong>Profesional:</strong> ${doc.profesional || 'N/A'}
             </p>
           </div>
-          <div style="font-size:10pt; line-height:1.6; color:#000; white-space:pre-wrap; min-height:250px;">${detalle}</div>
+          ${detalleHtml}
         </div>`;
     });
 
+    html += '</div>';
     container.innerHTML = html;
 
-    // Activar contenedor explícito
+    // Activar vista previa de impresión
     setActivePrintContainer('formulario-imprimible');
 
     setTimeout(() => {
@@ -5407,8 +5443,9 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     }, 400);
 
   } catch (err) {
-    alert("Error al preparar documento: " + err.message);
+    console.error("Error imprimiendo historial:", err);
+    alert("Error al preparar el historial para impresión: " + err.message);
   }
-}
+};
 
 
