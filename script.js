@@ -926,10 +926,11 @@ function generateUUID() {
 }
 
 function normalizeDocumentoForSupabase(doc, patientId) {
-    // Si el documento no tiene un UUID válido de Supabase, generamos uno nativo en JS
+    // Si el documento tiene un ID temporal ("doc-..."), se le asigna un UUID real inmediatamente
     let realId = doc.id;
     if (!realId || String(realId).startsWith('doc-') || String(realId).length < 20) {
         realId = generateUUID();
+        doc.id = realId; // Se actualiza la referencia local para que coincidan siempre
     }
 
     return {
@@ -956,7 +957,6 @@ function normalizeDocumentoForSupabase(doc, patientId) {
 async function syncDocumentoToSupabase(doc, patientId) {
     const payload = normalizeDocumentoForSupabase(doc, patientId);
 
-    // Al llevar siempre un UUID válido, upsert inserta el nuevo registro o actualiza el existente
     const { data, error } = await db
         .from('documentos')
         .upsert(payload, { onConflict: 'id' })
@@ -964,11 +964,12 @@ async function syncDocumentoToSupabase(doc, patientId) {
         .single();
 
     if (error) {
-        console.error('Error sincronizando formulario/encuesta en Supabase:', error);
-        alert('❌ Error al guardar en Supabase (Nube): ' + error.message);
+        console.error('❌ Error guardando en Supabase:', error);
+        alert('⚠️ ATENCIÓN: El test se guardó en este equipo, pero NO se subió a la nube (Supabase).\nError: ' + error.message);
         return null;
     }
 
+    console.log('✅ Guardado en Supabase con éxito:', data);
     return mapDocumentoFromSupabase(data);
 }
 
@@ -2380,7 +2381,7 @@ async function saveDraft() {
     if (!p.docs) p.docs = [];
 
     const draftObj = {
-        id: currentDraftId || ('doc-' + Date.now()),
+        id: currentDraftId || generateUUID(),
         testId: currentTestId,
         titulo: config.title,
         estado: "borrador",
@@ -2896,7 +2897,7 @@ document.getElementById('dynamicTestForm').addEventListener('submit', async (e) 
     // Capturar datos en bruto para impresión (SOLUCIÓN OBLIGATORIA)
     const draftData = captureCurrentTestData(config);
 
-    const docId = currentDraftId || ('doc-' + Date.now());
+   const docId = currentDraftId || generateUUID();
     const newDoc = {
         id: docId,
         testId: currentTestId,
@@ -2920,7 +2921,6 @@ document.getElementById('dynamicTestForm').addEventListener('submit', async (e) 
     } else {
         p.docs.unshift(newDoc);
     }
-
 
     // Limpiar borrador legacy si existiera
     if (p.drafts) delete p.drafts[currentTestId];
