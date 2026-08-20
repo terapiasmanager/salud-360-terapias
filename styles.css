@@ -960,78 +960,86 @@ h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--text-primary); }
 /* ==========================================================================
    OCULTAR PLANTILLAS DE IMPRESIÓN EN NAVEGADOR WEB
    ========================================================================== */
+/* ==========================================================================
+   REGLA DEFINITIVA Y GLOBAL PARA IMPRESIÓN (SIN HOJAS BLANCAS)
+   ========================================================================== */
+
+/* Ocultar todas las plantillas en pantalla normal */
 .print-only {
     display: none !important;
 }
 
-/* ==========================================================================
-   REGLA DEFINITIVA PARA IMPRESIÓN (PDF / PAPEL)
-   ========================================================================== */
 @media print {
-    /* Ocultar la interfaz web preservando la estructura de renderizado */
-    body * {
-        visibility: hidden !important;
+    /* Configuración de hoja y márgenes limpios */
+    @page {
+        size: auto;
+        margin: 12mm 15mm;
     }
 
-    /* Desbloquear dimensiones en body/html para evitar hojas vacías */
+    /* Reset de dimensiones globales */
     html, body {
         height: auto !important;
-        min-height: 100% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
         overflow: visible !important;
         background: #ffffff !important;
         color: #000000 !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
 
-    /* Hacer visible ÚNICAMENTE la plantilla activa de impresión y sus hijos */
+    /* Ocultar interfaz web completa */
+    nav, .navbar, .hero, .services, .dashboard-section, .footer, 
+    .modal, .btn-primary, .btn-outline, .particles-container, #printDebug { 
+        display: none !important; 
+    }
+
+    /* Desplegar únicamente el contenedor activo sin alturas fijas */
     .print-only.active-print,
-    .print-only.active-print *,
     .print-only[style*="display: block"],
-    .print-only[style*="display: block"] *,
-    .print-only[style*="display:block"],
-    .print-only[style*="display:block"] * {
+    .print-only[style*="display:block"] {
+        display: block !important;
+        visibility: visible !important;
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
+    /* Activar visibilidad de elementos internos */
+    .print-only.active-print *,
+    .print-only[style*="display: block"] * {
         visibility: visible !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* Posicionar la plantilla activa en la parte superior de la hoja */
-    .print-only.active-print,
-    .print-only[style*="display: block"],
-    .print-only[style*="display:block"] {
-        display: block !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 20px !important;
-        background: #ffffff !important;
+    /* Bloquear saltos de página y márgenes en el último elemento de cualquier documento */
+    .print-only.active-print > *:last-child,
+    .print-only.active-print div:last-child,
+    .print-only.active-print table:last-child,
+    .print-only.active-print tr:last-child,
+    .print-only.active-print p:last-child,
+    #prTestContent > div > div:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
     }
 
-    /* Formato de tablas e imágenes */
+    /* Formato fluido para tablas */
     table, .cto-print-table, .print-table {
         width: 100% !important;
         border-collapse: collapse !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 10px !important;
         page-break-inside: auto;
     }
 
-    .cto-print-header {
-        background: #1e3a8a !important;
-        color: #ffffff !important;
-        font-weight: bold !important;
-    }
-
-    .print-table th {
-        background: #f8fafc !important;
-        color: #000000 !important;
-    }
-
-    .no-break {
+    tr {
         page-break-inside: avoid !important;
-        break-inside: avoid !important;
     }
 
     img {
