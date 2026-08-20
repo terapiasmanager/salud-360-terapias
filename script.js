@@ -5404,11 +5404,13 @@ async function eliminarEntrega(idEntrega) {
 
 // Gestor de contenedores activos para impresión
 window.setActivePrintContainer = function(containerId) {
-  document.querySelectorAll('.print-only').forEach(el => {
+  // Limpiar clases y estados previos de todas las plantillas
+  document.querySelectorAll('.print-only, .active-print').forEach(el => {
     el.style.display = 'none';
     el.classList.remove('active-print');
   });
 
+  // Activar la plantilla solicitada
   const activeEl = document.getElementById(containerId);
   if (activeEl) {
     activeEl.style.display = 'block';
