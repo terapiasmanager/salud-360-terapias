@@ -3410,11 +3410,15 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
 
         const visitaExistente = p.visitas.find(v => v.id === currentEditingVisitaId);
 
-            const nextNum = visitaExistente
-                    ? visitaExistente.num
-                    : (p.visitas.length > 0
-                    ? Math.max(...p.visitas.map(v => Number(v.num) || 0)) + 1
-                    : 1);
+           // ✅ CAMBIAR POR: Filtra primero las visitas que pertenecen al área seleccionada
+            const tipoSeleccionado = document.getElementById('sTipo').value;
+const visitasArea = p.visitas.filter(v => v.tipo === tipoSeleccionado);
+
+const nextNum = visitaExistente
+    ? visitaExistente.num
+    : (visitasArea.length > 0
+        ? Math.max(...visitasArea.map(v => Number(v.num) || 0)) + 1
+        : 1);
 
             const newVisita = {
                     id: currentEditingVisitaId || null,
@@ -3506,6 +3510,21 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
     }
 });
 
+// ✅ AGREGAR: Recalcula los números 1, 2, 3... por separado según la especialidad
+function recalcularNumeracionVisitas(visitas) {
+    if (!Array.isArray(visitas)) return [];
+    ['Psicología', 'Terapia Ocupacional'].forEach(tipoArea => {
+        const deArea = visitas
+            .filter(v => v.tipo === tipoArea)
+            .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+        deArea.forEach((v, idx) => {
+            v.num = idx + 1;
+        });
+    });
+    return visitas;
+}
+
+// ✅ REEMPLAZAR LA FUNCIÓN COMPLETA
 function renderVisitas() {
     const list = document.getElementById('sessionsList');
     if (!list) return;
@@ -3516,10 +3535,64 @@ function renderVisitas() {
             <div style="text-align: center; padding: 40px; color: var(--text-tertiary); background: rgba(0,0,0,0.02); border-radius: 20px; border: 1px dashed #ddd;">
                 <span style="font-size: 2rem; display: block; margin-bottom: 10px;">📋</span>
                 No hay visitas registradas para este paciente.
-            </div>
-        `;
+            </div>`;
         return;
     }
+
+    // Aplica el conteo 1, 2, 3... independiente a cada especialidad
+    recalcularNumeracionVisitas(p.visitas);
+
+    const sorted = [...p.visitas].sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+    list.innerHTML = sorted.map(s => `
+        <div class="session-card">
+            <div class="session-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="session-num">VISITA ${s.num}</span>
+                    <span class="session-type-badge ${s.tipo === 'Psicología' ? 'type-psicologia' : 'type-terapeuta'}">
+                        ${s.tipo === 'Psicología' ? '🧠 Psicología' : '👐 Terapia Ocupacional'}
+                    </span>
+                </div>
+                <div class="session-meta">
+                    <span>📅 ${s.fecha.split('-').reverse().join('/')}</span>
+                    <span>⏰ ${s.horaI} - ${s.horaT}</span>
+                    <button class="action-btn" onclick="printSingleVisita('${s.id}')" style="margin-left: 10px; font-size: 0.8rem; background: var(--primary-100); color: var(--primary-700); border: 1px solid var(--primary-200);">🖨️ Imprimir Registro</button>
+                    <button class="action-btn" onclick="openEditVisita('${s.id}')" style="margin-left: 5px; font-size: 0.8rem;">✏️ Editar</button>
+                    <button class="action-btn delete" onclick="deleteVisita('${s.id}')" style="margin-left: 5px; font-size: 0.8rem;">🗑️</button>
+                </div>
+            </div>
+            
+            <div class="session-body">
+                <div class="session-section">
+                    <span class="session-label">Objetivo de la Visita</span>
+                    <p class="session-text">${s.objetivo}</p>
+                </div>
+                <div class="session-section">
+                    <span class="session-label">Actividades Realizadas</span>
+                    <p class="session-text">${s.actividades}</p>
+                </div>
+                ${s.obs ? `<div class="session-section"><span class="session-label">Observaciones</span><p class="session-text">${s.obs}</p></div>` : ''}
+            </div>
+            
+            <div class="session-footer">
+                <div style="color: var(--text-tertiary); font-size: 0.8rem; line-height: 1.4;">
+                    <strong>Profesional:</strong> ${s.profesionalNombre || 'N/A'}<br>
+                    <span style="font-style: italic;">Especialidad: ${s.tipo}</span>
+                </div>
+                <div class="signature-box">
+                    <img src="${s.firma}" class="signature-display" alt="Firma">
+                    <div class="signature-name">${s.firmaNombre}</div>
+                    <div class="signature-rel">${s.relacion} | RUT: ${s.firmaRut || 'N/A'}</div>
+                </div>
+                <div class="signature-box">
+                    ${s.firmaProf ? `<img src="${s.firmaProf}" class="signature-display" alt="Firma profesional">` : '<div style="font-size: 0.75rem; color: #ef4444;">Sin firma profesional</div>'}
+                    <div class="signature-name">${s.profesionalNombre || 'Profesional'}</div>
+                    <div class="signature-rel">Firma profesional</div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
 
     // Ordenar por número de sesión descendente (más reciente arriba)
     const sorted = [...(p.visitas || [])].sort((a, b) => b.num - a.num);
@@ -3689,7 +3762,7 @@ if (firmaPaciente && signatureCanvas && sigCtx) {
         if (submitBtn) submitBtn.textContent = 'Guardar cambios';
     }, 300);
 }
-async function printSingleVisita(num) {
+async function printSingleVisita(visitaId) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.visitas) return;
 
@@ -3775,117 +3848,96 @@ function setActivePrintContainer(id) {
     if (target) target.classList.add('active-print');
 }
 
+// ✅ REEMPLAZAR COMPLETA
 function prepareAndPrint() {
     const p = patients.find(x => x.id === currentPatientId);
-    if (!p) {
-        alert("Error: No hay un paciente seleccionado.");
-        return;
-    }
+    if (!p) return alert("Error: No hay un paciente seleccionado.");
 
-    // ACTIVAR SOLO ESTE CONTENEDOR PARA IMPRESIÓN
     setActivePrintContainer('printContainer');
 
-    // Forzar actualización de datos en el contenedor de impresión
     document.getElementById('prNombre').textContent = p.nombre || 'N/A';
     document.getElementById('prRut').textContent = p.rut || 'N/A';
     document.getElementById('prDireccion').textContent = p.domicilio || 'N/A';
     document.getElementById('prTelefono').textContent = p.telefono || 'N/A';
 
-    const visitas = p.visitas || [];
     const printTbody = document.getElementById('printTableBody');
     if (printTbody) {
+        const visitas = recalcularNumeracionVisitas(p.visitas || []);
+        
         if (visitas.length === 0) {
             printTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px; font-weight: bold;">SIN VISITAS REGISTRADAS</td></tr>';
         } else {
-            const sorted = [...visitas].sort((a, b) => a.num - b.num);
-            printTbody.innerHTML = sorted.map(s => {
-                const firmaImg = (s.firma && s.firma.length > 100)
-                    ? `<img src="${s.firma}" style="max-width: 140px; max-height: 70px; filter: contrast(150%) grayscale(100%); display: block; margin: 0 auto;">`
-                    : '<span style="color: #666; font-style: italic;">Sin firma</span>';
-                const firmaProfImg = (s.firmaProf && s.firmaProf.length > 100)
-                    ? `<img src="${s.firmaProf}" style="max-width: 140px; max-height: 70px; filter: contrast(150%) grayscale(100%); display: block; margin: 0 auto;">`
-                    : '<span style="color: #666; font-style: italic;">Sin firma</span>';
+            const renderSeccion = (tituloArea, filtroTipo) => {
+                const deArea = [...visitas].filter(v => v.tipo === filtroTipo).sort((a, b) => a.num - b.num);
+                if (deArea.length === 0) return '';
 
-                return `
-                    <tr>
-                        <td style="text-align: center; font-weight: bold;">${s.num}</td>
-                        <td style="white-space: nowrap;">${s.fecha.split('-').reverse().join('/')}</td>
-                        <td style="white-space: nowrap;">${s.horaI} - ${s.horaT}</td>
-                        <td>${s.tipo}</td>
-                        <td>${s.profesionalNombre || 'No registrado'}</td>
-                        <td>
-                            <strong>${s.firmaNombre || 'N/A'}</strong><br>
-                            <small>${s.relacion || '-'}</small><br>
-                            <small>RUT: ${s.firmaRut || 'N/A'}</small>
+                let htmlSec = `
+                    <tr style="background: #e2e8f0;">
+                        <td colspan="8" style="font-weight: bold; text-align: left; padding: 8px; font-size: 10pt; color: #1e3a8a;">
+                            REGISTRO DE VISITAS: ${tituloArea.toUpperCase()}
                         </td>
-                        <td style="text-align: center; background: #fff !important;">
-                            ${firmaImg}
-                        </td>
-                        <td style="text-align: center; background: #fff !important;">
-                            ${firmaProfImg}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                    </tr>`;
+
+                htmlSec += deArea.map(s => {
+                    const firmaImg = (s.firma && s.firma.length > 100)
+                        ? `<img src="${s.firma}" style="max-width: 120px; max-height: 50px; filter: contrast(150%) grayscale(100%); display: block; margin: 0 auto;">`
+                        : '<span style="color: #666; font-style: italic;">Sin firma</span>';
+                    const firmaProfImg = (s.firmaProf && s.firmaProf.length > 100)
+                        ? `<img src="${s.firmaProf}" style="max-width: 120px; max-height: 50px; filter: contrast(150%) grayscale(100%); display: block; margin: 0 auto;">`
+                        : '<span style="color: #666; font-style: italic;">Sin firma</span>';
+
+                    return `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">${s.num}</td>
+                            <td style="white-space: nowrap;">${s.fecha.split('-').reverse().join('/')}</td>
+                            <td style="white-space: nowrap;">${s.horaI} - ${s.horaT}</td>
+                            <td>${s.tipo}</td>
+                            <td>${s.profesionalNombre || 'No registrado'}</td>
+                            <td>
+                                <strong>${s.firmaNombre || 'N/A'}</strong><br>
+                                <small>${s.relacion || '-'}</small><br>
+                                <small>RUT: ${s.firmaRut || 'N/A'}</small>
+                            </td>
+                            <td style="text-align: center; background: #fff !important;">${firmaImg}</td>
+                            <td style="text-align: center; background: #fff !important;">${firmaProfImg}</td>
+                        </tr>`;
+                }).join('');
+
+                return htmlSec;
+            };
+
+            const htmlFinal = renderSeccion('Psicología', 'Psicología') + renderSeccion('Terapia Ocupacional', 'Terapia Ocupacional');
+            printTbody.innerHTML = htmlFinal || '<tr><td colspan="8" style="text-align: center; padding: 20px;">Sin visitas registradas</td></tr>';
         }
     }
 
-    // Pequeña espera para que el navegador procese los cambios en el DOM antes de imprimir
-    setTimeout(() => {
-        window.print();
-    }, 250);
+    setTimeout(() => { window.print(); }, 250);
 }
 
-async function deleteVisita(num) {
-    if (!confirm(`¿Está seguro de que desea eliminar el registro de la Visita ${num}? Esta acción no se puede deshacer.`)) {
-        return;
-    }
-
+async function deleteVisita(visitaId) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return;
 
-    const visitaAEliminar = p.visitas.find(v => v.num === num);
+    const visitaAEliminar = p.visitas.find(v => v.id === visitaId);
     if (!visitaAEliminar) return;
 
-    // 1. Eliminar en Supabase
+    if (!confirm(`¿Desea eliminar la Visita ${visitaAEliminar.num} de ${visitaAEliminar.tipo}?`)) return;
+
     if (visitaAEliminar.id) {
-        const { error } = await db
-            .from('visitas')
-            .delete()
-            .eq('id', visitaAEliminar.id);
-
-        if (error) {
-            console.error("Error eliminando visita en Supabase:", error);
-            alert("❌ No se pudo eliminar la visita.");
-            return;
-        }
+        const { error } = await db.from('visitas').delete().eq('id', visitaAEliminar.id);
+        if (error) return alert("❌ No se pudo eliminar la visita en Supabase.");
     }
 
-    // 2. Eliminar localmente
-    p.visitas = p.visitas.filter(v => v.num !== num);
+    p.visitas = p.visitas.filter(v => v.id !== visitaId);
+    recalcularNumeracionVisitas(p.visitas);
 
-    // 3. Reordenar numeración
-    p.visitas = p.visitas
-        .sort((a, b) => a.fecha.localeCompare(b.fecha))
-        .map((v, idx) => ({
-            ...v,
-            num: idx + 1
-        }));
-
-    // 4. Recalcular y guardar última visita
-    const okUltima = await actualizarUltimaVisitaPaciente(p);
-    if (!okUltima) {
-        alert("❌ La visita se eliminó, pero no se pudo actualizar la última visita.");
-        return;
-    }
-
-    // 5. Guardar respaldo local y refrescar UI
+    await actualizarUltimaVisitaPaciente(p);
     savePatients();
     renderVisitas();
     renderTable();
-
     alert("✅ Visita eliminada correctamente.");
 }
+
 // --- RECEPCIÓN DE ARTÍCULOS KINESIOLÓGICOS ---
 let artCanvas, artCtx;
 let artProfCanvas, artProfCtx;
