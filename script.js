@@ -915,8 +915,7 @@ async function syncFirmaProfesionalVisitaDocumento(visita, patientId, firmaProfB
 }
 
 function normalizeDocumentoForSupabase(doc, patientId) {
-    return {
-        id: doc.id,
+    const payload = {
         paciente_id: patientId,
         test_id: doc.testId || null,
         titulo: doc.titulo || '',
@@ -934,25 +933,46 @@ function normalizeDocumentoForSupabase(doc, patientId) {
         firma_relacion: doc.firmaRelacion || null,
         updated_at: new Date().toISOString()
     };
+
+    // Solo se adjunta el ID si es un UUID oficial de Supabase (no un texto temporal 'doc-...')
+    if (doc.id && !String(doc.id).startsWith('doc-')) {
+        payload.id = doc.id;
+    }
+
+    return payload;
 }
 
 async function syncDocumentoToSupabase(doc, patientId) {
     const payload = normalizeDocumentoForSupabase(doc, patientId);
-    const { data, error } = await db
-        .from('documentos')
-        .upsert(payload, { onConflict: 'id' })
-        .select()
-        .single();
+    let response;
+
+    if (payload.id) {
+        // Documento existente en Supabase -> Actualizar
+        response = await db
+            .from('documentos')
+            .update(payload)
+            .eq('id', payload.id)
+            .select()
+            .single();
+    } else {
+        // Documento nuevo -> Insertar sin ID para que Supabase le asigne su UUID definitivo
+        response = await db
+            .from('documentos')
+            .insert([payload])
+            .select()
+            .single();
+    }
+
+    const { data, error } = response;
 
     if (error) {
-        console.error('Error sincronizando formulario/encuesta:', error);
-        alert('El formulario quedo respaldado localmente, pero no se pudo guardar en Supabase: ' + error.message);
+        console.error('Error sincronizando formulario/encuesta en Supabase:', error);
+        alert('❌ Error al guardar en Supabase (Nube): ' + error.message);
         return null;
     }
 
     return mapDocumentoFromSupabase(data);
 }
-
 async function deleteDocumentoFromSupabase(docId) {
     const { error } = await db.from('documentos').delete().eq('id', docId);
     if (error) {
