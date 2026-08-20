@@ -3510,7 +3510,7 @@ const nextNum = visitaExistente
     }
 });
 
-// ✅ AGREGAR: Recalcula los números 1, 2, 3... por separado según la especialidad
+// Recalcula los números 1, 2, 3... por separado según la especialidad
 function recalcularNumeracionVisitas(visitas) {
     if (!Array.isArray(visitas)) return [];
     ['Psicología', 'Terapia Ocupacional'].forEach(tipoArea => {
@@ -3524,7 +3524,6 @@ function recalcularNumeracionVisitas(visitas) {
     return visitas;
 }
 
-// ✅ REEMPLAZAR LA FUNCIÓN COMPLETA
 function renderVisitas() {
     const list = document.getElementById('sessionsList');
     if (!list) return;
@@ -3539,9 +3538,7 @@ function renderVisitas() {
         return;
     }
 
-    // Aplica el conteo 1, 2, 3... independiente a cada especialidad
     recalcularNumeracionVisitas(p.visitas);
-
     const sorted = [...p.visitas].sort((a, b) => b.fecha.localeCompare(a.fecha));
 
     list.innerHTML = sorted.map(s => `
@@ -3594,102 +3591,6 @@ function renderVisitas() {
     `).join('');
 }
 
-    // Ordenar por número de sesión descendente (más reciente arriba)
-    const sorted = [...(p.visitas || [])].sort((a, b) => b.num - a.num);
-
-    list.innerHTML = sorted.map(s => `
-        <div class="session-card">
-            <div class="session-header">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="session-num">VISITA ${s.num}</span>
-                    <span class="session-type-badge ${s.tipo === 'Psicología' ? 'type-psicologia' : 'type-terapeuta'}">
-                        ${s.tipo === 'Psicología' ? '🧠 Psicología' : '👐 Terapia Ocupacional'}
-                    </span>
-                </div>
-                <div class="session-meta">
-                    <span title="Fecha de visita">📅 ${s.fecha.split('-').reverse().join('/')}</span>
-                    <span title="Horario">⏰ ${s.horaI} - ${s.horaT}</span>
-                    <button class="action-btn" onclick="printSingleVisita(${s.num})" style="margin-left: 10px; font-size: 0.8rem; background: var(--primary-100); color: var(--primary-700); border: 1px solid var(--primary-200);" title="Imprimir esta visita">🖨️ Imprimir Registro</button>
-                    <button class="action-btn" onclick="openEditVisita('${s.id}')" style="margin-left: 5px; font-size: 0.8rem;" title="Editar visita">✏️ Editar</button>
-                    <button class="action-btn delete" onclick="deleteVisita(${s.num})" style="margin-left: 5px; font-size: 0.8rem;" title="Eliminar registro">🗑️</button>
-                </div>
-            </div>
-            
-            <div class="session-body">
-                <div class="session-section">
-                    <span class="session-label">Objetivo de la Visita</span>
-                    <p class="session-text">${s.objetivo}</p>
-                </div>
-                <div class="session-section">
-                    <span class="session-label">Actividades Realizadas</span>
-                    <p class="session-text">${s.actividades}</p>
-                </div>
-                ${s.obs ? `
-                <div class="session-section">
-                    <span class="session-label">Observaciones y Sugerencias</span>
-                    <p class="session-text">${s.obs}</p>
-                </div>` : ''}
-            </div>
-            
-            <div class="session-footer">
-                <div style="color: var(--text-tertiary); font-size: 0.8rem; line-height: 1.4;">
-                    <strong>Profesional:</strong> ${s.profesionalNombre || (s.profesional === 'psicologo' ? 'Psicólogo' : 'Terapeuta Ocupacional')}<br>
-                    <span style="font-style: italic;">Especialidad: ${s.tipo}</span>
-                </div>
-                <div class="signature-box">
-                    <img src="${s.firma}" class="signature-display" alt="Firma">
-                    <div class="signature-name">${s.firmaNombre}</div>
-                    <div class="signature-rel">${s.relacion} | RUT: ${s.firmaRut || 'N/A'}</div>
-                </div>
-                <div class="signature-box">
-                    ${s.firmaProf ? `<img src="${s.firmaProf}" class="signature-display" alt="Firma profesional">` : '<div style="font-size: 0.75rem; color: #ef4444;">Sin firma profesional</div>'}
-                    <div class="signature-name">${s.profesionalNombre || 'Profesional'}</div>
-                    <div class="signature-rel">Firma profesional</div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
-    // --- RENDERIZAR TABLA DE IMPRESIÓN OFICIAL ---
-    const printTbody = document.getElementById('printTableBody');
-    if (printTbody) {
-        if (!p.visitas || p.visitas.length === 0) {
-            printTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No hay visitas registradas para imprimir.</td></tr>';
-        } else {
-            const chronological = [...p.visitas].sort((a, b) => a.num - b.num);
-            printTbody.innerHTML = chronological.map(s => {
-                const firmaImg = (s.firma && s.firma.length > 100)
-                    ? `<img src="${s.firma}" style="max-width: 120px; max-height: 60px; filter: contrast(150%) grayscale(100%);">`
-                    : '<span style="color: #999; font-style: italic;">Sin firma</span>';
-                const firmaProfImg = (s.firmaProf && s.firmaProf.length > 100)
-                    ? `<img src="${s.firmaProf}" style="max-width: 120px; max-height: 60px; filter: contrast(150%) grayscale(100%);">`
-                    : '<span style="color: #999; font-style: italic;">Sin firma</span>';
-
-                return `
-                    <tr>
-                        <td style="text-align: center;">${s.num}</td>
-                        <td>${s.fecha.split('-').reverse().join('/')}</td>
-                        <td>${s.horaI} - ${s.horaT}</td>
-                        <td>${s.tipo}</td>
-                        <td>${s.profesionalNombre || 'No especificado'}</td>
-                        <td>
-                            <strong>${s.firmaNombre || 'Sin nombre'}</strong><br>
-                            <span style="font-size: 0.75rem;">${s.relacion || '-'}</span><br>
-                            <span style="font-size: 0.75rem;">RUT: ${s.firmaRut || 'N/A'}</span>
-                        </td>
-                        <td style="text-align: center;">
-                            ${firmaImg}
-                        </td>
-                        <td style="text-align: center;">
-                            ${firmaProfImg}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-    }
-
-
 async function openEditVisita(visitaId) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.visitas) return;
@@ -3698,11 +3599,6 @@ async function openEditVisita(visitaId) {
     if (!visita) return;
 
     const visitaDb = await loadFullVisitaById(visitaId);
-    if (!visitaDb) {
-        alert('No se pudo cargar la visita completa.');
-        return;
-    }
-
     currentEditingVisitaId = visita.id;
 
     const form = document.getElementById('sessionForm');
@@ -3738,64 +3634,52 @@ async function openEditVisita(visitaId) {
         initSignaturePad();
         initProfessionalSignaturePad();
 
-if (firmaPaciente && signatureCanvas && sigCtx) {
-    const img = new Image();
-    img.onload = () => {
-        sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
-        sigCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
-    };
-    if (firmaPaciente) {
-    img.src = firmaPaciente;
-} else {
-    img.removeAttribute('src');
-}
-    }
+        if (firmaPaciente && signatureCanvas && sigCtx) {
+            const img = new Image();
+            img.onload = () => {
+                sigCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+                sigCtx.drawImage(img, 0, 0, signatureCanvas.width, signatureCanvas.height);
+            };
+            img.src = firmaPaciente;
+        }
 
-    if (firmaProfesional && professionalSignatureCanvas && profSigCtx) {
-        const img2 = new Image();
-        img2.onload = () => {
-            profSigCtx.clearRect(0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
-            profSigCtx.drawImage(img2, 0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
-        };
-        img2.src = firmaProfesional;
-    }
+        if (firmaProfesional && professionalSignatureCanvas && profSigCtx) {
+            const img2 = new Image();
+            img2.onload = () => {
+                profSigCtx.clearRect(0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
+                profSigCtx.drawImage(img2, 0, 0, professionalSignatureCanvas.width, professionalSignatureCanvas.height);
+            };
+            img2.src = firmaProfesional;
+        }
         if (submitBtn) submitBtn.textContent = 'Guardar cambios';
     }, 300);
 }
+
 async function printSingleVisita(visitaId) {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p || !p.visitas) return;
 
-    const visita = p.visitas.find(v => v.num === num);
+    const visita = p.visitas.find(v => v.id === visitaId);
     if (!visita) return;
 
     const visitaDb = await loadFullVisitaById(visita.id);
-    if (!visitaDb) {
-        alert('No se pudo cargar la visita completa para imprimir.');
-        return;
-    }
-
     const s = {
         ...visita,
-        firma: visitaDb.firma || '',
-        firmaProf: visitaDb.firma_profesional_base64 || visita.firmaProf || ''
+        firma: visitaDb?.firma || visita.firma || '',
+        firmaProf: visitaDb?.firma_profesional_base64 || visita.firmaProf || ''
     };
 
-    // 1. Activar contenedor individual
     setActivePrintContainer('printVisitaIndividualContainer');
 
-    // 2. Llenar datos del paciente
     document.getElementById('privNombre').textContent = p.nombre || '---';
     document.getElementById('privRut').textContent = p.rut || '---';
     document.getElementById('privDir').textContent = p.domicilio || '---';
 
-    // 3. Llenar datos de la visita
-    document.getElementById('privNum').textContent = s.num;
+    document.getElementById('privNum').textContent = `${s.num} (${s.tipo})`;
     document.getElementById('privFechaHora').textContent = `${s.fecha.split('-').reverse().join('/')} | ${s.horaI} - ${s.horaT}`;
     document.getElementById('privTipo').textContent = s.tipo;
-    document.getElementById('privProf').textContent = s.profesionalNombre || (s.profesional === 'psicologo' ? 'Psicólogo' : 'Terapeuta Ocupacional');
+    document.getElementById('privProf').textContent = s.profesionalNombre || '---';
 
-    // 4. Llenar contenido clínico
     document.getElementById('privObjetivo').textContent = s.objetivo;
     document.getElementById('privActividades').textContent = s.actividades;
 
@@ -3807,48 +3691,36 @@ async function printSingleVisita(visitaId) {
         obsContainer.style.display = 'none';
     }
 
-    // 5. Llenar firma paciente
     const firmaImg = document.getElementById('privFirmaImg');
     if (firmaImg) {
-        if (s.firma && s.firma.length > 100) {
-            firmaImg.src = s.firma;
-            firmaImg.style.display = 'block';
-        } else {
-            firmaImg.style.display = 'none';
-        }
+        firmaImg.src = s.firma || '';
+        firmaImg.style.display = s.firma ? 'block' : 'none';
     }
-
     document.getElementById('privFirmanteNombre').textContent = s.firmaNombre || '---';
     document.getElementById('privFirmanteRel').textContent = `${s.relacion || '---'} ${s.firmaRut ? '| RUT: ' + s.firmaRut : ''}`;
 
-    // 6. Llenar firma profesional
     const firmaProfImg = document.getElementById('privFirmaProfImg');
     if (firmaProfImg) {
-        if (s.firmaProf && s.firmaProf.length > 100) {
-            firmaProfImg.src = s.firmaProf;
-            firmaProfImg.style.display = 'block';
-        } else {
-            firmaProfImg.style.display = 'none';
-        }
+        firmaProfImg.src = s.firmaProf || '';
+        firmaProfImg.style.display = s.firmaProf ? 'block' : 'none';
     }
+    document.getElementById('privFirmaProfNombre').textContent = s.profesionalNombre || 'Firma Profesional';
 
-    const firmaProfNombre = document.getElementById('privFirmaProfNombre');
-    if (firmaProfNombre) {
-        firmaProfNombre.textContent = s.profesionalNombre || 'Firma Profesional';
-    }
-
-    setTimeout(() => {
-        window.print();
-    }, 250);
+    setTimeout(() => { window.print(); }, 250);
 }
 
 function setActivePrintContainer(id) {
-    document.querySelectorAll('.print-only').forEach(el => el.classList.remove('active-print'));
+    document.querySelectorAll('.print-only, .active-print').forEach(el => {
+        el.style.display = 'none';
+        el.classList.remove('active-print');
+    });
     const target = document.getElementById(id);
-    if (target) target.classList.add('active-print');
+    if (target) {
+        target.style.display = 'block';
+        target.classList.add('active-print');
+    }
 }
 
-// ✅ REEMPLAZAR COMPLETA
 function prepareAndPrint() {
     const p = patients.find(x => x.id === currentPatientId);
     if (!p) return alert("Error: No hay un paciente seleccionado.");
@@ -4473,7 +4345,7 @@ function printCurrentTest() {
         isTest: true
     };
 
-    renderDocToPrintContainer_FIXED(tempDoc, p, config);
+    renderDocToPrintContainer(tempDoc, p, config);
 }
 
 // Impresión de emergencia: captura el HTML visible del formulario
@@ -5455,15 +5327,18 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     let html = '<div style="font-family: Arial, sans-serif; color: #000; width: 100%;">';
 
     // Recorrer cada documento (se imprimirá un reporte por cada test realizado)
-    historial.forEach((doc, index) => {
+  historial.forEach((doc, index) => {
       const fecha = doc.fecha || doc.fecha_guardado || (doc.created_at ? new Date(doc.created_at).toLocaleDateString('es-CL') : 'Sin fecha');
       const titulo = (doc.titulo || doc.nombre_test || 'EVALUACIÓN CLÍNICA').toUpperCase();
       const numVersion = historial.length - index;
-      const raw = doc.raw_data || doc.contenido || doc.datos || doc.respuestas;
+      
+      // Control de salto de página: no se aplica al último elemento
+      const isLast = index === historial.length - 1;
+      const pageBreakCss = isLast ? '' : 'page-break-after: always; break-after: page;';
 
       let detalleHtml = '';
+      const raw = doc.raw_data || doc.contenido || doc.datos || doc.respuestas;
 
-      // Si los datos están guardados como objeto JSON estructurado (Yesavage, Hamilton, etc.)
       if (typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0) {
         detalleHtml = `
           <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:9pt; border: 1px solid #cbd5e1;">
@@ -5484,16 +5359,14 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
             </tr>`;
         });
         detalleHtml += '</tbody></table>';
-      } 
-      // Si los datos están guardados como texto plano
-      else if (typeof doc.contenido === 'string' && doc.contenido.trim().length > 0) {
+      } else if (typeof doc.contenido === 'string' && doc.contenido.trim().length > 0) {
         detalleHtml = `<div style="white-space: pre-wrap; font-size:9.5pt; line-height:1.5; color:#1e293b; padding:10px; background:#fafafa; border:1px solid #e2e8f0; border-radius:6px;">${doc.contenido}</div>`;
       } else {
         detalleHtml = '<p style="color:#64748b; font-style:italic;">Sin contenido registrado.</p>';
       }
 
       html += `
-        <div style="page-break-after: always; break-after: page; padding: 15px 0; margin-bottom: 20px;">
+        <div style="${pageBreakCss} padding: 10px 0; margin-bottom: 10px;">
           <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; margin-bottom: 12px; text-align: center;">
             <h2 style="margin:0; color:#1e3a8a; text-transform:uppercase; font-size:13pt;">${titulo}</h2>
             <p style="margin:4px 0 0 0; font-size:9pt; color:#333;">
@@ -5505,7 +5378,7 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
           ${detalleHtml}
         </div>`;
     });
-
+      
     html += '</div>';
     container.innerHTML = html;
 
