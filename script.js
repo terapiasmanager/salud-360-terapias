@@ -5284,6 +5284,7 @@ async function subirImagenStorage(archivo) {
 
   const { data } = supabase.storage.from('archivos').getPublicUrl(nombreArchivo);
   return data.publicUrl;
+  }
 
 async function cargarTablaEntregas() {
   const tbody = document.getElementById('tablaEntregasBody');
