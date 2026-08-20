@@ -914,8 +914,26 @@ async function syncFirmaProfesionalVisitaDocumento(visita, patientId, firmaProfB
     }, patientId);
 }
 
+function generateUUID() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 function normalizeDocumentoForSupabase(doc, patientId) {
-    const payload = {
+    // Si el documento no tiene un UUID válido de Supabase, generamos uno nativo en JS
+    let realId = doc.id;
+    if (!realId || String(realId).startsWith('doc-') || String(realId).length < 20) {
+        realId = generateUUID();
+    }
+
+    return {
+        id: realId,
         paciente_id: patientId,
         test_id: doc.testId || null,
         titulo: doc.titulo || '',
@@ -933,37 +951,17 @@ function normalizeDocumentoForSupabase(doc, patientId) {
         firma_relacion: doc.firmaRelacion || null,
         updated_at: new Date().toISOString()
     };
-
-    // Solo se adjunta el ID si es un UUID oficial de Supabase (no un texto temporal 'doc-...')
-    if (doc.id && !String(doc.id).startsWith('doc-')) {
-        payload.id = doc.id;
-    }
-
-    return payload;
 }
 
 async function syncDocumentoToSupabase(doc, patientId) {
     const payload = normalizeDocumentoForSupabase(doc, patientId);
-    let response;
 
-    if (payload.id) {
-        // Documento existente en Supabase -> Actualizar
-        response = await db
-            .from('documentos')
-            .update(payload)
-            .eq('id', payload.id)
-            .select()
-            .single();
-    } else {
-        // Documento nuevo -> Insertar sin ID para que Supabase le asigne su UUID definitivo
-        response = await db
-            .from('documentos')
-            .insert([payload])
-            .select()
-            .single();
-    }
-
-    const { data, error } = response;
+    // Al llevar siempre un UUID válido, upsert inserta el nuevo registro o actualiza el existente
+    const { data, error } = await db
+        .from('documentos')
+        .upsert(payload, { onConflict: 'id' })
+        .select()
+        .single();
 
     if (error) {
         console.error('Error sincronizando formulario/encuesta en Supabase:', error);
@@ -973,6 +971,7 @@ async function syncDocumentoToSupabase(doc, patientId) {
 
     return mapDocumentoFromSupabase(data);
 }
+
 async function deleteDocumentoFromSupabase(docId) {
     const { error } = await db.from('documentos').delete().eq('id', docId);
     if (error) {
