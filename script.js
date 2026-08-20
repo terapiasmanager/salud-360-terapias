@@ -3688,7 +3688,7 @@ function renderVisitas() {
             }).join('');
         }
     }
-}
+
 
 async function openEditVisita(visitaId) {
     const p = patients.find(x => x.id === currentPatientId);
