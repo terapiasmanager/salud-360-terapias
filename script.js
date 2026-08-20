@@ -4991,6 +4991,7 @@ function renderEvalPsicologicaPrint(doc, p, config) {
 }
 
 function renderDocToPrintContainer(doc, paciente, config) {
+    const p = paciente || patients.find(x => x.id === currentPatientId);
     const container = document.getElementById('prTestContent');
     const signatureArea = document.getElementById('dynamicSignatureArea');
     const data = doc.rawData || {};
@@ -5520,5 +5521,12 @@ window.imprimirHistorialCompletoEvaluaciones = async function() {
     alert("Error al preparar el historial para impresión: " + err.message);
   }
 };
-
+// Parche rápido para definir "p" en la impresión
+const originalRenderDoc = window.renderDocToPrintContainer;
+if (typeof originalRenderDoc === 'function') {
+    window.renderDocToPrintContainer = function(doc, paciente, config) {
+        window.p = paciente || (Array.isArray(patients) ? patients.find(x => x.id === currentPatientId) : null);
+        return originalRenderDoc(doc, paciente, config);
+    };
+}
 
